@@ -1,15 +1,15 @@
 #include <iostream>
 using namespace std;
+#define ErrorFlag -1
 
 class Node {
     public:
         int data;
         Node *next;
-
-        Node(int da = 0, Node *p = NULL) {
-            this->data = da;
-            this->next = p;
-        }
+    Node(int da = 0, Node* p = NULL) {
+        this->data = da;
+        this->next = p;
+    }
 };
 
 class List {
@@ -17,92 +17,20 @@ class List {
         Node *head, *tail;
         int position;
     public:
-        List() { head = tail = NULL; };
-        ~List() { 
+        List () { head = tail = NULL; };
+        ~List() {
             delete head;
             delete tail;
         };
-        
+        void insert(int da);
+        int search(int da);
+        void del(int da);
+        void reverse();
         void print();
-        void Insert(int da = 0);
-        void Delete(int da = 0);
-        void Search(int da = 0);
-        int getValueAt(int position);
-        void setValueAt(int position, int da);
+
 };
 
-int List::getValueAt(int position)
-{
-    Node *p = head;
-    if (p == NULL) {
-        cout << "The List is Empty!" << endl;
-    } else {
-        int posi = 0;
-        while (p != NULL && posi != position) {
-            posi++;
-            p = p->next;
-        }
-        if (p == NULL) {
-            cout << "There is no value of this position in this list !" << endl;
-        } else {
-            cout << "In this position , the value is " << p->data << endl;
-        }
-    }
-    return p->data;
-}
-
-void List::setValueAt(int position, int da)
-{
-    Node *p = head;
-    if (p == NULL) {
-        cout << "The List is Empty!" << endl;
-    } else {
-        int posi = 0;
-        while(p != NULL && posi != position) {
-            posi++;
-            p = p->next;
-        }
-        if (p == NULL) {
-            cout << "There is No Position in this List !" << endl;
-        } else {
-            p->data = da;
-            cout << "The Value in this position has been Updated!" <<  endl;
-        }
-    }
-}
-
-void List::Search(int da)
-{
-    Node *p = head;
-    if (p == NULL) {
-        cout << "Sorry , The List is Empty!" << endl;
-        return;
-    }
-    int count = 0;
-    while (p != NULL && p->data != da) {
-        p = p->next;
-        count++;
-    }
-
-    cout << "the value you want to search is at position %d " << count << endl;
-}
-
-void List::Delete(int da) 
-{
-    Node *p = head, *q = head;
-    if (p == NULL) {
-        cout << "Sorry, The List is Empty!" << endl;
-        return;
-    }
-    while(p != NULL && p->data != da) {
-        q = p;
-        p = p->next;
-    }
-    q->next = p->next;
-    cout << "The Deletion Operation had been finished!" << endl;
-}
-
-void List::Insert(int da)
+void List::insert(int da)
 {
     if (head == NULL) {
         head = tail = new Node(da);
@@ -114,6 +42,64 @@ void List::Insert(int da)
         tail = p;
         tail->next = NULL;
     }
+    cout << da << ": 数据插入成功" << endl;
+}
+
+int List::search(int da)
+{
+    Node *h = head;
+    if (h == NULL) {
+        cout << "头节点不能为空";
+        return ErrorFlag;
+    }
+
+    int couter = 0;
+    while (h != NULL && h->data != da) {
+        h = h->next;
+        couter++;
+    }
+
+    return couter;
+}
+
+void List::del(int da)
+{
+    Node *p = head, *q = head;
+    if (p == NULL) {
+        cout << "头节点不能为空" << endl;
+        return;
+    }
+
+    while(p != NULL && p->data != da) {
+        q = p;
+        p = p->next;
+    }
+    q->next = p->next;
+    cout << da << ": 删除成功 " << endl;
+}
+
+void List::reverse() 
+{
+    // 反转指针
+    Node *pNode = head; // 当前节点
+    Node *pPrev = NULL; // 当前节点的上一个节点
+    Node *pNext = NULL; // 当前节点的下一个节点
+    Node *preReverseHead = NULL;    // 新链表的头指针
+
+
+    while(pNode != NULL) {
+        pNext = pNode->next;    // 建立链接
+        if (pNext == NULL) {    // 判断pNode 是否是最后一个节点
+            preReverseHead = pNode;
+        }
+        pNode->next = pPrev;   // 指针反转
+        pPrev = pNode;
+        pNode = pNext;
+    }
+
+    tail = head;
+    head = preReverseHead;
+    cout << "reverse success" << endl;
 }
 
 void List::print()
@@ -126,24 +112,24 @@ void List::print()
     cout << endl;
 }
 
-int main()
+
+int main ()
 {
-    cout << "Hello World " << endl;
-    List l1;
-    l1.Insert(1);
-    l1.Insert(2);
-    l1.Insert(3);
-    l1.Insert(4);
-    l1.Insert(5);
-    l1.Insert(6);
-    l1.Insert(7);
-    l1.print();
-    l1.Search(4);
-    l1.Delete(6);
-    l1.print();
-    l1.getValueAt(3);
-    l1.setValueAt(3, 9);
-    l1.print();
-    cout << "The End!" << endl;
+    int pos;
+    List l;
+    l.insert(1);
+    l.insert(2);
+    l.insert(3);
+    l.insert(4);
+    l.insert(5);
+    pos = l.search(5);
+    cout << "search: 5, pos: " <<  (pos == ErrorFlag ? ErrorFlag : pos ) << endl;
+    l.print();
+    l.del(5);
+    l.del(3);
+    l.reverse();
+    l.insert(6);
+    l.insert(7);
+    l.print();
     return 0;
 }
