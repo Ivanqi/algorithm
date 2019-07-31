@@ -129,11 +129,13 @@ void AVLTree<T>::destroy(AVLTreeNode<T>* tree)
     delete tree;
 }
 
+template<class T>
 void AVLTree<T>::preOrder()
 {
     preOrder(mRoot);
 }
 
+template<class T>
 void AVLTree<T>::preOrder(AVLTreeNode<T>* tree) const
 {
     if (tree != NULL) {
@@ -143,11 +145,13 @@ void AVLTree<T>::preOrder(AVLTreeNode<T>* tree) const
     }
 }
 
+template<class T>
 void AVLTree<T>::inOrder()
 {
     inOrder(mRoot);
 }
 
+template<class T>
 void AVLTree<T>::inOrder(AVLTreeNode<T>* tree) const
 {
     if (tree != NULL) {
@@ -157,11 +161,13 @@ void AVLTree<T>::inOrder(AVLTreeNode<T>* tree) const
     }
 }
 
+template<class T>
 void AVLTree<T>::inOrder()
 {
     inOrder(mRoot);
 }
 
+template<class T>
 void AVLTree<T>::inOrder(AVLTreeNode<T>* tree) const
 {
     if (tree != NULL) {
@@ -204,6 +210,7 @@ T AVLTree<T>::minimum()
     return (T)NULL;
 }
 
+template<class T>
 AVLTreeNode<T>* AVLTree<T>::minimum(AVLTreeNode<T>* tree)
 {
     if (tree == NULL) {
@@ -227,6 +234,7 @@ T AVLTree<T>::maxmun()
     return (T)NULL;
 }
 
+template<class T>
 AVLTreeNode<T>* AVLTree<T>::maxmun(AVLTreeNode<T>* tree)
 {
     if (tree == NULL) {
@@ -354,7 +362,7 @@ AVLTreeNode<T>* AVLTree<T>::iterativeSearch(T key)
 }
 
 template<class T>
-AVLTreeNode<T>* VLTree<T>::iterativeSearch(AVLTreeNode<T>* x, T key) const
+AVLTreeNode<T>* AVLTree<T>::iterativeSearch(AVLTreeNode<T>* x, T key) const
 {
     AVLTreeNode<T>* target;
     while ((tree != NULL && x != key) {
