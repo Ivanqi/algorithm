@@ -112,6 +112,7 @@ void List::delkey(int key)
     }
     q->next = p->next;
     number--;
+    delete p;
 }
 
 Node* List::search(int key) 
