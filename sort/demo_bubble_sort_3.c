@@ -15,29 +15,27 @@ struct ListNode* insert(struct ListNode *node, int val) {
     return node;
 }
 
-// 交换节点法
 struct ListNode* bubbleSort(struct ListNode* head) {
-    if (head == NULL) return head;
-    struct ListNode *p; 
-    struct ListNode *q;
-    struct ListNode *tail;
+    struct ListNode* tail = NULL;
+    head = insert(head, -999999);
 
-    while ((head->next->next) != tail) {
-        p = head;
-        q = head->next;
-        while (q->next != tail) {
-            if ((q->val) > (q->next->val)) {
-                p->next = q->next;
-                q->next = q->next->next;
-                p->next->next = q;
-                q = p->next;
+    while(tail != head->next) {
+        struct ListNode* pre = head;
+        struct ListNode* cur = pre->next;
+        while(cur != tail && cur->next != tail) {
+            if( cur->val > cur->next->val ) {   
+                //交换当前节点和后一个节点
+                pre->next = cur->next;
+                cur->next = cur->next->next;
+                pre->next->next = cur;
             }
-            q = q->next;
-            p = p->next;
+            pre = pre->next;
+            cur = pre->next;
         }
-        tail = q;
+ 
+        tail = cur;
     }
-    return head;
+    return head->next;
 }
 
 void print(struct ListNode *node){
@@ -78,6 +76,6 @@ void test_case_2() {
 }
 
 int main() {
-    test_case_1();
+    test_case_2();
     return 0;
 }
