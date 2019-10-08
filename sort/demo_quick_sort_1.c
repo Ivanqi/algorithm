@@ -92,7 +92,7 @@ int main() {
     }
 
     mergeSort(A, n, 0, n);
-    mergeSort(B, n, 0, n - 1);
+    quickSort(B, n, 0, n - 1);
 
     for (i = 0; i < n; i++) {
         // 比较归并排序与快速排序的结果
