@@ -9,7 +9,7 @@
 void dump(int arr[], int size) {
     int idx;
 
-    for (idx = 0; idx < size; idx++) {
+    for (idx = 0; idx < size - 1; idx++) {
         printf("%d\n", arr[idx]);
     }
 }
@@ -52,10 +52,16 @@ void __merge_sentry(int a[], int middle, int left, int right) {
 
 void __merge_sort(int arr[], int left, int right) {
 
+    int middle = 0;
+
+	if(left >= right) {
+		return;
+	}
+
     if (left + 1 < right) {
-        int middle = (left + right) / 2;
+        middle = (left + right) / 2;
         __merge_sort(arr, left, middle);
-        __merge_sort(arr, middle, right);
+        __merge_sort(arr, middle + 1, right);
         __merge_sentry(arr, middle, left, right);
     }
 }
