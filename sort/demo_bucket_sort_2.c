@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <assert.h>
 
 struct barrel {   
     int node[10];   
@@ -19,48 +17,40 @@ void dump(int a[], int size) {
     printf("\n");
 }
 
-int partition(int a[], int left, int right) {
-    int i = left;
-    int j = right;
-    int key = a[left];
+void swap (int *a , int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
-    while (i < j) {
-        while ((i < j) && (a[j] > key)) {
-            j--;
-        }
+int parition(int *arr, int p, int r) {
+    int i, j;
+    i = j = p;
 
-        if (i < j) {
-            a[i] = a[j];
-        }
-
-        while ((i < j) && a[i] <= key) {
+    for (; j < r; j++) {
+        if (arr[j] < arr[r]) {
+            if (i != j) {
+                swap(arr + i, arr + j);
+            }
             i++;
         }
-
-        if (i < j) {
-            a[j] = a[i];
-        }
     }
-    a[i] = key;
+    swap(arr + i, arr + j);
     return i;
 }
 
-void quick_sort(int a[], int left, int right) {
-    int q = 0;
-    // 递归终止条件
-    if (left >= right) {
-        return;
-    }
+void quickSort(int *arr, int left, int right) {
+    if (left >= right) return ;
 
-    q = partition(a, left, right);
-    quick_sort(a, left, (q - 1));
-    quick_sort(a, (q + 1), right);
+    int q = 0;
+    q = parition(arr, left, right);
+    quickSort(arr, left, q - 1);
+    quickSort(arr, q + 1, right);
 }
 
 void bucket_sort(int data[], int size) {
-    int max, min, num, pos;
-    int i, j, k;
     struct barrel *pBarrel;
+    int max, min, num, i, j, pos, k;
 
     max = min = data[0];
     for (i = 1; i < size; i++) {
@@ -72,6 +62,7 @@ void bucket_sort(int data[], int size) {
     }
 
     num = (max - min + 1) / 10 + 1;
+
     pBarrel = (struct barrel *)malloc(sizeof(struct barrel) * num);
     memset(pBarrel, 0, sizeof(struct barrel) * num);
 
@@ -84,12 +75,12 @@ void bucket_sort(int data[], int size) {
     pos = 0;
     for (i = 0; i < num; i++) {
         if ((pBarrel + i)->count != 0) {
-            quick_sort((pBarrel + i)->node, 0, ((pBarrel + i)->count) - 1);
+            quickSort((pBarrel + i)->node, 0, ((pBarrel + i)->count) - 1);
+        }
 
-            for (j = 0; j < (pBarrel + i)->count; j++) {
-               data[pos++] = (pBarrel + i)->node[j];
-            }
-        } 
+        for (j = 0; j < (pBarrel + i)->count; j++) {
+            data[pos++] = (pBarrel + i)->node[j];
+        }
     }
     free(pBarrel);
 }
