@@ -18,7 +18,7 @@ int partition(int *arr, int p, int r) {
     int i, j;
     i = j = p;
     for (; j < r; j++) {
-        if (arr[j] > arr[r]) {
+        if (arr[j] >= arr[r]) {
             if (i != j) {
                 swap(arr + i, arr + j);
             }
