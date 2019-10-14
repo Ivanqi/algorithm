@@ -14,7 +14,7 @@ void dump(int *arr, int size) {
  * 计数排序，时间复杂度O(n),非原地排序
  * 计数排序也是利用桶排序的解决方式
  * 如果数组最大值max比数组大小size大很多不适合
- * 计数排序要求非负正式
+ * 计数排序要求非负整数
  */
 void count_sort(int a[], int size) {
     int i = 0;
