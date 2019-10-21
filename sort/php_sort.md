@@ -162,7 +162,19 @@
         }
     }
     ```
-    - 这里的排序算法，在数组长度小于等于16的时候，会使用插入排序
+    - 这里的排序算法，在元素长度小于等于16的时候，会使用插入排序
+    - 元素算法大于16的时候，使用快速排序
+    - pivot 的构成
+        ```
+        char *start = (char *)base;
+        char *end = start + (nmemb * siz);
+        size_t offset = (nmemb >> Z_L(1));
+        char *pivot = start + (offset * siz);
+        ...
+        swp(start + siz, pivot);
+        pivot = start + siz;
+        ```
+        - 这里貌似是三数取中法的变种。现在还不能很好解答
 - 插入排序
     ```
     ZEND_API void zend_insert_sort(void *base, size_t nmemb, size_t siz, compare_func_t cmp, swap_func_t swp) /* {{{ */{
