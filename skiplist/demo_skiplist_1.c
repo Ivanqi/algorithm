@@ -23,9 +23,9 @@ void node_init(struct node *node) {
 }
 
 void skip_list_init(struct skip_list* sl) {
-    node_init(sl->head);
+    node_init(&sl->head);
     sl->max_level = 0;
-    sl->max_level_node = 0;
+    sl->max_level_nodes = 0;
 }
 
 void random_init() {
@@ -55,6 +55,7 @@ void random_level_test() {
 
 void insert(struct skip_list *sl, int val) {
     int level = random_level();
+    printf("insert level: %d, val: %d\n", level, val);
     struct node *update[MAX_LEVEL];
     struct node *new, *p;
     int i;
@@ -66,8 +67,8 @@ void insert(struct skip_list *sl, int val) {
     new->max_level = level;
     new->val = val;
 
-    for (int i = 0; i < MAX_LEVEL; i++) {
-        while (p->forward[i] && p->forward[d]->val < val) {
+    for (i = 0; i < MAX_LEVEL; i++) {
+        while (p->forward[i] && p->forward[i]->val < val) {
             p = p->forward[i];
         }
         update[i] = p;
