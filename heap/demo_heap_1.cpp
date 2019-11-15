@@ -1,5 +1,5 @@
 #include <iostream>
-#include <assert>
+#include <assert.h>
 #include <vector>
 using namespace std;
 
@@ -22,6 +22,8 @@ struct Greater {
 template<class T, class Compare=Less<T>>
 class Heap 
 {
+    private:
+        vector<T> _a;
     public:
         Heap() 
         {
@@ -35,27 +37,27 @@ class Heap
             }
 
             // 建堆，找最后一个非叶子结点
-            for (int i = ((_a.size() - 1) / 2; i >= 0; --i) {   // 不用size_t, 因为i在这可能等于0，用size_t会死循环
+            for (int i = (_a.size() - 2) / 2; i >= 0; --i) {   // 不用size_t, 因为i在这可能等于0，用size_t会死循环
                 adjustDown(i);
             }
         }
 
         // 向下调整
-        void adjustDown(int root)
+        void adjustDown(int i)
         {
             Compare com;
-            int parent = root;
-            size_t child = parent * 2;  // 左孩子
+            int parent = i;
+            size_t child = parent * 2 + 1;              // 左孩子
             while (child < _a.size()) {
                 // 选出小孩子
                 if (child + 1 < _a.size() && com(_a[child + 1], _a[child])) {
                     ++child;
                 }
 
-                if (com(_a[child], _a[parent]) {
-                    swap(_a[child], _a[parent]);    // 交换值
+                if (com(_a[child], _a[parent])) {
+                    swap(_a[child], _a[parent]);       // 交换值
                     parent = child;
-                    child = parent * 2;
+                    child = parent * 2 + 1;
                 } else {
                     break;
                 }
@@ -66,12 +68,12 @@ class Heap
         void adjustUp(int child) 
         {
             Compare com;
-            int parent = child / 2;
+            int parent = (child - 1) / 2;
             while (parent >= 0) {
-                if (com(_a[child], _a[parent]) {
+                if (com(_a[child], _a[parent])) {
                     swap(_a[parent], _a[child]);
                     child = parent;
-                    parent = child / 2;
+                    parent = (child - 1) / 2;
                 } else {
                     break;
                 }
@@ -110,16 +112,48 @@ class Heap
         {
             return _a.empty();
         }
-    private:
-        vector<T> _a;
+
+        void print(const char* prnit_name)
+        {
+            int i;
+            cout << prnit_name << ": ";
+            for (i = 0; i < _a.size(); i++) {
+                cout << _a[i] << " ";
+            }
+            cout << endl;
+        }
 };
 
-int main () {
-    
+void test_maximum_heap() {
+    int a[] = {10, 11, 13, 12, 16, 18, 15, 17, 14, 19};
+    Heap<int,Greater<int>> hp1(a,sizeof(a)/sizeof(a[0]));
+    hp1.push(15);
+    hp1.print("最大堆1");
+    hp1.pop();
+    hp1.print("最大堆2");
+
+}
+
+void test_minimum_heap() {
     int a[] = {10,11,13,12,16,18,15,17,14,19};
-     // Heap<int,Greater<int>> hp1(a,sizeof(a)/sizeof(a[0])); 最大堆
-    // Heap<int,Less<int>> hp1(a,sizeof(a)/sizeof(a[0])); 最小堆
-    Heap<int> hp1(a,sizeof(a)/sizeof(a[0])); // 缺省，最小堆
-    hp1.Push(15);
+    Heap<int,Less<int>> hp1(a,sizeof(a)/sizeof(a[0]));
+    hp1.push(55);
+    hp1.print("最小堆");
+}
+
+void test_minimum_heap_default() {
+    int a[] = {10,11,13,12,16,18,15,17,14,19};
+    Heap<int> hp1(a,sizeof(a)/sizeof(a[0]));
+    hp1.push(88);
+    hp1.print("缺省，最小堆");
+}
+
+int main () {
+    test_maximum_heap();
+    printf("\n");
+    test_minimum_heap();
+    printf("\n");
+    test_minimum_heap_default();
     return 0;
+    
 }

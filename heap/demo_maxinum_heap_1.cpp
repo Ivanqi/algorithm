@@ -6,8 +6,8 @@ int H, A[MAX + 1];
 
 void maxHeadpify(int i) {
     int l, r, largest;
-    l = 2 * i;
-    r = 2 * i + 1;
+    l = 2 * i + 1;
+    r = 2 * i + 2;
 
     // 从左子节点，自身，右子节点选出值最大的节点
     if (l <= H && A[l] > A[i]) largest = l;
@@ -29,11 +29,11 @@ int main() {
 
     cin >> H;
 
-    for (int i = 1; i <= H; i++) cin >> A[i];
+    for (int i = 0; i < H; i++) cin >> A[i];
 
-    for (int i = H / 2; i >= 1; i--) maxHeadpify(i);
+    for (int i = (H - 2) / 2; i >= 0; i--) maxHeadpify(i);
 
-    for (int i = 1; i <= H; i++) {
+    for (int i = 0; i < H; i++) {
         cout << " " << A[i];
     }
     cout << endl;
