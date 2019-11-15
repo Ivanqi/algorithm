@@ -100,14 +100,14 @@ int skiplist_insert(skiplist* list, int key, int value) {
     }
 
     // 申请update空间用于保存每层的指针
-    update = (node **)malloc(sizeof(node *) *list->head->max_level);
+    update = (node **)malloc(sizeof(node *) * list->head->max_level);
     if (update == NULL) return 2;
 
     // 逐层查询节点
     prev = list->head;
     for (i = (list->level - 1); i >= 0; i--) {
         // 初始化每level层头指针
-        while ((tmp = prev->next[i] != NULL) && (tmp->key < key)) {
+        while (((tmp = prev->next[i]) != NULL) && (tmp->key < key)) {
             prev = tmp;
         }
         update[i] = prev;
@@ -128,7 +128,7 @@ int skiplist_insert(skiplist* list, int key, int value) {
         for (i = list->level;i < level; i++) {
             update[i] = list->head;
         }
-        list->head = level;
+        list->level = level;
     }
 
     // 逐层更新节点的指针
@@ -153,20 +153,20 @@ int skiplist_delete(skiplist* list, int key, int *value) {
     if (update == NULL) return 2;
 
     prev = list->head;
-    for (i = (list->head - 1); i >= 0; i--) {
+    for (i = (list->level - 1); i >= 0; i--) {
         // 初始化每level层的头指针
-        while ((tmp = prev->next[i] != NULL) && (tmp->key < key)) {
+        while (((tmp = prev->next[i]) != NULL) && (tmp->key < key)) {
             prev = tmp;
         }
         update[i] = prev;
     }
 
     if ((tmp != NULL) && (tmp->key == key)) {
-        value = tmp->value;
+        *value = tmp->value;
         // 逐层删除
         for (i = 0; i < list->level; i++) {
             if (update[i]->next[i] == tmp) {
-                update[i]->next[i] = tmp->next[i]
+                update[i]->next[i] = tmp->next[i];
             }
         }
 
@@ -207,4 +207,62 @@ int skiplist_search(skiplist* list, int key, int *value) {
         }
     }
     return -1;
+}
+
+void skiplist_dump(skiplist* list) {
+    int i = 0;
+    node *ptmp = NULL;
+
+    printf("\n -------------- ");
+    printf("\n skip list level[%d],count[%d]",list->level,list->count);
+
+    for (i = list->level - 1; i >= 0; i--) {
+        ptmp = list->head->next[i];
+        printf("\n level[%d]: ", i);
+
+        while (ptmp) {
+            printf("%d-%d ", ptmp->key, ptmp->value);
+            ptmp = ptmp->next[i];
+        }
+    }
+
+    printf("\n -------------- ");
+    return ;
+}
+
+int main() {
+    int res = 0;
+    int key = 0;
+    int value = 0;
+
+    skiplist *list = NULL;
+
+    list = skiplist_create(5);
+    assert(list != NULL);
+
+    printf("\n ---- insert ----- \n");
+    int i;
+    for (i = 1; i <= 20; i++) {
+        skiplist_insert(list, i, i);
+    }
+
+    skiplist_dump(list);
+    
+    printf("\n ---- search ----- \n");
+    res = skiplist_search(list,11,&value);
+    printf("\nres: val: %d\n", value);
+
+    res = skiplist_search(list,14,&value);
+    printf("\nres: val: %d\n", value);
+
+    res = skiplist_search(list, 15, &value);
+    printf("\nres: val: %d\n", value);
+
+    printf("\n ---- delete ----- \n");
+    
+    res = skiplist_delete(list, 14, &value);
+    printf("\ndelete: val: %d\n", value);
+    skiplist_dump(list);
+
+    skiplist_destory(list);
 }
