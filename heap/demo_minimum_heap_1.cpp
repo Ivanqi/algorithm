@@ -230,14 +230,14 @@ class MinHeap:public PQueue<T>
                 if (heap[i] <= temp) {
                     break;
                 } else {
-                    // 父节点饿值大，则调整
+                    // 父节点的值大，则调整
                     heap[j] = heap[i];
                     j = i;
                     i = (i - 1) / 2;
                 }
             }
             heap[j] = temp;
-         }
+        }
 };
 
 int main() {
