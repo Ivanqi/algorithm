@@ -244,13 +244,13 @@ int main() {
     }
 
 
-    if (skiplist_search(list, 14) == 0) {
+    if (skiplist_delete(list, 14) == 0) {
         printf("删除：14 成功\n");
     } else {
         printf("删除：14 失败\n");
     }
 
-    if (skiplist_search(list, 22) == 0) {
+    if (skiplist_delete(list, 22) == 0) {
         printf("删除：22 成功\n");
     } else {
         printf("删除：22 失败\n");
