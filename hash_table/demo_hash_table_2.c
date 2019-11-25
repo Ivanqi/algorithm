@@ -2,17 +2,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <tim.h>
+#include <time.h>
 
 #define HASH_SHIFT 4
 #define HASH_SIZE (1 << HASH_SHIFT)
 #define HASH_MASK (HASH_SIZE - 1)
 
 
-struct hash_table (
+struct hash_table {
     unsigned int used;
     unsigned long entry[HASH_SIZE];
-);
+};
 
 void hash_table_reset(struct hash_table *table) {
     int i;
@@ -25,6 +25,22 @@ void hash_table_reset(struct hash_table *table) {
 
 unsigned int hash_function(unsigned long value) {
     return value & HASH_MASK;
+}
+
+// 10进制转2进制
+void changeTo(int n)
+{
+    // 计算数的位数
+    int len = sizeof(n) * 8;
+    int temp;
+    int t;
+    for (int i = 0; i < len; i++) {
+        temp = n;
+        temp = temp >> (len - 1 - i);
+        t = temp & 1;
+        printf("%d", t);
+    }
+    printf("\n");
 }
 
 void dump_hash_table(struct hash_table *table) {
@@ -41,11 +57,11 @@ void dump_hash_table(struct hash_table *table) {
 
 void hash_function_test() {
     int i;
-
     srandom(time(NULL));
-
+    printf("HASH_MASK: %d\n", HASH_MASK);
     for (i = 0; i < 10; i++) {
         unsigned long val = random();
+        changeTo(val);
         printf("%10lu -> %2u\n", val, hash_function(val));
     }
 }
@@ -57,17 +73,18 @@ unsigned int next_probe(unsigned int prev_key) {
 void next_probe_test() {
     int i;
     unsigned int key1, key2;
-
+    printf("HASH_SIZE: %d \n", HASH_SIZE);
+    printf("HASH_MASK: %d \n", HASH_MASK);
     key1 = 0;
     for (i = 0; i < HASH_SIZE; i++) {
         key2 = next_probe(key1);
         printf("%2u -> %2u", key1, key2);
-        key1 = key2
+        key1 = key2;
     }
 }
 
 
-void hash_table_add(struct hash_table *table, unsigned logn value) {
+void hash_table_add(struct hash_table *table, unsigned long value) {
     unsigned int key = hash_function(value);
     
     if (table->used >= HASH_SIZE) return;
@@ -99,7 +116,6 @@ bool hash_table_find(struct hash_table *table, unsigned long value) {
 
 void hash_table_del(struct hash_table *table, unsigned long value) {
     unsigned int i, j, k;
-
     if (!hash_table_find(table, value)) return ;
 
     i = j = hash_table_slot(table, value);
@@ -108,7 +124,7 @@ void hash_table_del(struct hash_table *table, unsigned long value) {
         table->entry[i] = ~0;
         do {
             j = next_probe(j);
-            if (table->entryp[j] == ~0) return ;
+            if (table->entry[j] == ~0) return ;
             k = hash_function(table->entry[j]);
         } while ((i <= j) ? (i < k && k <= j) : (i < k || k <= j));
 
@@ -125,7 +141,7 @@ void hash_table_add_test() {
     hash_table_reset(&table);
     hash_table_add(&table, 87645);
 
-    printf("Table has%s 87645\n", hash_table_find(&table, 87645) ? "": "n't"));
+    printf("Table has%s 87645\n", hash_table_find(&table, 87645) ? "": "n't");
     printf("Table has%s 87647\n", hash_table_find(&table, 87647) ? "": "n't");
 }
 
@@ -160,9 +176,9 @@ void hash_table_del_test2() {
 
 int main()
 {
-	//hash_function_test();
-	//next_probe_test();
-	//hash_table_add_test();
+	// hash_function_test();
+	// next_probe_test();
+	// hash_table_add_test();
 	hash_table_del_test2();
 
 	return 0;
