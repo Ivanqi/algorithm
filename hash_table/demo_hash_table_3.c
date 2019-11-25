@@ -216,7 +216,7 @@ int main() {
     while (1) {
         p = (struct test_node*)malloc(sizeof(struct test_node));
         assert(p != NULL);
-        printf("\r\n 请输入key 和value，当可以等于\"quit\"时退出");
+        printf("\r\n 请输入key 和value，当可以等于\"quit\"时退出\n");
         scanf("%s", p->key);
         scanf("%s", p->data);
 
@@ -240,7 +240,7 @@ int main() {
         p = (struct test_node*)malloc(sizeof(struct test_node));
         assert(p != NULL);
 
-        printf("\r\n 请输入key 查询value的数值，当可以等于\"quit\"时退出");
+        printf("\r\n 请输入key 查询value的数值，当可以等于\"quit\"时退出\n");
         scanf("%s", p->key);
 
         if (strcmp(p->key, "quit") == 0) {
@@ -262,7 +262,7 @@ int main() {
     while (1) {
         p = (struct test_node*)malloc(sizeof(struct test_node));
         assert(p != NULL);
-        printf("\r\n 请输入key 删除节点的数值，当可以等于\"quit\"时退出");
+        printf("\r\n 请输入key 删除节点的数值，当可以等于\"quit\"时退出\n");
         scanf("%s",p->key);
 
         if(strcmp(p->key,"quit") == 0) {
