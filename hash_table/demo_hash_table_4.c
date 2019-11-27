@@ -27,7 +27,7 @@ int hash_lookup(HashTable *ht, char *key, void **result) {
     while (bucket) {
         if (strcmp(bucket->key, key) == 0) {
             LOG_MSG("[lookup]\t found %s\tindex:%i value: %p\n", key, index, bucket->value);
-            *result = bucket->key;
+            *result = bucket->value;
             return SUCCESS;
         }
         bucket = bucket->next;
