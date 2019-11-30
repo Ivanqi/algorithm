@@ -5,7 +5,7 @@
 #include "demo_dlist_1.h"
 #include "demo_linked_hash_map_1.h"
 
-LinkedHashMap *LinkHashMap_Create(int size, int nel_max, hash_value_func hash_value, keycmp_func keycmp, hash_node_free_func hash_node_free) {
+LinkedHashMap *LinkedHashMap_Create(int size, int nel_max, hash_value_func hash_value, keycmp_func keycmp, hash_node_free_func hash_node_free) {
     int i = 0;
     LinkedHashMap *h = NULL;
 
@@ -227,83 +227,83 @@ void hashtab_node_free(LinkedHashMapNode *node,int flg) {
 int main ()
 {
 	
-	// int i = 0;
-	// int res = 0;
-	// char *pres = NULL;
-	// LinkedHashMapNode * node = NULL;
-	// struct test_node *p = NULL;
-    // LinkedHashMap *h = NULL;
+	int i = 0;
+	int res = 0;
+	char *pres = NULL;
+	LinkedHashMapNode * node = NULL;
+	struct test_node *p = NULL;
+    LinkedHashMap *h = NULL;
 	// setenv("MALLOC_TRACE","1.txt",1);
     // mtrace();
 
-	// h = LinkedHashMap_Create(3, 6, hashtab_hvalue, hashtab_keycmp, hashtab_node_free);
-    // assert(h!= NULL);
-	// while(1) {
-	// 	p = (struct test_node*)malloc(sizeof(struct test_node));
-	// 	assert(p != NULL);
-	// 	printf("\r\n 请输入key 和value，当可以等于\"quit\"时退出");
-    //     scanf("%s",p->key);
-	// 	scanf("%s",p->data);
+	h = LinkedHashMap_Create(3, 6, hashtab_hvalue, hashtab_keycmp, hashtab_node_free);
+    assert(h!= NULL);
+	while(1) {
+		p = (struct test_node*)malloc(sizeof(struct test_node));
+		assert(p != NULL);
+		printf("\r\n 请输入key 和value，当可以等于\"quit\"时退出");
+        scanf("%s",p->key);
+		scanf("%s",p->data);
 
-	// 	if(strcmp(p->key,"quit") == 0) {
-	// 		free(p);
-	// 		break;
-	// 	}
+		if(strcmp(p->key,"quit") == 0) {
+			free(p);
+			break;
+		}
 
-    //     res = LinkedHashMap_insert(h,p->key,p->data);
-	// 	if (res != 0) {
-	// 		free(p);
-	// 		printf("\r\n key[%s],data[%s] insert failed %d",p->key,p->data,res);
-	// 	} else {
-	// 		printf("\r\n key[%s],data[%s] insert success %d",p->key,p->data,res);
-	// 	}
-	//     LinkedHashMap__dump(h);
-	// }
+        res = LinkedHashMap_insert(h,p->key,p->data);
+		if (res != 0) {
+			free(p);
+			printf("\r\n key[%s],data[%s] insert failed %d",p->key,p->data,res);
+		} else {
+			printf("\r\n key[%s],data[%s] insert success %d",p->key,p->data,res);
+		}
+	    LinkedHashMap_dump(h);
+	}
 
 
-	// while(1) {
-	// 	p = (struct test_node*)malloc(sizeof(struct test_node));
-	// 	assert(p != NULL);
-	// 	printf("\r\n 请输入key 查询value的数值，当可以等于\"quit\"时退出");
-    //     scanf("%s",p->key);
+	while(1) {
+		p = (struct test_node*)malloc(sizeof(struct test_node));
+		assert(p != NULL);
+		printf("\r\n 请输入key 查询value的数值，当可以等于\"quit\"时退出");
+        scanf("%s",p->key);
 
-	// 	if(strcmp(p->key, "quit") == 0) {
-	// 		free(p);
-	// 		break;
-	// 	}
-    //     pres = LinkedHashMap_search(h,p->key);
-	// 	if (pres == NULL) {
-	// 		printf("\r\n key[%s] search data failed",p->key);
-	// 	} else {
-	// 		printf("\r\n key[%s],search data[%s] success",p->key,pres);
-	// 	}
-	// 	free(p);
-	//     LinkedHashMap__dump(h);
-	// }
+		if(strcmp(p->key, "quit") == 0) {
+			free(p);
+			break;
+		}
+        pres = LinkedHashMap_search(h,p->key);
+		if (pres == NULL) {
+			printf("\r\n key[%s] search data failed",p->key);
+		} else {
+			printf("\r\n key[%s],search data[%s] success",p->key,pres);
+		}
+		free(p);
+	    LinkedHashMap_dump(h);
+	}
 
-	// while(1) {
-	// 	p = (struct test_node*)malloc(sizeof(struct test_node));
-	// 	assert(p != NULL);
-	// 	printf("\r\n 请输入key 删除节点的数值，当可以等于\"quit\"时退出");
-    //     scanf("%s",p->key);
+	while(1) {
+		p = (struct test_node*)malloc(sizeof(struct test_node));
+		assert(p != NULL);
+		printf("\r\n 请输入key 删除节点的数值，当可以等于\"quit\"时退出");
+        scanf("%s",p->key);
 
-	// 	if(strcmp(p->key, "quit") == 0) {
-	// 		free(p);
-	// 		break;
-	// 	}
-    //     node = LinkedHashMap_delete(h,p->key);
-	// 	if (node == NULL) {
-	// 		printf("\r\n key[%s] delete node failed ", p->key);
-	// 	} else {
-	// 		printf("\r\n key[%s],delete data[%s] success", node->key, node->data);
-	// 	    h->hash_node_free(node,1);
-	// 	}
-	// 	free(p);
-	//     LinkedHashMap__dump(h);
-	// }
+		if(strcmp(p->key, "quit") == 0) {
+			free(p);
+			break;
+		}
+        node = LinkedHashMap_delete(h,p->key);
+		if (node == NULL) {
+			printf("\r\n key[%s] delete node failed ", p->key);
+		} else {
+			printf("\r\n key[%s],delete data[%s] success", node->key, node->data);
+		    h->hash_node_free(node,1);
+		}
+		free(p);
+	    LinkedHashMap_dump(h);
+	}
 
-    // LinkedHashMap_destory(h);
+    LinkedHashMap_destory(h);
     // muntrace();
-	// return 0;
+	return 0;
 
 }
