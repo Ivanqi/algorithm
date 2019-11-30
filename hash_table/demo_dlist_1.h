@@ -40,11 +40,16 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head) 
 // 从双链表中删除entry节点
 static inline void __list_del(struct list_head *prev, struct list_head *next) {
     next->prev = prev;
-    nex->next = next;
+    prev->next = next;
 }
 
 // 从双链表中删除entry节点
 static inline void list_del(struct list_head *entry) {
+    __list_del(entry->prev, entry->next);
+}
+
+// 从双向链表中删除entry节点
+static inline void __list_del_entry(struct list_head *entry) {
     __list_del(entry->prev, entry->next);
 }
 
@@ -65,7 +70,7 @@ static inline void list_replace(struct list_head *old, struct list_head *new) {
 }
 
 // 双链表是否为空
-static inline list_empty(const struct list_head *head) {
+static inline int list_empty(const struct list_head *head) {
     return head->next == head;
 }
 
@@ -82,9 +87,9 @@ static inline list_empty(const struct list_head *head) {
     for (pos = (head)->next; pos != (head); pos = pos->next)
 
 #define list_for_each_safe(pos, n, head) \
-    for (pos = (head)->next, n = post->next; pos != (head)) \
+    for (pos = (head)->next, n = pos->next; pos != (head); \
         pos = n, n = pos->next)
 
 #define list_entry(ptr, type, member) \
-    container_of(ptr, type, member);
+    container_of(ptr, type, member)
 #endif
