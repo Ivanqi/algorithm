@@ -57,3 +57,6 @@
 - ![avatar](images/../../images/tree_8.png)
 - 代码展示
   - ![avatar](images/../../images/tree_9.png)
+
+#### 参考资料
+- [卡特兰数 — 计数的映射方法的伟大胜利](http://lanqi.org/skills/10939/)
