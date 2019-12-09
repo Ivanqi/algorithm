@@ -91,9 +91,16 @@ void delete(Tree* tree, int data) {
     else if (p->right != NULL) child = p->right;
     else child = NULL;
 
+    /**
+     * 删减具有左右节点是分两步
+     * 1. 找到要删除节点的右子树的最小节点，然后将其值copy到要删除节点
+     * 2. 删除右子树中的最小节点
+     * 3. 将所有实际删除操作放到了最后
+     */
     if (pp == NULL) tree->root = child;     // 删除的是根节点
     else if (pp->left == p) pp->left = child;
     else pp->right = child;
+    free(p);
 
 }
 
