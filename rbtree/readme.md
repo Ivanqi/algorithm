@@ -140,3 +140,4 @@
 - [清晰理解红黑树的演变---红黑的含义](https://www.cnblogs.com/tiancai/p/9072813.html)
 - [红黑树(一)之 原理和算法详细介绍](https://www.cnblogs.com/skywang12345/p/3245399.html)
 - [从2-3树到 红黑树](https://blog.csdn.net/fei33423/article/details/79132930)
+- [Red/Black Tree](https://www.cs.usfca.edu/~galles/visualization/RedBlack.html)
