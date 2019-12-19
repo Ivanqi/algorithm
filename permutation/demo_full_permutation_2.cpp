@@ -18,7 +18,7 @@ void Perm(int list[], int k, int m)
         for (int i = 0; i <= m; i++) {
             cout << list[i] << " ";
         }
-         cout << endl;
+        cout << endl;
     } else {
         for (int i = k; i <= m; i++) {
             swap(list[i], list[k]);
@@ -29,7 +29,7 @@ void Perm(int list[], int k, int m)
 }
 
 int main (void) {
-    int a[] = {1, 2, 3};
-    int m = 2;
+    int a[] = {1, 2, 3, 4};
+    int m = 3;
     Perm(a, 0, m);
 }
