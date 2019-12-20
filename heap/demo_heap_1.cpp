@@ -64,7 +64,7 @@ class Heap
             }
         }
 
-        // 向下调整
+        // 向上调整
         void adjustUp(int child) 
         {
             Compare com;
