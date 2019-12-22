@@ -67,6 +67,8 @@
         - 求解等比数列
         - ![avatar](images/../../images/heap_12.png)
         - 因为 h = log2n ,代入公式S，得到S = O(n)
+      - 解答过程
+        - ![avatar](images/../../images/heap_14.png)
     - 所以，建堆时间复杂度为：O(n)
 - 排序
   - ![avatar](images/../../images/heap_13.png)
