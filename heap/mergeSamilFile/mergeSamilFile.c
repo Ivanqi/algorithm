@@ -52,11 +52,11 @@ void heap_oper(MinHeap *heap, FileInfo* file) {
 FILE* return_output_handler() {
     FILE *output;
     if ((output = fopen("ret.txt", "w+")) == NULL) {
-        printf("%s 打开失败!", "ret.txt");
+        printf("ret.txt 打开失败!");
     }
     fclose(output);
     if ((output = fopen("ret.txt", "a+")) == NULL) {
-        printf("%s 打开失败!", "ret.txt");
+        printf("ret.txt 打开失败!");
     }
 
 
@@ -73,10 +73,6 @@ int main () {
 
     heap_oper(heap, file);
 
-    // int i;
-    // for (i = 0; i < 52; i++) {
-    //     heap_remove_top(heap);
-    // }
     while (1) {
         if (heap->count == 0) break;
 
