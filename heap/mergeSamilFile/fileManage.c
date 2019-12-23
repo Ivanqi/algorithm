@@ -52,12 +52,12 @@ int file_set_buf(FileManage *fm) {
         int i, ch;
         for (i = 0; i < buf_num; i++) {
             ch = fgetc(fm->fp);
-            if (ch == EOF) break;
             if (ch == ' ' || ch == '\n') {
                 i--;
                 continue;
             }
             fm->buf[i] = ch;
+            
         }
         return 1;
     } else {
@@ -65,10 +65,25 @@ int file_set_buf(FileManage *fm) {
     }
 }
 
-void file_output(FILE *fp, char *str) {
-    // char *tmpStr = (char *)&str[0];
-    printf("file_output:%c\n", str[0]);
-    // fwrite(tmpStr, strlen(tmpStr), 1, fp);
+int file_check_letter(char ch) {
+    if ( ( ch >= 'a' && ch <= 'z' ) || (ch >= 'A' && ch <= 'Z' ) ) return 1;
+    else return 0; 
+}
+
+int file_check_number(char ch) {
+    if (ch >='0' && ch <= '9') return 1;
+    else return 0;
+}
+
+// int file_check_chinese(char ch) {
+//     // 最后检查是否是汉字：（按GB 2312 汉字区检查，不考虑特殊汉字 B0A1-F7FE）
+// }
+
+void file_output(FILE *fp, char str) {
+    if (file_check_letter(str)) {
+        printf("file_output:%c\n", str);
+        fwrite(&str, 1, 1, fp);
+    }
 }
 
 void file_destory(FileInfo *file) {
@@ -76,8 +91,9 @@ void file_destory(FileInfo *file) {
        if (file->records != NULL) {
            int i;
             for (i = 0; i < file->capitiry; i++) {
-               FileManage *tmp = file->records[i];
-               free(tmp);
+                FileManage *tmp = file->records[i];
+                fclose(tmp->fp);
+                free(tmp);
             }
        }
        free(file->records);

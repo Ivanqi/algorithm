@@ -4,7 +4,7 @@
 #include "fileManage.h"
 
 typedef struct heap_info {
-    char val[1];
+    char val;
     FileManage *file_info;
 } HeapInfo;
 

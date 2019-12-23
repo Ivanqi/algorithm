@@ -14,20 +14,17 @@ int min_keycmp(char *a, char *b) {
 
 int remove_callback_func(FILE *output, HeapInfo* heap_info) {
     assert(heap_info != NULL);
-    char tmpVal[1];
 
     if (heap_info->file_info->pos >= heap_info->file_info->max_buf) {
         if (file_set_buf(heap_info->file_info)) {
             heap_info->file_info->pos = 0;
         } else {
             heap_info->file_info->pos = heap_info->file_info->max_buf;
-            return 0;       
+            return 0;
         }
     }
-    tmpVal[0] = heap_info->file_info->buf[heap_info->file_info->pos];
-    heap_info->val[0] = heap_info->file_info->buf[++heap_info->file_info->pos];
-    heap_info->file_info->pos++;
-    file_output(output, tmpVal);
+    file_output(output, heap_info->file_info->buf[heap_info->file_info->pos]);
+    heap_info->val = heap_info->file_info->buf[++heap_info->file_info->pos];
     return 1;
 }
 
@@ -54,9 +51,15 @@ void heap_oper(MinHeap *heap, FileInfo* file) {
 
 FILE* return_output_handler() {
     FILE *output;
+    if ((output = fopen("ret.txt", "w+")) == NULL) {
+        printf("%s 打开失败!", "ret.txt");
+    }
+    fclose(output);
     if ((output = fopen("ret.txt", "a+")) == NULL) {
         printf("%s 打开失败!", "ret.txt");
     }
+
+
     return output;
 }
 
@@ -70,16 +73,18 @@ int main () {
 
     heap_oper(heap, file);
 
-    heap_remove_top(heap);
-    heap_remove_top(heap);
-    heap_remove_top(heap);
-    // while (1) {
-    //     if (heap->count == 0) break;
-
+    // int i;
+    // for (i = 0; i < 52; i++) {
     //     heap_remove_top(heap);
     // }
+    while (1) {
+        if (heap->count == 0) break;
+
+        heap_remove_top(heap);
+    }
 
     file_destory(file);
     heap_destory(heap);
+    fclose(output);
     return 0;
 }

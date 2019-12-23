@@ -31,7 +31,7 @@ void heap_insert(MinHeap *heap, FileManage *fm) {
 
     HeapInfo *tmp = (HeapInfo *) malloc(sizeof(HeapInfo));
     tmp->file_info = fm;
-    tmp->val[0] = fm->buf[fm->pos];
+    tmp->val = fm->buf[fm->pos];
     fm->pos = 0;
 
     heap->count++;
@@ -40,7 +40,7 @@ void heap_insert(MinHeap *heap, FileManage *fm) {
 
     int i = heap->count;
     int parent = i / 2;
-    while (parent > 0 && heap->keycmp(heap->heap_info[i]->val, heap->heap_info[parent]->val)) {    // 自下往上堆化
+    while (parent > 0 && heap->keycmp(&heap->heap_info[i]->val, &heap->heap_info[parent]->val)) {    // 自下往上堆化
         heap_swap(heap->heap_info, i , parent);
     }
 }
@@ -58,12 +58,10 @@ void heap_remove_top(MinHeap *heap) {
     if (heap->count == 0) {
         printf("没有数据");
     }
-    printf("heap_top_1:%s\n", heap->heap_info[1]->val);
     if (!heap->remove_func(heap->output, heap->heap_info[1])) {
         heap->heap_info[1] = heap->heap_info[heap->count];
         --heap->count;
     }
-    printf("heap_top_2:%s\n", heap->heap_info[1]->val);
     heap_heapify(heap, heap->count, 1);
 }
 
@@ -75,8 +73,8 @@ void heap_heapify(MinHeap *heap, int n, int parent) { // 自上而下堆化
         left = parent * 2;
         right = left + 1;
 
-        if (left <= n && heap->keycmp(heap->heap_info[parent]->val[0], heap->heap_info[left]->val[0])) maxPos = left;
-        if (right <= n && heap->keycmp(heap->heap_info[maxPos]->val[0], heap->heap_info[right]->val[0])) maxPos = right;
+        if (left <= n && !heap->keycmp(&heap->heap_info[parent]->val, &heap->heap_info[left]->val)) maxPos = left;
+        if (right <= n && !heap->keycmp(&heap->heap_info[maxPos]->val, &heap->heap_info[right]->val)) maxPos = right;
 
         if (maxPos == parent) break;
         heap_swap(heap->heap_info, parent, maxPos);
