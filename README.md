@@ -1,4 +1,4 @@
-# algorithm
+# Algorithm
 整理一下使用过的算法和数据结构
 
 # 列表
