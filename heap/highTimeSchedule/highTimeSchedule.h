@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <time.h>
+#include <sys/time.h>
 #include <assert.h>
+using namespace std;
 
 class Timer;
 
@@ -13,17 +15,36 @@ struct params {
 
 typedef void (*cb_func)(params* pas);
 
+unsigned long long getCurrentMillisecs()
+{
+    timeval tv;
+    ::gettimeofday(&tv, 0);
+    unsigned long long ret = tv.tv_sec;
+    return ret * 1000 + tv.tv_usec / 1000;
+}
 
 class Timer
-{
+{   
+    friend unsigned long long getCurrentMillisecs();
     public:
-        time_t expire;              // 定时器生效的确定时间
-        void (*cb_func)(params*);     // 定时器回调函数
-        params* user_data;          // 用户数据     
+        Timer()
+        {
+            expire = getCurrentMillisecs();
+        }
+
+        Timer(int delay)
+        {
+            expire = getCurrentMillisecs() + delay;
+        }
+    public:
+        unsigned long long expire;              // 定时器生效的确定时间
+        void (*cb_func)(params*);               // 定时器回调函数
+        params* user_data;                      // 用户数据     
 };
 
 class HighTimeSchedule
 {
+    friend unsigned long long getCurrentMillisecs();
     private:
         Timer** array;
         int capacity;
@@ -110,12 +131,22 @@ class HighTimeSchedule
             delete [] array;
         }
     public:
+        void add_timer_by_millisecond(int millisecond, cb_func func, params* pas)
+        {
+            assert(millisecond > 0);
+            unsigned long long now = getCurrentMillisecs();
+            Timer *timer = new Timer(millisecond);
+            timer->cb_func = func;
+            timer->user_data = pas;
+
+            add_timer(timer);
+        }
+
         void add_timer_by_second(int second, cb_func func, params* pas)
         {
             assert(second > 0);
-            time_t now = time(NULL);
-            Timer *timer = new Timer;
-            timer->expire = now + second;
+            unsigned long long now = getCurrentMillisecs();
+            Timer *timer = new Timer(second * 1000);
             timer->cb_func = func;
             timer->user_data = pas;
 
@@ -126,16 +157,10 @@ class HighTimeSchedule
         void add_timer_by_date(char *date, cb_func func, params* pas)
         {
             struct tm* tmp_time = (struct tm*)malloc(sizeof(struct tm));
-            strptime(date, "%Y-%m-%d%H:%M:%S", tmp_time);
 
-            time_t datetime = mktime(tmp_time); 
-            time_t now = time(NULL);
-            int second = datetime - now;
+            unsigned long long  datetime = mktime(tmp_time) * 1000;
 
-            assert(second <= 0);
-
-            Timer *timer = new Timer;
-            timer->expire = second;
+            Timer *timer = new Timer(datetime);
             timer->cb_func = func;
             timer->user_data = pas;
 
@@ -154,29 +179,30 @@ class HighTimeSchedule
         {
             if (empty()) return;
 
-            if (array[first]) {
-                delete array[first];
-                array[first] == array[count];
+            if (top()) {
+                Timer* tmp =  array[first];
                 --count;
-                heapify(count, first);
+                if (!empty() && first != count) {
+                    swap(first, count);
+                    heapify(count, first);
+                } else {
+                    // delete tmp;
+                }
             }
         }
 
         void tick()
         {
             Timer* tmp = array[first];
-            time_t cur = time(NULL);
+            unsigned long long cur = getCurrentMillisecs();
 
-            while (!empty()) {
-                if (!tmp) {
-                    // printf("tmp: %d", tmp->expire);
-                    break;
+            if (!tmp) return;
+            while (!empty() && tmp->expire < cur) {
+                if (!tmp) break;
+                if (tmp->expire == 0) {
+                    pop();
+                    tmp = array[first];
                 }
-
-                if (cur > tmp->expire) {
-                    // printf("过时了:%d\n" , tmp->expire);
-                    break;
-                } 
 
                 if (tmp->cb_func) {
                     tmp->cb_func(tmp->user_data);
