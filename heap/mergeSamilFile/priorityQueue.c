@@ -39,9 +39,9 @@ void heap_insert(MinHeap *heap, FileManage *fm) {
    
 
     int i = heap->count;
-    int parent = i / 2;
-    while (parent > 0 && heap->keycmp(&heap->heap_info[i]->val, &heap->heap_info[parent]->val)) {    // 自下往上堆化
-        heap_swap(heap->heap_info, i , parent);
+    while (i / 2 > 0 && heap->keycmp(&heap->heap_info[i]->val, &heap->heap_info[i / 2]->val)) {    // 自下往上堆化
+        heap_swap(heap->heap_info, i , i / 2);
+        i = i / 2;
     }
 }
 

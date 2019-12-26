@@ -55,7 +55,7 @@ int main() {
     mid->MaxHeap = heap_create(CAP_LEN, max_cmp);
 
     int i;
-    for (i = 1; i <= 100; i++) {
+    for (i = 1; i <= 99; i++) {
         midnum_insert(mid, i);
     }
     printf("--------- 大顶堆 ------------ \n");

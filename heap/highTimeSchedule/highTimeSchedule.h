@@ -106,10 +106,10 @@ class HighTimeSchedule
             count++;
             array[count] = timer;
             int i = count;
-            int parent = i / 2;
 
-            while (parent > 0 && array[i]->expire > array[parent]->expire) {
-                swap(i, parent);
+            while (i / 2 > 0 && array[i]->expire > array[i / 2]->expire) {
+                swap(i, i / 2);
+                i = i /  2;
             }
         }
         

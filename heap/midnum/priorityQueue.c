@@ -31,10 +31,9 @@ void heap_insert(Heap *heap, int data) {
    
 
     int i = heap->count;
-    int parent = i / 2;
-    while (parent > 0 && heap->cmp(heap->array[i], heap->array[parent])) {    // 自下往上堆化
-        heap_swap(heap->array, i , parent);
-        i = parent;
+    while (i / 2 > 0 && heap->cmp(heap->array[i], heap->array[i / 2])) {    // 自下往上堆化
+        heap_swap(heap->array, i , i / 2);
+        i = i / 2;
     }
 }
 
