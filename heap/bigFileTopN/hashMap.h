@@ -42,7 +42,7 @@ static inline int hash_code(HashMap *h, const void *key) {
 }
 
 
-HashMapNode* init_list_head( list) {
+HashMapNode* init_list_head() {
     HashMapNode *node = (HashMapNode*)malloc(sizeof(HashMapNode));
     node->next = node;
     node->prev = node;

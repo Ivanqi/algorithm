@@ -7,7 +7,7 @@ DEBUG = -g
 $(TARGET1): fileManage.c
 	$(CC) $(DEBUG) -o $@ $^ $(CFLAGS1)
 
-$(TARGET2): hash_map.c
+$(TARGET2): hashMap.c
 	$(CC) $(DEBUG) -o $@ $^ $(CFLAGS1)
 
 clean:

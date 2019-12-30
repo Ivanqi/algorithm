@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <hash_map.h>
+#include <hashMap.h>
 
 HashMap *hash_map_create(hash_code_func hash_func) {
 
@@ -50,20 +50,12 @@ int hash_map_insert(HashMap *h, void *key) {
     return 0;
 }
 
-int main () {
-    HashMap *h = hash_map_create(hash_code);
-
-    hash_map_insert(h, "Ha");
-    hash_map_insert(h, "Ha");
-    hash_map_insert(h, "Ha");
-    hash_map_insert(h, "Ha");
-    hash_map_insert(h, "Ha1");
-    hash_map_insert(h, "Hi");
-    hash_map_insert(h, "Hiz");
-
+void hash_map_destory(HashMap *h) {
+    assert(h != NULL);
     HashMapNode *pos;
     list_for_each(pos, h->header) {
-        printf("key:%s, num:%d\n", pos->key, pos->num);
+        free(pos);
     }
-    return 0;
+    free(h->hTabs);
+    free(h);
 }
