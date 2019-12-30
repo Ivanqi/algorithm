@@ -10,6 +10,7 @@ FileManage* file_create() {
     int count = 0;
 
     file->filePathHandler = (FilePathHandler **)malloc(sizeof(FilePathHandler*) * file_path_num);
+    file->count = 0;
     assert(file->filePathHandler != NULL);
     int i;
     for (i = 0; i < file_path_num; i++) {
@@ -35,6 +36,7 @@ void file_output_insert(FileManage *file, int index) {
         if ((output = fopen(filePath[index], "a+")) == NULL) {
             printf("%s 打开失败!", filePath[index]);
         }
+        ++file->count;
         file->filePathHandler[index]->output = output;
         file->filePathHandler[index]->fileName = filePath[index];
         file->filePathHandler[index]->lineFeedTag = 0;
@@ -57,7 +59,7 @@ void file_set_buf(FILE *input, FileManage *file) {
             } else if (buf[i] == ' ' || buf[i] == '\n') {
                 int hashCode = file_hash_code(j, tmp);
                 if (file->filePathHandler[hashCode] != NULL) {
-                    for(l = 0; l < j; l++){
+                    for (l = 0; l < j; l++) {
                         // if (file->filePathHandler[hashCode]->lineFeedTag >= buf_num / 2) {
                         //     file_output(file->filePathHandler[hashCode]->output, '\n');
                         //     file->filePathHandler[hashCode]->lineFeedTag = 0;
@@ -65,10 +67,12 @@ void file_set_buf(FILE *input, FileManage *file) {
                         // ++file->filePathHandler[hashCode]->lineFeedTag;
                         file_output(file->filePathHandler[hashCode]->output, tmp[l]);
                     }
-                    if ( buf[i] == '\n') {
-                        file_output(file->filePathHandler[hashCode]->output, ' ');
-                    } else {
-                        file_output(file->filePathHandler[hashCode]->output, buf[i]);
+                    if (j > 0) {
+                        if (buf[i] == '\n') {
+                            file_output(file->filePathHandler[hashCode]->output, ' ');
+                        } else {
+                            file_output(file->filePathHandler[hashCode]->output, buf[i]);
+                        }
                     }
                 }
                 j  = 0;
@@ -81,10 +85,11 @@ int file_hash_code(int len, char *buf) {
     int i;
     int hashVal = 0;
     for (i = 0; i < len; i++) {
-        hashVal = hashVal + buf[i];
+        hashVal = 33 * hashVal + buf[i];
     }
+    hashVal %= file_path_num;
     if (hashVal <= 0) return 0;
-    return hashVal % file_path_num;
+    return hashVal;
 }
 
 int file_check_letter(char ch) {
@@ -108,18 +113,17 @@ void file_output(FILE *fp, char str) {
 }
 
 void file_destory(FileManage *file) {
-//    if (file != NULL) {
-//        if (file->records != NULL) {
-//            int i;
-//             for (i = 0; i < file->capitiry; i++) {
-//                 FileManage *tmp = file->records[i];
-//                 fclose(tmp->fp);
-//                 free(tmp);
-//             }
-//        }
-//        free(file->records);
-//        free(file);
-//    }
+    if (file != NULL) {
+        if (file->filePathHandler != NULL) {
+            int i;
+            for (i = 0; i < file->count; i++) {
+                FilePathHandler *tmp = file->filePathHandler[i];
+                fclose(tmp->output);
+                free(tmp);
+            }
+        }
+        // free(file);
+    }
 }
 
 FILE* file_input_hander(char *inputFile) {
@@ -142,4 +146,8 @@ int main() {
     }
     FILE *inputHandler = file_input_hander(input);
     file_set_buf(inputHandler, file);
+
+
+    file_destory(file);
+    free(file);
 }

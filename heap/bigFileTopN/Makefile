@@ -1,10 +1,14 @@
 TARGET1 = fileManage
+TARGET2 = hashMap
 CC = gcc
 CFLAGS1 = -I.
 DEBUG = -g
+
 $(TARGET1): fileManage.c
 	$(CC) $(DEBUG) -o $@ $^ $(CFLAGS1)
 
+$(TARGET2): hash_map.c
+	$(CC) $(DEBUG) -o $@ $^ $(CFLAGS1)
 
 clean:
-	rm -rf $(TARGET1) *.o
+	rm -rf $(TARGET1) $(TARGET2) *.o

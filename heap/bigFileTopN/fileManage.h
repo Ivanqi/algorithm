@@ -11,7 +11,7 @@ typedef struct file_path_handler {
 } FilePathHandler;
 
 typedef struct file_manage {
-    
+    int count;
     FilePathHandler** filePathHandler;
 } FileManage;
 
