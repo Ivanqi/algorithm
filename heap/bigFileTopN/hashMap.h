@@ -1,6 +1,5 @@
 #ifndef _HASH_MAP_
 #define _HASH_MAP_
-#define hash_map_init_size 16
 
 // 数据存放节点
 typedef struct hash_map_node {
@@ -8,20 +7,25 @@ typedef struct hash_map_node {
     int num;    // 数量
     struct hash_map_node *next;
     struct hash_map_node *prev;
-}HashMapNode;
+    struct hash_map_node *hnext;
+} HashMapNode;
 
-typedef struct hasm_map {
+typedef struct hash_map {
     HashMapNode **hTabs;    // 哈希桶
     HashMapNode* header;       // 双向循环链表
     int count;
     int size;                // 支持最大节点
-    int (*hash_func)(struct hasm_map *h, const void *key);    // 哈希函数
-}HashMap;
+    int (*hash_func)(struct hash_map *h, const void *key);    // 哈希函数
+    int (*keycmp)(struct hash_map *h, const void *key1, const void *key2);
+} HashMap;
 
 typedef int (*hash_code_func)(HashMap *h, const void *key);    // 哈希函数
+typedef int (*keycmp_func)(struct hash_map *h, const void *key1, const void *key2);
 
-HashMap *hash_map_create(hash_code_func hash_func);
+HashMap *hash_map_create(int size, hash_code_func hash_func, keycmp_func hash_keycmp);
 HashMapNode *hash_map_delete();
+void resize_hash_table_if_needed(HashMap *h);
+int resize_hash(HashMap *h);
 
 static inline int hash_str(const char *str) {
     int hash = 0;
@@ -32,7 +36,6 @@ static inline int hash_str(const char *str) {
     return hash & (0x7FFFFFFF);
 }
 
-
 static inline int hash_index(HashMap *h, int hash) {
     return hash % h->size;
 }
@@ -41,6 +44,9 @@ static inline int hash_code(HashMap *h, const void *key) {
     return hash_index(h, hash_str(key));
 }
 
+static inline int hash_keycmp(HashMap *h, const void *key1, const void *key2) {
+    return strcmp(key1, key2);
+}
 
 HashMapNode* init_list_head() {
     HashMapNode *node = (HashMapNode*)malloc(sizeof(HashMapNode));
@@ -48,6 +54,7 @@ HashMapNode* init_list_head() {
     node->prev = node;
     return node;
 }
+
 // 添加new节点：将new添加到head之后，把new称为head的后继节点
 static inline void list_add_head(HashMapNode *new, HashMapNode *head) {
     new->prev = head;
