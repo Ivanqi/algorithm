@@ -22,6 +22,7 @@ typedef struct hash_map {
 typedef int (*hash_code_func)(HashMap *h, const void *key);    // 哈希函数
 typedef int (*keycmp_func)(struct hash_map *h, const void *key1, const void *key2);
 
+HashMapNode* init_list_head();
 HashMap *hash_map_create(int size, hash_code_func hash_func, keycmp_func hash_keycmp);
 HashMapNode *hash_map_delete();
 void resize_hash_table_if_needed(HashMap *h);
@@ -46,13 +47,6 @@ static inline int hash_code(HashMap *h, const void *key) {
 
 static inline int hash_keycmp(HashMap *h, const void *key1, const void *key2) {
     return strcmp(key1, key2);
-}
-
-HashMapNode* init_list_head() {
-    HashMapNode *node = (HashMapNode*)malloc(sizeof(HashMapNode));
-    node->next = node;
-    node->prev = node;
-    return node;
 }
 
 // 添加new节点：将new添加到head之后，把new称为head的后继节点

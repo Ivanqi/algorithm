@@ -24,4 +24,20 @@ void file_set_buf(FILE *input, FileManage *file);
 void file_output(FILE *fp, char str);
 void file_destory(FileManage *file);
 int file_hash_code(int len, char *buf);
+
+
+FILE* file_input_hander(char *inputFile) {
+    FILE *fp;
+
+    if ((fp = fopen(inputFile, "r+")) == NULL) {
+        printf("%s 打开失败!", inputFile);
+        return fp;
+    }
+    return fp;
+}
+
+int file_check_letter(char ch) {
+    if ( ( ch >= 'a' && ch <= 'z' ) || (ch >= 'A' && ch <= 'Z' ) ) return 1;
+    else return 0; 
+}
 #endif

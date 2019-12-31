@@ -60,11 +60,6 @@ void file_set_buf(FILE *input, FileManage *file) {
                 int hashCode = file_hash_code(j, tmp);
                 if (file->filePathHandler[hashCode] != NULL) {
                     for (l = 0; l < j; l++) {
-                        // if (file->filePathHandler[hashCode]->lineFeedTag >= buf_num / 2) {
-                        //     file_output(file->filePathHandler[hashCode]->output, '\n');
-                        //     file->filePathHandler[hashCode]->lineFeedTag = 0;
-                        // }
-                        // ++file->filePathHandler[hashCode]->lineFeedTag;
                         file_output(file->filePathHandler[hashCode]->output, tmp[l]);
                     }
                     if (j > 0) {
@@ -90,11 +85,6 @@ int file_hash_code(int len, char *buf) {
     hashVal %= file_path_num;
     if (hashVal <= 0) return 0;
     return hashVal;
-}
-
-int file_check_letter(char ch) {
-    if ( ( ch >= 'a' && ch <= 'z' ) || (ch >= 'A' && ch <= 'Z' ) ) return 1;
-    else return 0; 
 }
 
 int file_check_number(char ch) {
@@ -124,16 +114,6 @@ void file_destory(FileManage *file) {
         }
         // free(file);
     }
-}
-
-FILE* file_input_hander(char *inputFile) {
-    FILE *fp;
-
-    if ((fp = fopen(inputFile, "r+")) == NULL) {
-        printf("%s 打开失败!", inputFile);
-        return fp;
-    }
-    return fp;
 }
 
 int main() {

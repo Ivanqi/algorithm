@@ -4,6 +4,13 @@
 #include <assert.h>
 #include <hashMap.h>
 
+HashMapNode* init_list_head() {
+    HashMapNode *node = (HashMapNode*)malloc(sizeof(HashMapNode));
+    node->next = node;
+    node->prev = node;
+    return node;
+}
+
 HashMap *hash_map_create(int size, hash_code_func hash_func, keycmp_func hash_keycmp) {
 
     HashMap *h = (HashMap*)malloc(sizeof(HashMap));
