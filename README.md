@@ -20,6 +20,7 @@
 [rbtree](/rbtree/) | 红黑树 |
 [recursion](/recursion/) | 递归 |
 [search](/search/) | 搜索 |
+[skiplist](/skiplist/) | 跳表 |
 [sort](/sort/) | 排序 |
 [stack](/stack/) | 栈 |
 [tree](/tree/) | 树 |
