@@ -35,27 +35,28 @@ int main () {
     int maxSize = 500;
     int capacity = 10;
     for (i = 0; i < file_path_num;i++) {
-        if (i >= 1) break;
+        char *fileName = filePath[i];
+        printf("--- %s / START ---- \n", fileName);
         HashMap *h = hash_map_create(maxSize, hash_code, hash_keycmp);
         FILE *fp = file_input_hander(filePath[i]);
-        Heap *min_heap = heap_create(capacity, min_keycmp);
+        Heap *min_heap = heap_create(capacity, min_cmp);
 
         file_get_buf(fp, h);
 
         HashMapNode *pos;
         list_for_each(pos, h->header) {
             heap_insert(min_heap, pos->key, pos->num);
-            // printf("key:%s, num:%d\n", pos->key, pos->num);
         }
 
         int i;
-        for(i = 1; i <= min_heap->count; i++) {
+
+        for(i = min_heap->count; i > 1; i--) {
             HeapInfo *pos = min_heap->array[i];
-            printf("key:%s, num:%d\n", pos->key, pos->num);
+            printf("  %s, %d\n", pos->key, pos->num);
         }
-        
+        printf("\n--- %s / END ---- \n", fileName);
         fclose(fp);
-        hash_map_destory(h);
+        hash_map_destory(h);        
     }
 
     return 0;

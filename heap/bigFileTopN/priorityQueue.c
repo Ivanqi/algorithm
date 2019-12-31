@@ -34,7 +34,7 @@ void heap_insert(Heap *heap, char *key, int num) {
    
 
     int i = heap->count;
-    while (i / 2 > 0 && heap->cmp(heap->array[i]->key, heap->array[i / 2]->key)) {    // 自下往上堆化
+    while (i / 2 > 0 && heap->cmp(heap->array[i]->num, heap->array[i / 2]->num)) {    // 自下往上堆化
         heap_swap(heap->array, i , i / 2);
         i = i / 2;
     }
@@ -50,10 +50,12 @@ void heap_swap(HeapInfo **array, int i, int j) {
 
 HeapInfo* heap_pop(Heap *heap) {
     assert(heap != NULL);
+    HeapInfo *tmp;
     if (heap->count == 0) {
-        printf("没有数据");
+        printf("没有数据\n");
+        return tmp;
     }
-    HeapInfo *tmp = heap->array[1];
+    tmp = heap->array[1];
     heap->array[1] = heap->array[heap->count];
     --heap->count;
     heap_heapify(heap, heap->count, 1);
@@ -68,8 +70,8 @@ void heap_heapify(Heap *heap, int n, int parent) { // 自上而下堆化
         left = parent * 2;
         right = left + 1;
 
-        if (left <= n && !heap->cmp(heap->array[parent]->key, heap->array[left]->key)) maxPos = left;
-        if (right <= n && !heap->cmp(heap->array[maxPos]->key, heap->array[right]->key)) maxPos = right;
+        if (left <= n && !heap->cmp(heap->array[parent]->num, heap->array[left]->num)) maxPos = left;
+        if (right <= n && !heap->cmp(heap->array[maxPos]->num, heap->array[right]->num)) maxPos = right;
 
         if (maxPos == parent) break;
         heap_swap(heap->array, parent, maxPos);

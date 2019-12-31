@@ -10,12 +10,12 @@ typedef struct heap_info {
 typedef struct heap {
     int count;
     int capacity;
-    int (*cmp)(char *key1, char *key2);
+    int (*cmp)(int a, int b);
     HeapInfo **array; 
 } Heap;
 
 
-typedef int (*cmp_func)(char *key1, char *key2);
+typedef int (*cmp_func)(int a, int b);
 
 Heap* heap_create(int capacity, cmp_func cmp);
 void heap_insert(Heap *heap, char *key, int num);
