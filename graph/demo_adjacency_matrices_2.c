@@ -34,6 +34,7 @@ int LocateVex(MGraph *G, VertexType v) {
     return i;
 }
 
+
 // 构造有向图
 void CreateDG(MGraph *G) {
     // 输入图含有的顶点数和弧的个数
@@ -57,7 +58,7 @@ void CreateDG(MGraph *G) {
     for (i = 0; i < G->arcnum; i++) {
         int v1, v2;
         // 输入弧头和弧尾
-        scanf("%d, %d", &v1, &v2);
+        scanf("%d,%d", &v1, &v2);
 
         // 确定顶点位置
         int n = LocateVex(G, v1);
@@ -73,22 +74,121 @@ void CreateDG(MGraph *G) {
     }
 }
 
+// 构造无向图
+void CreateDN(MGraph *G) {
+    scanf("%d,%d", &(G->vexnum), &(G->arcnum));
+
+    int i, j;
+    for (i = 0; i < G->vexnum; i++) {
+        scanf("%d", &(G->vexs[i]));
+    }
+
+    for (i = 0; i < G->vexnum; i++) {
+        for (j = 0; j < G->vexnum; j++) {
+            G->arcs[i][j].adj = 0;
+            G->arcs[i][j].info = NULL;
+        }
+    }
+
+    for (i = 0; i < G->arcnum; i++) {
+        int v1, v2;
+        scanf("%d,%d", &v1, &v2);
+        int n = LocateVex(G, v1);
+        int m = LocateVex(G, v2);
+
+        if (m == - 1 || n == -1) {
+            printf("no this vertex\n");
+            return;
+        }
+        G->arcs[n][m].adj = 1;
+        G->arcs[m][n].adj = 1;  // 无向图的二阶矩阵沿主对角线对称
+    }
+}
+
+// 构造有向网，和有向图不同的是二阶矩阵中存储的是权值
+void CreateUDG(MGraph *G) {
+    scanf("%d,%d", &(G->vexnum), &(G->arcnum));
+    int i, j;
+    for (i = 0; i < G->vexnum; i++) {
+        scanf("%d", &(G->vexs[i]));
+    }
+
+    for (i = 0; i < G->vexnum; i++) {
+        for (j = 0; j < G->vexnum; j++) {
+            G->arcs[i][j].adj = 0;
+            G->arcs[i][j].info = NULL;
+        }
+    }
+
+    for (i = 0; i < G->arcnum; i++) {
+        int v1, v2, w;
+        scanf("%d,%d,%d", &v1, &v2, &w);
+        int n = LocateVex(G, v1);
+        int m = LocateVex(G, v2);
+
+        if (m == -1 || n == -1) {
+            printf("no this vertex\n");
+            return;
+        }
+
+        G->arcs[n][m].adj = w;
+    }
+}
+
+// 构造无向网。和无向网唯一的区别就是二阶矩阵中存储的是权值
+void CreateUDN(MGraph *G) {
+    scanf("%d,%d", &(G->vexnum), &(G->arcnum));
+    int i, j;
+    for (i = 0; i < G->vexnum; i++) {
+        scanf("%d", &(G->vexs[i]));
+    }
+
+    for (i = 0; i < G->vexnum; i++) {
+        for (j = 0; j < G->vexnum; j++) {
+            G->arcs[i][j].adj = 0;
+            G->arcs[i][j].info = NULL;
+        }
+    }
+
+    for (i = 0; i < G->arcnum; i++) {
+        int v1, v2, w;
+        scanf("%d,%d,%d", &v1, &v2, &w);
+        int n = LocateVex(G, v1);
+        int m = LocateVex(G, v2);
+
+        if (m == -1 || n == -1) {
+            printf("no this vertex\n");
+            return;
+        }
+
+        G->arcs[n][m].adj = w;
+        G->arcs[m][n].adj = w;  // 矩阵对称
+    }
+}
+
+
 void CreateGraph(MGraph *G) {
     // 选择图的类型
     scanf("%d", &(G->kind));
 
     // 根据所选类型，调用不同的函数实现构造图的功能
-    swtich (G->kind) {
+    switch (G->kind) {
         case DG:
             return CreateDG(G);
             break;
+        case DN:
+            return CreateDN(G);
+        case UGD:
+            return CreateUDG(G);
+        case UDN:
+            return CreateUDN(G);
         default:
             break;
     }
 }
 
 // 输出函数
-void PrintGrapth(MGraph G) {
+void PrintGraph(MGraph G) {
     int i, j;
     for (i = 0; i < G.vexnum; i++) {
         for (j = 0; j < G.vexnum; j++) {
@@ -98,6 +198,47 @@ void PrintGrapth(MGraph G) {
     }
 }
 
+
+/**
+DG|DN:
+    模式选择：0|1
+    6,10
+    1
+    2
+    3
+    4
+    5
+    6
+    1,2
+    2,3
+    3,1
+    1,4
+    4,3
+    3,6
+    6,1
+    4,6
+    6,5
+    5,4
+UDG|UDN:
+    模式选择：2|3
+    6,10
+    1
+    2
+    3
+    4
+    5
+    6
+    1,2,5
+    2,3,4
+    3,1,8
+    1,4,7
+    4,3,5
+    3,6,9
+    6,1,3
+    4,6,6
+    6,5,1
+    5,4,5
+ */
 int main() {
     MGraph G;   // 建立一个图的变量
     CreateGraph(&G);    // 调用创建函数，传入地址参数
