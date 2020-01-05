@@ -41,3 +41,5 @@
 
 #### 参考资料
 - [图的基本算法（BFS和DFS）](https://www.jianshu.com/p/70952b51f0c8)
+- [图 | 存储结构：邻接矩阵及C语言实现](https://blog.csdn.net/liupeifeng3514/article/details/83753435)
+- [图的邻接表存储 c实现](https://blog.csdn.net/linxinyuluo/article/details/6847851)
