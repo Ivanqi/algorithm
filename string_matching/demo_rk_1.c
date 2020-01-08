@@ -32,7 +32,7 @@ int RK(char *str, char *pattern) {
         s_code = ((num * (str[k] - 'a')) + s_code);
     }
     
-    for (i = 1; i <= size1 - size2; i++) {
+    for (i = 1; i <= size1 - size2 + 1; i++) {
         if (s_code == p_code && isMatching(str + i - 1, pattern)) {
             printf("hit !. start:%d, end: %d\n", i - 1, i - 2 + size2);
             return 1;
