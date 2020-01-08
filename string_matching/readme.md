@@ -7,3 +7,4 @@
 
 #### 参考资料
 - [BF算法（串模式匹配算法）C语言详解](http://data.biancheng.net/view/179.html)
+- [字符串匹配算法（BF & RK）](https://blog.csdn.net/qq_21201267/article/details/92695636)
