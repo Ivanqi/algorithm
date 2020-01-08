@@ -2,55 +2,53 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define q 144451
-#define d 26
-
-int isMatch(char *S, int i, char *P, int m) {
-    int is, ip;
-
-    for (is = i, ip = 0; is != m && ip != m;is++, ip++) {
-        if (S[is] != P[ip]) return 0;
+int isMatching(char *str, char *pattern) {
+    int i;
+    for (i = 0; pattern[i] != '\0'; i++) {
+        if (pattern[i] != str[i]) {
+            return 0;
+        }
     }
-
     return 1;
 }
 
-/**
- * 字符串匹配的RK算法
- * 若成功匹配返回主串中的偏移，否则返回-1
- */
-int RK(char *S, char *P) {
-    int m = strlen(P);
-    int n = strlen(S);
+// 主函数
+int RK(char *str, char *pattern) {
+    int d = 26;
 
-    unsigned int h = 1;
-    unsigned int A = 0;
-    unsigned int St = 0;
-    int i;
+    int size1 = strlen(str);
+    int size2 = strlen(pattern);
 
-    // 初始化，算出最d进行下的最高位
-    for (i = 0; i < m - 1; i++) {
-        h = (h * d) % q;
-    }
+    int p_code = 0;
+    int s_code = 0;
 
-    for (i = 0; i != m; i++) {
-        A = (d * A + (P[i] - 'a')) % q;
-        St = (d * St + (S[i] - 'a')) % q;
-    }
-
-    for (i = 0; i != n - m; i++) {
-        if (A == St) {
-            if (isMatch(S, i, P, m)) return i;
+    int i, j, k;
+    for (k = 0, i = size2; i > 0; i--, k++) {
+        int num = 1;
+        for (j = 0; j < (i - 1); j++) {
+            num = num * d;
         }
-        St = (d * (St - h * (S[i] - 'a')) + (S[i + m])) % q;
+        p_code = (num * (pattern[k] - 'a')) + p_code;
+        s_code = ((num * (str[k] - 'a')) + s_code);
     }
-
+    
+    for (i = 1; i <= size1 - size2; i++) {
+        if (s_code == p_code && isMatching(str + i - 1, pattern)) {
+            printf("hit !. start:%d, end: %d\n", i - 1, i - 2 + size2);
+            return 1;
+        }
+        k = 1;
+        for (j = 0; j < size2 - 1; j++) {
+            k = k * d;
+        }
+        s_code = (s_code - k * (str[i - 1] - 'a') ) * d + (str[i + size2 - 1] - 'a');
+    }
     return -1;
 }
 
 int main() {
-    int number = RK("ababcabcacbab", "abcac");
-    printf("%d\n", number);
+    int ret = RK("ababcabcacbab", "abcac");
+    printf("%d\n", ret);
 
     return 0;
 }

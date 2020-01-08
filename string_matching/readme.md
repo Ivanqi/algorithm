@@ -7,5 +7,3 @@
 
 #### 参考资料
 - [BF算法（串模式匹配算法）C语言详解](http://data.biancheng.net/view/179.html)
-- [字符串匹配之RK算法——学习笔记](https://blog.csdn.net/jjwwwww/article/details/81676479)
-- [字符串的模式匹配：RK算法](https://blog.csdn.net/xlxxcc/article/details/64125265)
