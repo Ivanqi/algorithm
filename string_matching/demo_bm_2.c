@@ -64,7 +64,7 @@ int BM(char *s, int s_len, char *p, int p_len) {
         if (j < p_len - 1) {
             i = i + moveByGS(j, p_len, suffix, prefix);
         } else {
-            return -1;
+            i = i + 0;
         }
     }
     return -1;
