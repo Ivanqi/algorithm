@@ -96,3 +96,5 @@
 - [字符串匹配算法（BF & RK）](https://blog.csdn.net/qq_21201267/article/details/92695636)
 - [字符串匹配的KMP算法](http://www.ruanyifeng.com/blog/2013/05/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm.html)
 - [从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)
+- [The Knuth-Morris-Pratt Algorithm in my own words](http://jakeboxer.com/blog/2009/12/13/the-knuth-morris-pratt-algorithm-in-my-own-words/)
+- [如何更好的理解和掌握 KMP 算法?](https://www.zhihu.com/question/21923021)
