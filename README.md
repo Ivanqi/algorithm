@@ -25,3 +25,4 @@
 [stack](/stack/) | 栈 |
 [string_matching](/string_matching/) | 字符串匹配 |
 [tree](/tree/) | 树 |
+[trie](/trie/) | 字典树 |
