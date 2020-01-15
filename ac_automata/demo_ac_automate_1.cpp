@@ -5,44 +5,26 @@ using namespace std;
 
 class AcNode
 {
-    char data;
-    AcNode *children[MAX_NUM] = {nullptr};  // 字符集只包含a ~ z这26个字符
-    bool isEndingChar;                      // 结尾字符为true
-    int length;                             // 当isEndingChar = true时候，记录模式串长度
-    AcNode *fail;                           // 失败指针
-    AcNode(char w) 
-    {
-        thhis->data = w;
-        this->isEndingChar = false;
-        this->length = -1;
-    }
+    public:
+        char data;
+        AcNode *children[MAX_NUM] = {nullptr};  // 字符集只包含a ~ z这26个字符
+        bool isEndingChar;                      // 结尾字符为true
+        int length;                             // 当isEndingChar = true时候，记录模式串长度
+        AcNode *fail;                           // 失败指针
+        AcNode(char w) 
+        {
+            this->data = w;
+            this->isEndingChar = false;
+            this->length = -1;
+        }
 };
 
 class AcAutoMata
 {
-    public:
-        AcNode *root;
-        AcAutoMata() {
-            root = new AcNode('/');
-        }
-
-        void insert(string word) 
-        {
-            TrieNode *p = root;
-
-            for (int i = 0; i < word.length(); i++) {
-                int index = word[i] - 'a';
-                if (p->children[index] == NULL) {
-                    p->children[index] = new AcNode(word[i]);
-                }
-                p = p->children[index];
-            }
-            p->isEndingChar = true;
-        }
     private:
         void buildFailurePointer() 
         {
-            queue<AcNode> Q;
+            queue<AcNode*> Q;
             root->fail = NULL;
             Q.push(root);
             
@@ -71,8 +53,27 @@ class AcAutoMata
                 }
             }
         }
+    public:
+        AcNode *root;
+        AcAutoMata() {
+            root = new AcNode('/');
+        }
 
-        void match (char *text) // text是主串
+        void insert(string word) 
+        {
+            AcNode *p = root;
+
+            for (int i = 0; i < word.length(); i++) {
+                int index = word[i] - 'a';
+                if (p->children[index] == NULL) {
+                    p->children[index] = new AcNode(word[i]);
+                }
+                p = p->children[index];
+            }
+            p->isEndingChar = true;
+        }
+
+        void match(string text) // text是主串
         {
             int n = text.length();
             AcNode *p = root;
@@ -80,18 +81,28 @@ class AcAutoMata
             for (int i = 0; i < n; ++i) {
                 int idx = text[i] - 'a';
                 while (p->children[idx] == NULL && p != root) {
-                    p = p->fail;    // 失败指针发挥作用的地方
+                    p = p->fail;            // 失败指针发挥作用的地方
                 }
                 p = p->children[idx];
                 if (p == NULL) p = root;    // 如果没有匹配的，从root开始重新匹配
                 AcNode *tmp = p;
-                while (tmp != root) {   // 打印出可以匹配的模式串
+                while (tmp != NULL && tmp != root) {       // 打印出可以匹配的模式串
                     if (tmp->isEndingChar == true) {
                         int pos = i - tmp->length + 1;
-                        cout << "匹配起始下标: " + pos + "; 长度" + tmp.length() << endl;
+                        cout << "匹配起始下标: " << pos << "; 长度" << tmp->length << endl;
                     }
                     tmp = tmp->fail;
                 }
             }
         }
 };
+
+int main() {
+    AcAutoMata *ac = new AcAutoMata;
+    ac->insert("abcd");
+    ac->insert("bcd");
+    ac->insert("ce");
+
+    ac->match("nameabcdcallmebcdyousurece");
+    return 0;
+}
