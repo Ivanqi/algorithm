@@ -5,6 +5,7 @@
 # 列表
 项目 | 描述 | 
 -|-|
+[ac_automata](/ac_automata/) | AC自动机 |
 [array](/array/) | 数组 |
 [balanced_tree](/balanced_tree/) | 二叉平衡树 |
 [binary_search_tree](/binary_search_tree/) | 二叉查找树 |
