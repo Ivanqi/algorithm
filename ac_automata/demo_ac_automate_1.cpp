@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <assert.h>
 using namespace std;
 #define MAX_NUM 26
 
@@ -71,6 +72,7 @@ class AcAutoMata
                 p = p->children[index];
             }
             p->isEndingChar = true;
+            p->length = word.length();
         }
 
         void match(string text) // text是主串
@@ -80,10 +82,12 @@ class AcAutoMata
 
             for (int i = 0; i < n; ++i) {
                 int idx = text[i] - 'a';
-                while (p->children[idx] == NULL && p != root) {
+                while (p != NULL && p != root && p->children[idx] == NULL) {
                     p = p->fail;            // 失败指针发挥作用的地方
                 }
-                p = p->children[idx];
+                if (p != NULL) {
+                    p = p->children[idx];
+                }
                 if (p == NULL) p = root;    // 如果没有匹配的，从root开始重新匹配
                 AcNode *tmp = p;
                 while (tmp != NULL && tmp != root) {       // 打印出可以匹配的模式串
@@ -93,6 +97,7 @@ class AcAutoMata
                     }
                     tmp = tmp->fail;
                 }
+                assert(p != NULL);
             }
         }
 };
