@@ -14,6 +14,7 @@
 [complete_binary_tree](/complete_binary_tree/) | 完全二叉树 |
 [dynamic_programming](/dynamic_programming/) | 动态规划 |
 [graph](/graph/) | 图 |
+[greedy](/greedy/) | 贪心算法 |
 [hash_table](/hash_table/) | 散列表 |
 [heap](/heap/) | 堆 |
 [linkedlist](/linkedlist/) | 链表 |
