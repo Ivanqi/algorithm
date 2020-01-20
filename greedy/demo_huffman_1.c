@@ -39,7 +39,7 @@ void HuffmanTree(HNodeType HuffNode[MAXNODE], int n) {
 
     // 输入 n 个叶子结点的权值
     for (i = 0; i < n; i++) {
-        printf("Please input char of leaf node: %d", i);
+        printf("Please input char of leaf node:");
         scanf("%c", &HuffNode[i].value);
 
         getchar();
@@ -47,7 +47,7 @@ void HuffmanTree(HNodeType HuffNode[MAXNODE], int n) {
     
 
     for (i = 0; i < n; i++) {
-        printf("Please input weight of leaf node: %d", i);
+        printf("Please input weight of leaf node:");
         scanf("%d", &HuffNode[i].weight);
 
         getchar();
@@ -65,22 +65,21 @@ void HuffmanTree(HNodeType HuffNode[MAXNODE], int n) {
                 x2 = x1;
                 m1 = HuffNode[j].weight;
                 x1 = j;
-            } else if (HuffNode[j].weight < m2 && HuffNode[j].parent == -1){
+            } else if (HuffNode[j].weight < m2 && HuffNode[j].parent == -1) {
                 m2 = HuffNode[j].weight;
                 x2 = j;
             }
         }
+        // 设置找到的两个子结点x1, x2的父结点信息
+        HuffNode[x1].parent = n + i;
+        HuffNode[x2].parent = n + i;
+        HuffNode[n + i].weight = HuffNode[x1].weight + HuffNode[x2].weight;
+        HuffNode[n + i].lchild = x1;
+        HuffNode[n + i].rchild = x2;
+
+        printf("x1.weight and x2.weight in round %d: %d, %d\n", i + 1, HuffNode[x1].weight, HuffNode[x2].weight);    // 用于测试
+        printf("\n");
     }
-
-    // 设置找到的两个子结点x1, x2的父结点信息
-    HuffNode[x1].parent = n + i;
-    HuffNode[x2].parent = n + i;
-    HuffNode[n + i].weight = HuffNode[x1].weight + HuffNode[x2].weight;
-    HuffNode[n + i].lchild = x1;
-    HuffNode[n + i].rchild = x2;
-
-    printf("x1.weight and x2.weight in round %d: %d, %d\n", i + 1, HuffNode[x1].weight, HuffNode[2].weight);    // 用于测试
-    printf("\n");
 }
 
 // 解码
