@@ -12,6 +12,7 @@
 [btree](/btree/) | B树 |
 [combination](/combination/) | 组合 |
 [complete_binary_tree](/complete_binary_tree/) | 完全二叉树 |
+[divide_and_conquer](/divide_and_conquer/) | 分治算法 |
 [dynamic_programming](/dynamic_programming/) | 动态规划 |
 [graph](/graph/) | 图 |
 [greedy](/greedy/) | 贪心算法 |
