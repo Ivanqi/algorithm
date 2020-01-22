@@ -40,6 +40,7 @@
 #### 排序算法
 - [冒泡排序](./bubble_sort.md)
 - [插入排序](./insetion_sort.md)
+- [选择排序](./selection_sort.md)
 - [归并排序](./merge_sort.md)
 - [快速排序](./quick_sort.md)
 - [桶排序](./bucket_sort.md)
