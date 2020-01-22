@@ -1,4 +1,4 @@
-#### 冒泡排序
+#### 冒泡排序(Bubble Sort)
 ```
 int bubbleSort(int A[], int N) {
     int sw = 0;

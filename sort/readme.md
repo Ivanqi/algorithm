@@ -39,12 +39,16 @@
 
 #### 排序算法
 - [冒泡排序](./bubble_sort.md)
+- [插入排序](./insetion_sort.md)
 - [归并排序](./merge_sort.md)
 - [快速排序](./quick_sort.md)
 - [桶排序](./bucket_sort.md)
 - [计数排序](./counting_sort.md)
 - [基数排序](./radix_sort.md)
 
+#### 其他
+- [PHP排序算法](./php_sort.md)
+- [各排序算法时间复杂度比较](./sort.md)
 
 #### 参考资料
 - [一次性弄懂到底什么叫做分治思想](https://www.cnblogs.com/yinbiao/p/9215525.html)
