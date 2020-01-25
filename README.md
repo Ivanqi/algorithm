@@ -22,6 +22,7 @@
 [permutation](/permutation/) | 排列 |
 [queue](/queue/) | 队列 |
 [rbtree](/rbtree/) | 红黑树 |
+[recall](/recall/) | 回溯算法 |
 [recursion](/recursion/) | 递归 |
 [search](/search/) | 搜索 |
 [skiplist](/skiplist/) | 跳表 |
