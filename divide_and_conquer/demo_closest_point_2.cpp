@@ -21,14 +21,14 @@ class Point     // 点
 
 typedef vector<Point> PointVec;
 
-bool compx(const Point &a, cosnt Point &b) {
+bool compx(const Point &a, const Point &b) {
     if (a.x != b.x) {
         return a.x < b.x;
     }
     return a.y < b.y;
 }
 
-bool compy(const Point &a, cosnt Point &b) {
+bool compy(const Point &a, const Point &b) {
     return a.y < b.y;
 }
 
@@ -40,7 +40,7 @@ class ClosestPoint
     public:
         ClosestPoint() 
         {
-            srand(unsinged(time(0)));
+            srand(unsigned(time(0)));
             double x, y;
             cout << "请输入测试点个数， 将随机生成散点: ";
             cin >> numOfPoint;
@@ -96,28 +96,30 @@ class ClosestPoint
             }
 
             sort(points_vec.begin() + left, points_vec.begin() + right + 1, compx);
+
             // 把点群按照x排序
             size_t mid = (left + right) / 2;
             double mid_x = points_vec[mid].x;
             double distance = RAND_MAX, d;
-            distance = min(distance, calcDist(left, mid, s, t));    // 递归划分左边
-            distance = min(distance, calcDist(mid+1, right, s, t)); // 递归划分右边
-            size_t i, j, k = 0;
 
-            PointVec temp;//存储临时点（在mid_x左右d范围内的）
-            for(i = left; i <= right; ++i) {
-                if(fabs(points_vec[i].x-mid_x) <= distance) {
-                    temp.emplace_back(points_vec[i].id,points_vec[i].x,points_vec[i].y);
+            distance = min(distance, calcDist(left, mid, s, t));    // 递归划分左边
+            distance = min(distance, calcDist(mid + 1, right, s, t)); // 递归划分右边
+
+            size_t i, j, k = 0;
+            PointVec temp;  // 存储临时点（在mid_x左右d范围内的）
+            for (i = left; i <= right; ++i) {
+                if (fabs(points_vec[i].x - mid_x) <= distance) {
+                    temp.emplace_back(points_vec[i].id, points_vec[i].x, points_vec[i].y);
                     k++;
                 }
             }
 
-            sort(temp.begin(),temp.end(),compy);    // 再把范围内的点，按y排序
-            for(i = 0; i < k; ++i) {
-                for(j = i+1; j < k && temp[j].y-temp[i].y < distance; ++j) {
-                    //在临时点里寻找距离更小的，内层循环最多执行不超过4次就会退出
-                    d = dist(temp[i],temp[j]);
-                    if(d < distance) {
+            sort(temp.begin(), temp.end(), compy);    // 再把范围内的点，按y排序
+            for (i = 0; i < k; ++i) {
+                for (j = i + 1; j < k && temp[j].y - temp[i].y < distance; ++j) {
+                    // 在临时点里寻找距离更小的，内层循环最多执行不超过4次就会退出
+                    d = dist(temp[i], temp[j]);
+                    if (d < distance) {
                         distance = d;
                         s = temp[i].id;
                         t = temp[j].id;
@@ -141,7 +143,7 @@ class ClosestPoint
 };
 
 int main() {
-    
+
     ClosestPoint cp;
     clock_t start, end;
     cout << "方法1，暴力求解：" << endl;
