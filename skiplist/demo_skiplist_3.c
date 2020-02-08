@@ -76,6 +76,25 @@ void skiplist_destory(skiplist* list) {
  * 1. 逐层检查结点：是为了让插入的值插入到合适的位置，比如前面的值比插入的小
  * 2. 更新最大层数：新生成的level 和 旧level比较。如果新level比旧level大，就必须初始化旧level后面的数据
  * 3. 逐层更新节点的指针：update[i]->next[i] 指向一个新的空地址。然后与tmp的内存地址交换
+ * 4. 例子
+ *  1. 插入的数据 1, 2, 3 . 对应的level 4, 3, 4
+ *  2. 步骤
+ *      1. 插入1， level 4
+ *         1. node(0) -> 1 -> null
+ *         2. node(1) -> 1 -> null
+ *         3. node(2) -> 1 -> null
+ *         4. node(3) -> 1 -> null
+ *      2. 插入2， level 3
+ *         1. node(0) -> 1 -> 2 -> null
+ *         2. node(1) -> 1 -> 2 -> null
+ *         3. node(2) -> 1 -> 2 -> null
+ *         4. node(3) -> 1 -> null
+ *      3. 插入3， level 4
+ *         1. node(0) -> 1 -> 2 -> 3 -> null
+ *         2. node(1) -> 1 -> 2 -> 3 -> null
+ *         3. node(2) -> 1 -> 2 -> 3 -> null
+ *         4. node(3) -> 1 -> 3 -> null
+ * 
  */
 
 int skiplist_insert(skiplist* list, int val) {
