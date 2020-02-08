@@ -55,3 +55,6 @@
     - 现在很容易计算出：
       - 当p=1/2时，每个节点所包含的平均指针数目为2；
       - 当p=1/4时，每个节点所包含的平均指针数目为1.33。这也是Redis里的skiplist实现在空间上的开销。
+
+#### 参考资料
+- [Redis为什么用跳表而不用平衡树？](https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261425&idx=1&sn=d840079ea35875a8c8e02d9b3e44cf95&scene=21#wechat_redirect)
