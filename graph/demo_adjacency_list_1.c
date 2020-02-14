@@ -12,7 +12,7 @@ typedef struct node {   // 边表节点
 typedef struct {
     VertexType vertex;
     EdgeNode* firstedge;
-}VertexNode;
+} VertexNode;
 
 typedef VertexNode AdjList[MaxVertexNum];
 
@@ -77,7 +77,7 @@ void create(ALGraph* G) {
         G->adjlist[i].firstedge = s;
         s = (EdgeNode*)malloc(sizeof(EdgeNode));
         s->adjvex = i;
-        s->next = G->adjlist[i].firstedge;
+        s->next = G->adjlist[j].firstedge;
         G->adjlist[j].firstedge = s;
     }
 }
