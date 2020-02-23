@@ -78,3 +78,4 @@
 #### 参考资料
 - [白话解析：一致性哈希算法 consisten hashing](http://www.zsythink.net/archives/1182)
 - [漫画：什么是一致性哈希？](https://mp.weixin.qq.com/s/yimfkNYF_tIJJqUIzV7TFA)
+- [二进制、八进制、十进制、十六进制之间的转换](https://jingyan.baidu.com/article/495ba84109665338b30ede98.html)
