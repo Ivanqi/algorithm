@@ -56,7 +56,7 @@ string sha1(const string& strRaw) {
     const unsigned K[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
 
     // 计算需要两个缓冲区，每个都由5个32位字节，还需要一个80个32位字的缓存区
-    // 第一个5个字的缓冲区被标识为A, B, C, D, E
+    // 第一个6个字的缓冲区被标识为A, B, C, D, E, T
     unsigned A(0x67452301), B(0xefcdab89), C(0x98badcfe), D(0x10325476), E(0xc3d2e1f0), T(0);
     unsigned W[80] = {0};
 
