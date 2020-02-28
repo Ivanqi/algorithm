@@ -81,3 +81,5 @@
 - [二进制、八进制、十进制、十六进制之间的转换](https://jingyan.baidu.com/article/495ba84109665338b30ede98.html)
 - [sha1 加密算法的 C++ 语言实现](https://blog.sbw.so/u/cpp-implements-class-for-sha1-encryption-algorithm.html)
 - [SHA256算法原理详解](https://blog.csdn.net/u011583927/article/details/80905740)
+- [MD5算法解析](https://www.cnblogs.com/chars/p/4983291.html)
+- [加密算法原理分析(MD5、SHA-256)](https://juejin.im/post/5ce6b828f265da1bba58dd9e)
