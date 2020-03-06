@@ -42,15 +42,22 @@ typedef struct HUFFMAN_TAB {
 } HUFFMAN_TAB;
 
 bool isFileExist(char *fileName);
-ALPHA_FREQ *getAlphaFreq(char *sourceFileName, int *alphaVariety);
 void showAlphaFreq(ALPHA_FREQ *alphaFreq, int alphaVariety);
-HUFFMAN_TAB *initHuffmanTab(ALPHA_FREQ *alphaFreq, int alphaVariety, int *hufIndex);
+void showHuffmanTab(HUFFMAN_TAB *huffmanTab, int count);
 void destoryHuffmanTab(HUFFMAN_TAB *huffmanTab, int count);
+
+// 压缩
+ALPHA_FREQ *getAlphaFreq(char *sourceFileName, int *alphaVariety);
+HUFFMAN_TAB *initHuffmanTab(ALPHA_FREQ *alphaFreq, int alphaVariety, int *hufIndex);
 int getMinFreq(HUFFMAN_TAB *huffmanTab, int count);
 void creatHuffmanTree(HUFFMAN_TAB *huffmanTab, int alphaVariety);
 void makeHuffmanCode(HUFFMAN_TAB *huffmanTab, int root, int index, char *code);
 void huffmanEncodindg(HUFFMAN_TAB *huffmanTab, char *sourceFileName, char *targetFileName, int *hufIndex, int alphaVariety, ALPHA_FREQ *alphaFreq);
 int getlastValidBit(HUFFMAN_TAB *huffmanTab, int alphaVariety);
-void showHuffmanTab(HUFFMAN_TAB *huffmanTab, int count);
+
+//解压
+HUF_FILE_HEAD readFileHead(char *sourceFileName);
+void huffmanDecoding(HUFFMAN_TAB *huffmanTab, char *sourceFileName, char *targetFileName, int alphaVariety, HUF_FILE_HEAD fileHead);
+ALPHA_FREQ *readAlphaFreq(char *sourceFileName, int *alphaVariety, HUF_FILE_HEAD fileHead);
 
 #endif

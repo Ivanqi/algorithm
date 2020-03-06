@@ -23,6 +23,31 @@ void showAlphaFreq(ALPHA_FREQ *alphaFreq, int alphaVariety) {
     }
 }
 
+void showHuffmanTab(HUFFMAN_TAB *huffmanTab, int count) {
+	int i;
+
+	printf("%-4s %-4s %-4s %-6s %-6s %-6s %s\n", "下标", "字符", "频度", "左孩子", "右孩子", "visited", "code");
+	for (i = 0; i < count; i++) {
+		printf("%-5d %-4c %-5d %-6d %-7d %-4d %s\n",
+            i,
+            huffmanTab[i].alphaFreq.alpha,
+            huffmanTab[i].alphaFreq.freq,
+            huffmanTab[i].leftChild,
+            huffmanTab[i].rightChild,
+            huffmanTab[i].visited,
+            (huffmanTab[i].code ? huffmanTab[i].code : "无"));
+	}
+}
+
+void destoryHuffmanTab(HUFFMAN_TAB *huffmanTab, int alphaVariety) {
+    int i;
+
+    for (i = 0; i < alphaVariety; i++) {
+        free(huffmanTab[i].code);
+    }
+    free(huffmanTab);
+}
+
 /**
  * 从sourceFileName 文件中读取字符串
  * feof()函数不是"文件结束标志"，而是一个“动作标志”函数
@@ -63,7 +88,6 @@ ALPHA_FREQ *getAlphaFreq(char *sourceFileName, int *alphaVariety) {
             index++;
         }
     }
-
     return alphaFreq;
 }
 
@@ -94,7 +118,7 @@ void creatHuffmanTree(HUFFMAN_TAB *huffmanTab, int alphaVariety) {
         leftChild = getMinFreq(huffmanTab, alphaVariety + i);
         rightChild = getMinFreq(huffmanTab, alphaVariety + i);
         huffmanTab[alphaVariety + i].alphaFreq.alpha = '#';
-        huffmanTab[alphaVariety + i].alphaFreq.freq = huffmanTab[leftChild].alphaFreq.freq;
+        huffmanTab[alphaVariety + i].alphaFreq.freq = huffmanTab[leftChild].alphaFreq.freq + huffmanTab[rightChild].alphaFreq.freq;
 
         huffmanTab[alphaVariety + i].leftChild = leftChild;
         huffmanTab[alphaVariety + i].rightChild = rightChild;
@@ -131,22 +155,6 @@ void makeHuffmanCode(HUFFMAN_TAB *huffmanTab, int root, int index, char *code) {
     }
 }
 
-void showHuffmanTab(HUFFMAN_TAB *huffmanTab, int count) {
-    int i;
-
-    printf("%-4s %-4s %-4s %-6s %-6s %-6s %s\n", "下标", "字符", "频度", "左孩子", "右孩子", "visited", "code");
-    for (i = 0; i < count; i++) {
-        printf("%-5d %-4c %-5d %-6d %-7d %-4d %s\n",
-            i,
-            huffmanTab[i].alphaFreq.alpha,
-            huffmanTab[i].alphaFreq.freq,
-            huffmanTab[i].leftChild,
-            huffmanTab[i].rightChild,
-            huffmanTab[i].visited,
-            (huffmanTab[i].code ? huffmanTab[i].code : "无"));
-    }
-}
-
 // 取最后一个字节的有效位数
 int getlastValidBit(HUFFMAN_TAB *huffmanTab, int alphaVariety) {
     int sum = 0;
@@ -174,10 +182,11 @@ void huffmanEncoding(HUFFMAN_TAB *huffmanTab, char *sourceFileName, char *target
     int bitIndex = 0;
     int i;
     char *hufCode = NULL;
-    HUF_FILE_HEAD fileHead = {'y', 'c', 'y'};
+    HUF_FILE_HEAD fileHead = {'h', 'f', 'm'};
 
     fpIn = fopen(sourceFileName, "rb");
-    fpOut = fopen(targetFileName, "wb");
+    fpOut = fopen(targetFileName, "w+");
+    
 
     fileHead.alphaVariety = (unsigned char) alphaVariety;
     fileHead.lastValidBit = getlastValidBit(huffmanTab, alphaVariety);
@@ -227,9 +236,88 @@ void huffmanEncoding(HUFFMAN_TAB *huffmanTab, char *sourceFileName, char *target
     fclose(fpOut);
 }
 
-int huffman_encode_test(int argc, char const *argv[]) {
-    char sourceFileName[256] = {0};
-    char targetFileName[256] = {0};
+void huffmanDecoding(HUFFMAN_TAB *huffmanTab, char *sourceFileName, char *targetFileName, int alphaVariety, HUF_FILE_HEAD fileHead) {
+    int root = 2 * alphaVariety - 2;
+    FILE *fpIn;
+    FILE *fpOut;
+
+    bool finished = false;
+    unsigned char value;
+    unsigned char outValue;
+
+    int index = 0;
+    long fileSize;
+    long curLocation;
+
+    fpIn = fopen(sourceFileName, "rb");
+    fpOut = fopen(targetFileName, "wb");
+
+    fseek(fpIn, 0L, SEEK_END);
+    fileSize = ftell(fpIn);                                                            // 文件总长度 fileSize
+    fseek(fpIn, sizeof(HUF_FILE_HEAD) + sizeof(ALPHA_FREQ) * alphaVariety, SEEK_SET);  // 略过前面的元数据，字符种类和频度
+    curLocation = ftell(fpIn);
+
+    // 从根出发, '1'向左子树走，'0'向右子树走，若到达叶子节点，输出叶子节点下标对应的字符。再回到根节点继续
+    fread(&value, sizeof(unsigned char), 1, fpIn);
+
+    while (!finished) {
+        if (huffmanTab[root].leftChild == -1 && huffmanTab[root].rightChild == -1) {
+            outValue = huffmanTab[root].alphaFreq.alpha;
+            fwrite(&outValue, sizeof(unsigned char), 1, fpOut);
+            if (curLocation >= fileSize && index >= fileHead.lastValidBit) break;
+
+            root = 2 * alphaVariety - 2;
+        }
+
+        // 取出的一个字节从第一位开始看，'1'向左子树，'0'向右子树走
+        // 若超过一个字节，8位，则需要读取下一个字节
+        if (GET_BYTE(value, index)) {
+            root = huffmanTab[root].leftChild;
+        } else {
+            root = huffmanTab[root].rightChild;
+        }
+
+        if (++index >= 8) {
+            index = 0;
+            fread(&value, sizeof(unsigned char), 1, fpIn);
+            curLocation = ftell(fpIn);
+        }
+    }
+
+    fclose(fpIn);
+    fclose(fpOut);
+}
+
+HUF_FILE_HEAD readFileHead(char *sourceFileName) {
+    HUF_FILE_HEAD fileHead;
+    FILE *fp;
+
+    fp = fopen(sourceFileName, "rb");
+    // 读取压缩文件的头部元数据
+    fread(&fileHead, sizeof(HUF_FILE_HEAD), 1, fp);
+    fclose(fp);
+
+    return fileHead;
+}
+
+ALPHA_FREQ *readAlphaFreq(char *sourceFileName, int *alphaVariety, HUF_FILE_HEAD fileHead) {
+    
+    ALPHA_FREQ *alphaFreq = NULL;
+    FILE *fp;
+    *alphaVariety = fileHead.alphaVariety;
+    alphaFreq = (ALPHA_FREQ*) calloc(sizeof(ALPHA_FREQ), *alphaVariety);
+   
+
+    fp = fopen(sourceFileName, "rb");
+    // 略过前头数据的字节
+    fseek(fp, sizeof(HUF_FILE_HEAD), SEEK_SET);
+    fread(alphaFreq, sizeof(ALPHA_FREQ), *alphaVariety, fp);
+    
+    fclose(fp);
+    return alphaFreq;
+}
+
+int huffmanEncode(char *sourceFileName, char *targetFileName) {
 
     ALPHA_FREQ *alphaFreq = NULL;               // 统计字符及频度的数组
     int alphaVariety = 0;                       // 字符种类
@@ -237,19 +325,12 @@ int huffman_encode_test(int argc, char const *argv[]) {
     char *code = NULL;                          // 存储字符的哈夫曼编码
     int hufIndex[256] = {0};                    // 下标为字符的ASCII码，其值为该字符在哈夫曼表中的下标
 
-    if (argc != 3) {
-        printf("正确的命令: huffman_compress_encode <源文件名> <目标文件名>\n");
-        return 0;
-    }
-
     // 第二个参数为源文件名
-    strcpy(sourceFileName, argv[1]);
     if (!isFileExits(sourceFileName)) {
         printf("源文件(%s)不存在!\n", sourceFileName);
         return 0;
     }
 
-    strcpy(targetFileName, argv[2]);
     alphaFreq = getAlphaFreq(sourceFileName, &alphaVariety);
     // showAlphaFreq(alphaFreq, alphaVariety);
 
@@ -258,7 +339,48 @@ int huffman_encode_test(int argc, char const *argv[]) {
     code = (char *)calloc(sizeof(char), alphaVariety);
     makeHuffmanCode(huffmanTab, 2 * alphaVariety - 2, 0, code);
     // showHuffmanTab(huffmanTab, 2 * alphaVariety - 1);
-
     huffmanEncoding(huffmanTab, sourceFileName, targetFileName, hufIndex, alphaVariety, alphaFreq);
+
+    destoryHuffmanTab(huffmanTab, alphaVariety);
+    free(alphaFreq);
+    free(code);
+
+    return 0;
+}
+
+int huffmanDecode(char *sourceFileName, char *targetFileName) {
+
+    ALPHA_FREQ *alphaFreq = NULL;               // 统计字符及频度的数组
+    int alphaVariety = 0;                       // 字符种类
+    HUFFMAN_TAB *huffmanTab = NULL;             // 哈夫曼表
+    char *code = NULL;                          // 存储字符的哈夫曼编码
+    int hufIndex[256] = {0};                    // 下标为字符的ASCII码，其值为该字符在哈夫曼表中的下标
+    HUF_FILE_HEAD fileHead;
+
+    if (!isFileExits(sourceFileName)) {
+        printf("源文件(%s)不存在!\n", sourceFileName);
+        return 0;
+    }
+
+    fileHead = readFileHead(sourceFileName);
+    if (!(fileHead.flag[0] == 'h' && fileHead.flag[1] == 'f' && fileHead.flag[2] == 'm')) {
+        printf("不可识别的文件格式\n");
+    }
+
+    alphaFreq = readAlphaFreq(sourceFileName, &alphaVariety, fileHead);
+    // showAlphaFreq(alphaFreq, alphaVariety);
+
+    huffmanTab = initHuffmanTab(alphaFreq, alphaVariety, hufIndex);
+    creatHuffmanTree(huffmanTab, alphaVariety);
+    code = (char *)calloc(sizeof(char), alphaVariety);
+    makeHuffmanCode(huffmanTab, 2 * alphaVariety - 2, 0, code);
+    // showHuffmanTab(huffmanTab, 2 * alphaVariety - 1);
+
+    huffmanDecoding(huffmanTab, sourceFileName, targetFileName, alphaVariety, fileHead);
+
+    destoryHuffmanTab(huffmanTab, alphaVariety);
+    free(alphaFreq);
+    free(code);
+
     return 0;
 }
