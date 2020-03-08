@@ -1,5 +1,5 @@
 #include "huffencode.h"
-// #include "huffdecode.h"
+#include "huffdecode.h"
 #include <string.h>
 // #include <stdio.h>
 
@@ -11,11 +11,10 @@ void huffmanEncode(const char *sourceFileName, const char *targetFileName) {
     he.encode(sourceFileName, targetFileName);
 }
 
-// void testHuffDecode(const std::string& filename) {
-//     std::string destFilename = "de" + filename;
-//     huffDecode hd;
-//     hd.decode(filename.data(), destFilename.data());
-// }
+void huffmanDecode(const char *sourceFileName, const char *targetFileName) {
+    huffDecode hd;
+    hd.decode(sourceFileName, targetFileName);
+}
 
 
 int main(int argc, char const *argv[]) {
@@ -33,7 +32,7 @@ int main(int argc, char const *argv[]) {
     if (strcmp(argv[1], "encode") == 0) {
         huffmanEncode(sourceFileName, targetFileName);
     } else if (strcmp(argv[1],  "decode") == 0) {
-        // return huffmanDecode(sourceFileName, targetFileName);
+        huffmanDecode(sourceFileName, targetFileName);
     } else {
         cout << "mode 选择错误" << endl;
         

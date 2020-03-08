@@ -16,7 +16,7 @@ namespace huffman {
         Node *left;
         Node *right;
         Node(uchar _c, int f, Node *l = nullptr, Node *r = nullptr): c(_c), freq(f), left(l), right(r){}
-        bool operator<(const Node &node) const {    // 重载，优先队列的底层数据结构std::heap是最大堆
+        bool operator < (const Node &node) const {    // 重载，优先队列的底层数据结构std::heap是最大堆
             return freq > node.freq;
         }
     };
@@ -28,7 +28,8 @@ namespace huffman {
                     Node n(i.first, i.second);
                     q.push(n);
                 }
-                
+                makehuffTree();
+                // watch();
             }
             ~huffTree() {
                 Node node = q.top();

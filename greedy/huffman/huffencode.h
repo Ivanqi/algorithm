@@ -12,7 +12,6 @@ namespace huffman {
         public:
             bool encode(const char*srcFilename, const char* destFilename) {
                 if (!_getAlphaFreq(srcFilename)) return false;
-                
                 huffTree htree(_afMap);
                 htree.huffmanCode(_codeMap);
                 return _encode(srcFilename, destFilename);
@@ -49,7 +48,7 @@ namespace huffman {
                 uchar value;
 
                 int bitIndex = 0;
-                fileHead filehead = {'e', 'v', 'e', 'h'};
+                fileHead filehead = {'h', 'f', 'm'};
                 filehead.alphaVariety = (uchar) _afMap.size();
                 filehead.lastValidBit = _getLastValidBit();
 
