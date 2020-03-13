@@ -17,5 +17,6 @@
 - [哈夫曼压缩与解压缩](https://blog.csdn.net/weixin_38214171/article/details/81626498)
 - [哈夫曼编解码压缩解压文件—C++实现](https://www.cnblogs.com/evenleee/p/11932122.html)
 - [深入解析数据压缩算法](https://blog.csdn.net/fanyun_01/article/details/80211799)
+- [基于哈夫曼编码的压缩解压程序（C 语言）](https://www.cnblogs.com/keke2014/p/3857335.html)
 - [三类基于贪心思想的区间覆盖问题](https://www.cnblogs.com/acgoto/p/9824723.html)
 - [LZ77压缩](https://blog.csdn.net/lf_2016/article/details/60342859)
