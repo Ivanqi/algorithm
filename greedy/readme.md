@@ -18,3 +18,4 @@
 - [哈夫曼编解码压缩解压文件—C++实现](https://www.cnblogs.com/evenleee/p/11932122.html)
 - [深入解析数据压缩算法](https://blog.csdn.net/fanyun_01/article/details/80211799)
 - [三类基于贪心思想的区间覆盖问题](https://www.cnblogs.com/acgoto/p/9824723.html)
+- [LZ77压缩](https://blog.csdn.net/lf_2016/article/details/60342859)
