@@ -17,12 +17,12 @@ bool check(int x, int y) {
         }
 
         // 检查左侧斜向
-        if (x - 1 - i >= 0 && chessBoard[x - 1 - i][y - 1 -i] == 1) {
+        if (x - 1 - i >= 0 && chessBoard[x - 1 - i][y - 1 - i] == 1) {
             return false;
         }
 
         // 检查右侧斜向
-        if (x + 1 + i < MAX_NUM && chessBoard[x + 1 + i][y - 1 + i] == 1) {
+        if (x + 1 + i < MAX_NUM && chessBoard[x + 1 + i][y - 1 - i] == 1) {
             return false;
         }
     }
