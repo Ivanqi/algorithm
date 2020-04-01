@@ -16,5 +16,10 @@
 - 以 demo_regular_expression_1.cpp, test_case_3为例子
 - 回溯图
   - ![avatar](images/../../images/recall_2.png)
+
+#### 全排列
+- 以 demo_full_permutation_3.cpp 为例子
+- 回溯图
+  - ![avatar](images/../../images/recall_3.png)
 #### 参考资料
 - [漫画：什么是八皇后问题？](https://blog.csdn.net/bjweimengshu/article/details/79386101)
