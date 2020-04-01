@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void printState(int states[5][9], int n, int w) {
+void printState(int states[5][10], int n, int w) {
     int i, j;
     for (i = 0; i < n; ++i) {
         for (j = 0; j < w + 1; ++j) {
@@ -12,7 +12,7 @@ void printState(int states[5][9], int n, int w) {
 }
 
 int knapsack3(int *weight, int *values, int n, int w) {
-    int states[n][w];
+    int states[n][w + 1];
     int i, j, v;
 
     for (i = 0; i < n; ++i) {   // 初始化states
@@ -25,6 +25,8 @@ int knapsack3(int *weight, int *values, int n, int w) {
     if (weight[0] <= w) {
         states[0][weight[0]] = values[0];
     }
+
+    printState(states, n, w);
 
     for (i = 1; i < n; ++i) {           // 动态规划，状态转移
         for (j = 1; j <= w; ++j) {      // 不选择第i个物品
