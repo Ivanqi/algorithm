@@ -19,7 +19,7 @@ void f(int i, int cw) {
     mem[i][cw] = true;          // 记录(i, cw)这个状态
     f(i + 1, cw);               // 选择不装第i个物品
     if (cw + weight[i] <= w) {
-        f(i + 1, weight[i]);    // 选择装第i个物品
+        f(i + 1, cw + weight[i]);    // 选择装第i个物品
     }
 }
 
