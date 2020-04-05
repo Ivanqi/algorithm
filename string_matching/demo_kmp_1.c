@@ -8,11 +8,11 @@ void getNext(char *p, int p_len, int *next) {
     int i;
 
     for (i = 1; i < p_len; ++i) {
-        // p[k] != p[!] 需要找次最长可匹配前缀 
+        // p[k] != p[i] 需要找次最长可匹配前缀 
         while (k != -1 && p[k + 1] != p[i]) {
             k = next[k];
         }
-        
+        // p[k] == p[i]. 则next[i] = next[i - 1] + 1 = k
         if (p[k + 1] == p[i]) {
             ++k;
         }
