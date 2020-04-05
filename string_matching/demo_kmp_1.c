@@ -2,56 +2,50 @@
 #include <stdlib.h>
 #include <string.h>
 
-void GetNext(char *p, int *next) {
-    int pLen = strlen(p);
+void getNext(char *p, int p_len, int *next) {
     next[0] = -1;
     int k = -1;
-    int j = 0;
+    int i;
 
-    while (j < pLen - 1) {
-        // p[k]表示前缀，p[j]表示后缀
-        if (k == -1 || p[j] == p[k]) {
-            ++k;
-            ++j;
-            next[j] = k;
-        } else {
+    for (i = 1; i < p_len; ++i) {
+        // p[k] != p[!] 需要找次最长可匹配前缀 
+        while (k != -1 && p[k + 1] != p[i]) {
             k = next[k];
         }
+        
+        if (p[k + 1] == p[i]) {
+            ++k;
+        }
+        next[i] = k;
     }
 }
 
-int KmpSearch(char *s, char *p) {
-    int i = 0;
-    int j = 0;
-    int sLen = strlen(s);
-    int pLen = strlen(p);
-    int next[pLen];
-    GetNext(p, next);
 
-    while (i < sLen && j < pLen) {
-        // 如果 j == -1，或者当前字符匹配成功(即S[i] == P[j]),都会i++,j++
-        if (j == -1 || s[i] == p[j]) {
-            i++;
-            j++;
-        } else {
-            // 如果j != -1,且当前字符匹配失败(即S[i] != P[j]),则令i不变，j = next[j]
-            // next[j]即为j所对应的next值
-            j = next[j];
+int kmp(char *s, int s_len, char *p, int p_len) {
+    int next[p_len];
+    getNext(p, p_len, next);
+    int j = 0;
+    int i;
+
+    for (i = 0; i < s_len; ++i) {
+        while (j > 0 && s[i] != p[j]) { // 一直找到s[i] 和 p[j]
+            j = next[j - 1] + 1;
+        }
+
+        if (s[i] == p[j]) ++j;
+        
+        if (j == p_len) {   // 找到匹配模式串
+            return i - p_len + 1;
         }
     }
 
-    if (j == pLen) {
-        return i - j;
-    } else {
-        return -1;
-    }
+    return -1;
 }
-
 int main() {
 
     char s[] = "ababcabcacbab";
     char p[] = "abcac";
 
-    int number = KmpSearch(s, p);
+    int number = kmp(s, strlen(s), p, strlen(p));
     printf("pos:%d\n", number);
 }

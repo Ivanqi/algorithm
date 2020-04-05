@@ -12,7 +12,7 @@
 void generateGS(char *p, int p_len, int *suffix, int *prefix) {
     // 初始化
     int i;
-    for (i = 0; i > p_len; i++) {
+    for (i = 0; i < p_len; i++) {
         suffix[i] = -1;
         prefix[i] = 0;
     }

@@ -2,14 +2,14 @@
 - BF 算法中的BF 是Brute Force的缩写，中文叫做暴力匹配法，也叫朴素匹配算法
 - ![avatar](images/../../images/string_matching_1.png)
 - 作为最简单，最暴力的字符串匹配算法，BF算法的思想可以用一句话来概括，那么就是`在主串中，检查起始位置分别是0, 1, 2 ... n - m 且长度为m的n - m + 1个子串，看有没有跟模式串匹配` 
+- BF 算法的缺陷
+  - BF算法。如果模式长度为m,主串长度为n,那么主串中，就会有 n - m + 1个长度为m的子串
+  - 每次检查主串与子串是否匹配，需要依次对比每个字符，所以BF算法的时间复杂度比较高, `O(n * m)`
 - 时间复杂度
   - O(n * m)
 
 #### RK 算法
 - RK 叫做 Rabin-Karp算法，BF的升级版算法
-- BF 算法的缺陷
-  - BF算法。如果模式长度为m,主串长度为n,那么主串中，就会有 n - m + 1个长度为m的子串
-  - 每次检查主串与子串是否匹配，需要依次对比每个字符，所以BF算法的时间复杂度比较高, `O(n * m)`
 - RK算法思路
   - 通过哈希算法对主串的 n - m + 1个子串分别求哈希值，然后逐个与模式串的哈希值比较大小
   - 如果某个子串的哈希值与模式串相等，那就说明对应的子串和模式匹配了
@@ -76,6 +76,23 @@
     - 如果表示模式串不同的后缀子串
       - ![avatar](images/../../images/string_matching_16.png)
       - ![avatar](images/../../images/string_matching_17.png)
+        - suffix 数组下标k，表示后缀字符串的长度
+        - 下标对应的数组值存储的是。好后缀{u}和模式串前缀相互匹配的起始下标值
+        - 例子
+          - cabcab 模式串，拆分前缀子串和后缀子串，求公共子串？
+            - 前缀
+              - c, ca, cab, cabc, cabca
+            - 后缀
+              - b, ba, bac, cbacb, bacba
+            - 前后缀访问顺序
+              - 前缀：从右往左遍历
+              - 后缀：从左往右遍历
+            - 公共子串
+              - 因为 cab == bac. 所以，取前缀中的 cab
+              - 然后按好后缀{u}的模式拆分子串
+                - b = 2
+                - ab = 1
+                - cab = 0
     - 不仅仅要在模式串中，查找跟好后缀匹配的另一个子串，还要在好后缀子串中，查找最长的能跟模式串前缀子串匹配的后缀子串
       - ![avatar](images/../../images/string_matching_18.png)
     - suffix 和 prefix 值填充
@@ -110,36 +127,35 @@
   - 假设最长的可匹配的那部分`前缀子串{v}`, 长度为k
   - 可以把模式串一次性往后滑动`j - k`位，相当于，每次遇到坏字符的时候，就把j 更新为k。i不变。然后比较
 
-- 最长长度表
+- 失效函数(next 数组)
+  - ![avatar](images/../../images/string_matching_27.png)
   - 例子：ababacd
-  - 过程
-    ```
-    1. a: 0
-    2. ab: 0
-    3. aba
-        a ab
-        ba a
-    4. abab
-        a ab aba
-        bab ab b
-    5. ababa
-        a ab aba abab
-        baba aba ab a
-    6. ababac
-        a ab aba abab ababa
-        babac abac bac ac c
-    7. ababacd
-        a ab aba abab ababa ababac
-        babacd abacd bacd acd cd c
-    ```
+    - 过程
+      ```
+      1. a: 0
+      2. ab: 0
+      3. aba
+          a ab
+          ba a
+      4. abab
+          a ab aba
+          bab ab b
+      5. ababa
+          a ab aba abab
+          baba aba ab a
+      6. ababac
+          a ab aba abab ababa
+          babac abac bac ac c
+      7. ababacd
+          a ab aba abab ababa ababac
+          babacd abacd bacd acd cd c
+      ```
   - 图表
     |模式串 | a | b | a | b | a | c | d |
     |-|-|-|-|-|-|-|-|
     |前后缀最大公共元素|0|0|1|2|3|0|0|
     |next数组|-1|0|0|1|2|3|0|
   - 移位位数: 已匹配的字符数 - 对应的部分匹配值
-- 失效函数(next 数组)
-  - ![avatar](images/../../images/string_matching_27.png)
 - next数组的计算
   - 暴力计算方法
     - 暴力求解子串，效率低
@@ -147,7 +163,7 @@
     - 把所有后缀子串从长到短找出来，依次看能否匹配前缀
   - 类动态规划方法(k：最长前后缀子串)
     - 若p[k] == p[i]
-      - 则next[i + 1] = next [i] + 1 = k + 1
+      - 则next[i] = next[i - 1] + 1 = k
       - ![avatar](images/../../images/string_matching_29.png)
       ```
         如果 next[i - 1] = k - 1.
@@ -157,7 +173,9 @@
         则 next[i] = k // 最长前后缀子串
       ```
     - 若p[k] ≠ p[i]
-      - 获得最大可匹配前缀 k. 如果 p[k] ≠ p[i]。则需要次最大匹配前缀 p[next[k]]. 如果 p[next[k]] != p[i]. 则需要次次最大匹配前缀。直到匹配成功，或者匹配失败
+      - 假设最长可匹配前缀 k
+      - 如果 p[k] ≠ p[i]。则需要次最大匹配前缀 p[next[k]].
+      - 如果 p[next[k]] != p[i]. 则需要次次最大匹配前缀。直到匹配成功，或者匹配失败
       - ![avatar](images/../../images/string_matching_30.png)
       - ![avatar](images/../../images/string_matching_31.png)
       - 如果此时p[ next[k] ] == p[i]，则next[i] =  next[k] + 1，否则继续递归前缀索引k = next[k]，而后重复此过程
