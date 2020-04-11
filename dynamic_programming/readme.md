@@ -85,4 +85,4 @@
     - 将状态转移方程翻译成代码
   - 以 demo_minCoins_3.c 和 demo_minCoins_4.c 为例子
   - 状态转移方程
-    - f(n) = 1 + min(f(n - 1) + f(n - 3) + f(n - 3))
+    - f(n) = 1 + min(f(n - 1) + f(n - 3) + f(n - 5))
