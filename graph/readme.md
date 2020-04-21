@@ -74,3 +74,4 @@
 - [拓扑排序~C语言完整代码](https://blog.csdn.net/weixin_43268636/article/details/89741174)
 - [拓扑排序(一)之 C语言详解](https://www.cnblogs.com/skywang12345/p/3711489.html)
 - [拓扑排序算法及C语言实现](http://data.biancheng.net/view/43.html)
+- [拓扑排序的两种实现：Kahn算法和dfs算法](https://blog.csdn.net/qinzhaokun/article/details/48541117)
