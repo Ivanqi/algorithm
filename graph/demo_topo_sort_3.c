@@ -7,11 +7,11 @@ typedef enum {false, true} bool;
 typedef struct ArcNode {
     int adjvex;                 // 邻接点在数组中的位置下标
     struct ArcNode *nextarc;    // 指向下一个邻接点的指针
-}ArcNode;
+} ArcNode;
 
 typedef struct VNode {
-    VertexType data;            // 顶点的数据域
-    ArcNode *firstarc;          // 指向邻接点的指针
+    VertexType data;                // 顶点的数据域
+    ArcNode *firstarc;              // 指向邻接点的指针
 } VNode, AdjList[MAX_VERTEX_NUM];   // 存储各链表头结点的数组
 
 typedef struct {
@@ -44,7 +44,7 @@ void CreateAOV(ALGraph **G) {
         scanf("%d, %d", &initial, &end);
 
         ArcNode *p = (ArcNode*)malloc(sizeof(ArcNode));
-        p->adjvex = LocateVex(*(*G), initial);
+        p->adjvex = LocateVex(*(*G), end);
         p->nextarc = NULL;
 
         int locate = LocateVex(*(*G), initial);
@@ -146,6 +146,24 @@ void TopologicalSort(ALGraph G) {
         return;
     }
 }
+
+/*
+6,8
+1
+2
+3
+4
+5
+6
+1,2
+1,4
+1,3
+3,2
+3,5
+4,5
+6,4
+6,5
+*/
 
 int main() {
 
