@@ -67,6 +67,14 @@
 - 空间复杂度
   - DFS 的消耗内存主要是 visited, stack数组。visited, stack数组的大小跟顶点的个数V成正比，所以总的空间复杂度O(V)
 
+#### Dijkstra 算法
+- 迪杰斯特拉(Dijkstra) 算法是典型最短路径算法，用于计算一个节点到其他节点的最短路径
+- 它的主要特点是以起始点为中心向外层扩展(广度优化搜索思想)，直到扩展为止
+- 其中的最小堆优先级队列，采用了贪心的思想。从小到大排列
+- 图例
+  - 以demo_dijkstra_1.cpp为例子
+  - ![avatar](images/../../images/graph_8.png)
+
 #### 参考资料
 - [图的基本算法（BFS和DFS）](https://www.jianshu.com/p/70952b51f0c8)
 - [图 | 存储结构：邻接矩阵及C语言实现](https://blog.csdn.net/liupeifeng3514/article/details/83753435)
