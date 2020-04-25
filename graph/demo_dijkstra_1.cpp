@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <limits.h>
+#include <memory.h>
 using namespace std;
 
 class Edge {
@@ -32,15 +33,20 @@ class PriorityQueue // 根据vertex.dist 构建小顶堆
         int count;
         int cal = 0;
         int topIndex = 1;
+        int *mapArea;
         PriorityQueue(int v):count(v + 1)
         {
             nodes = new Vertex*[v + 1];
+            mapArea = new int(v + 1);
         }
 
         Vertex *poll()
         {
             Vertex *topElem = top();
             pop();
+            if (topElem) {
+                mapArea[topElem->id] = 0;
+            }
             return topElem;
         }
 
@@ -51,31 +57,35 @@ class PriorityQueue // 根据vertex.dist 构建小顶堆
 
         void pop()
         {
-            swap(topIndex, count);
+            swap(topIndex, cal);
             cal--;
-            heapify(cal, topIndex);
+            adjustUp(cal, topIndex);
         }
 
         void add(Vertex *vertex)
-        {
-            update(vertex);
-        }
-
-        void update(Vertex *vertex)
         {
             if (cal >= count) {
                 cout << "数据已满，无法再添加数据" << endl;
                 return;
             }
-
             cal++;
             nodes[cal] = vertex;
+            mapArea[vertex->id] = cal;
             int i = cal;
+            adjustDown(i);
+        }
 
-            while (i / 2 > 0 && nodes[i]->dist < nodes[i / 2]->dist) {
-                swap(i, i / 2);
-                i = i / 2;
+        void update(Vertex *vertex)
+        {
+            int vertexId = vertex->id;
+            int index = mapArea[vertexId];
+            if (index == 0) {
+                cout << "无法找到对应的顶点" << endl;
+                return;
             }
+            cout << "update vertex.id:" << vertex->id << endl;
+            nodes[index] = vertex;
+            adjustDown(index);
         }
 
         bool isEmpty()
@@ -86,12 +96,20 @@ class PriorityQueue // 根据vertex.dist 构建小顶堆
     private:
         void swap(int a, int b) 
         {
-            Vertex *tmp = this->nodes[a];
-            this->nodes[a] = this->nodes[b];
-            this->nodes[b] = tmp;
+            Vertex *tmp = nodes[a];
+            nodes[a] = nodes[b];
+            nodes[b] = tmp;
         }
 
-        void heapify(int total, int parent) // 自上而下堆化
+        void adjustDown(int i)  // 自下而上
+        {
+            while (i / 2 > 0 && nodes[i]->dist < nodes[i / 2]->dist) {
+                swap(i, i / 2);
+                i = i / 2;
+            }
+        }
+
+        void adjustUp(int total, int parent) // 自上而下堆化
         {   
             int maxPos, left ,right;
 
@@ -133,6 +151,11 @@ class Graph {
             adj[s].push_back(e);
         }
 
+        /**
+         * while 循环最多会执行V次(V表示顶点的个数)，而内部的for循环的执行次数不确定，跟每个顶点的相邻边的个数有关，可以记做E0, E1, E2, ..., E(V - 1)
+         * for 循环内部代码涉及从优先级队列取数据，往优先级队列中添加数据，更新优先级队列等三个操作时间复杂度为O(logV)
+         * 综合两部分：时间复杂度O(E * logV)
+         */
         void dijkstra(int s, int t)             // 从顶点s到顶点t的最短路径
         {          
             int *predecessor = new int(v);      // 用来还原最短路径
@@ -182,7 +205,22 @@ class Graph {
         }
 };
 
-int main() {
+void test_add_edge(Graph *g) {
+    g->addEdge(0, 1, 10);
+    g->addEdge(0, 4, 15);
+    g->addEdge(1, 2, 15);
+    g->addEdge(1, 3, 2);
+    g->addEdge(3, 5, 12);
+    g->addEdge(2, 5, 5);
+    g->addEdge(4, 5, 10);
+}
 
+int main() {
+    int cap = 6;
+    Graph *g = new Graph(cap);
+    test_add_edge(g);
+
+    g->dijkstra(0, 5);
+    
     return 0;
 }
