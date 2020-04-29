@@ -85,3 +85,4 @@
 - [拓扑排序的两种实现：Kahn算法和dfs算法](https://blog.csdn.net/qinzhaokun/article/details/48541117)
 - [Dijkstra算法(一)之 C语言详解](https://www.cnblogs.com/skywang12345/p/3711512.html)
 - [Dijkstra’s shortest path algorithm | Greedy Algo-7](https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/)
+- [A*，那个传说中的算法](https://blog.csdn.net/zgwangbo/article/details/52078338)
