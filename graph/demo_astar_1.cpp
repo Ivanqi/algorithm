@@ -125,10 +125,13 @@ double hBFS(Point *startPos, Point *endPos) {
 class AStar
 {
     private:
-        const char START = 'S';
-        const char END = 'E';
-        const char VISITED = '-';
-        const char SPACE = '.';
+        const char START = 'S';     // 起点
+        const char END = 'E';       // 终点
+        const char VISITED = '-';   // 被访问过
+        const char SPACE = '.';     // 空地
+        const char WALL = 'W';      // 墙
+        const char ON_PATH = '@';   // 在结果路径上
+
         Point startPos;
         Point endPos;
         char arr[30][30] = {{0}};
@@ -138,12 +141,12 @@ class AStar
         const string s_arr[10] = {
             "....................",
             "....................",
-            "...II.......IIIII...",
-            ".....I......I....I..",
-            ".....I......I..E....",
-            ".....I......I....I..",
-            "...S.I......IIIII...",
-            "...II...............",
+            "...WW.......WWWWW...",
+            ".....W......W....W..",
+            ".....W......W..E....",
+            ".....W......W....W..",
+            "...S.W......WWWWW...",
+            "...WW...............",
             "....................",
             "....................",
         };
@@ -216,14 +219,16 @@ class AStar
                     }
                 }
             }
-
+            int step = 0;
             if (lastData) {
                 // 反向找出路径
                 while (lastData->parent) {
-                    arr[lastData->pos.x][lastData->pos.y] = '@';
+                    step++;
+                    arr[lastData->pos.x][lastData->pos.y] = ON_PATH;
                     lastData = lastData->parent;
                 }
             }
+            cout << "执行步数:" << step << endl;
             heap.release();
         }
 
