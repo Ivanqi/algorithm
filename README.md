@@ -9,6 +9,7 @@
 [array](/array/) | 数组 |
 [balanced_tree](/balanced_tree/) | 二叉平衡树 |
 [binary_search_tree](/binary_search_tree/) | 二叉查找树 |
+[bitmap](/bitmap/)|位图|
 [btree](/btree/) | B树 |
 [combination](/combination/) | 组合 |
 [complete_binary_tree](/complete_binary_tree/) | 完全二叉树 |
