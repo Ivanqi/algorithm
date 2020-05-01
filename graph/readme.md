@@ -75,6 +75,21 @@
   - 以demo_dijkstra_1.cpp为例子
   - ![avatar](images/../../images/graph_8.png)
 
+#### A*算法
+- 以demo_astar_2.cpp为例子
+  - ![avatar](images/../../images/graph_9.png)
+- 如何快速找出一条接近最短路径
+  - 每次找到跟起点最近的顶点，往外扩展
+    - 但是，这样会遇到一个问题，离起点近的顶点，可能离终点会越来越远，会存在跑偏的情况
+  - 当我们遍历到某个顶点的时候，从起点走到这个顶点的路径长度是确定的，记作g(i)(i表示顶点)。但是，从这个顶点到终点的路径长度是未知的。确切的值无法直到，可以用估算值来替代
+    - 我们可以通过这个顶点跟终点之间的直线距离，也就是欧几里得距离，来近似地估计这个顶点跟终点的路径长度，
+    - 可以把这个距离记作h(i)(i表示这个顶点的编号)，专业的叫法是启发函数(heuristic function)
+    - 整体公式： f(i) = g(i) + h(i). f(i)的专业叫法是估计函数(evaluation function).这样避免“跑偏”的问题
+- 为什么 A* 不像 Dijkstra能找到最短距离
+  - Dijkstra 算法算法在回溯的基础上，利用了动态规划的思想，对回溯进行剪枝.同时它也考察了所有从起点到终点的路线，所以可以得到最优解
+    - ![avatar](images/../../images/graph_10.png)
+    - ![avatar](images/../../images/graph_11.png)
+  - A* 算法利用的是贪心算法的思路，每次找到f的最小值，一旦搜索到终点就不再继续考察其他顶点和路线了
 #### 参考资料
 - [图的基本算法（BFS和DFS）](https://www.jianshu.com/p/70952b51f0c8)
 - [图 | 存储结构：邻接矩阵及C语言实现](https://blog.csdn.net/liupeifeng3514/article/details/83753435)
