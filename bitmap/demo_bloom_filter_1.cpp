@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 /**
@@ -263,18 +264,81 @@ void Bloomfilter::listinit()
 }
 
 Bloomfilter::~Bloomfilter() {
-    delete [] bitpool;
+    // delete [] bitpool;   // 暂时注释， bl 在函数调用时候会出现错误，原因暂时不明
 }
 
-int main() {
-    
-    char str[] = {"redlist.txt"};
-    Bloomfilter mybloom(0.01, 14064, str);
+void showTestDetail(Bloomfilter mybloom, char* str) {
+    FILE* fp;
+    char* buf;
+    size_t length = 0;
+    fp = fopen(str, "r+");
+
+    char *p;
+    int errorNum = 0;
+    int successNum = 0;
+    int totalNum = 0;
+
+    while (getline(&buf, &length, fp) != EOF) {
+        p = buf;
+        while (*p != '\n') {
+            p++;
+        }
+        *p = '\0';
+        if (mybloom.is_contain(buf)) {
+            successNum++;
+        } else {
+            errorNum++;
+        }
+        totalNum++;
+    }
+    fclose(fp);
+
+    printf("测试个数: %d, 成功数:%d, 失败数: %d\n", totalNum, successNum, errorNum);
+    printf("成功率: %.2lf, 失败率: %.2lf\n", (double) successNum / totalNum, (double)errorNum / totalNum);
+}
+
+
+void test_case_1(double err_table) {
+
+    char str[] = "./test_data/redlist.txt";
+    Bloomfilter mybloom(err_table, 14064, str);
     mybloom.filter_init();
 
     cout << "需要的哈希函数的个数: " << mybloom.hashnum() << endl;
     cout << "需要申请多少个int: " << mybloom.sizeofpool() << endl;
 
-    cout << "www.baidu.com在我的集合中吗: " << (mybloom.is_contain("www.baidu.com") ? "在" : "不在" ) << endl;
-    cout << "www.qq.com在我的集合中吗: " << (mybloom.is_contain("www.qq.com") ? "在" : "不在" ) << endl;
+    showTestDetail(mybloom, str);
+}
+
+void test_case_2(double err_table) {
+
+    char str[] = "./test_data/word-list-large.txt";
+    char str2[] = "./test_data/word_list.txt";
+    Bloomfilter mybloom(err_table, 64131, str);
+    mybloom.filter_init();
+
+    cout << "需要的哈希函数的个数: " << mybloom.hashnum() << endl;
+    cout << "需要申请多少个int: " << mybloom.sizeofpool() << endl;
+
+    showTestDetail(mybloom, str2);
+}
+
+void test_case_3(double err_table) {
+    char str[] = "./test_data/word-list-extra-large.txt";
+    char str2[] = "./test_data/word-list-large.txt";
+    Bloomfilter mybloom(err_table, 192425, str2);
+    mybloom.filter_init();
+
+    cout << "需要的哈希函数的个数: " << mybloom.hashnum() << endl;
+    cout << "需要申请多少个int: " << mybloom.sizeofpool() << endl;
+
+    showTestDetail(mybloom, str);
+}
+
+int main() {
+    
+    double err_table = 0.01;
+    test_case_3(err_table);
+   
+    return 0;;
 }
