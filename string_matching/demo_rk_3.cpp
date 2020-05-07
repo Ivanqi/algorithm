@@ -26,7 +26,7 @@ int cal_hash_s_child(int *table, int i0, int j0, int r, int c, char ch[][nc]) {
     return hash_value;
 }
 
-
+// 对比字符串是否真的一致。因为会存在hash冲突的情况
 bool same(char s[][nc], char t[][mc], int i0, int j0) {
     int x = i0, y = j0, i, j;
     for (i = 0; i < mr; ++i, ++x) {
@@ -39,6 +39,12 @@ bool same(char s[][nc], char t[][mc], int i0, int j0) {
     return true;
 }
 
+/**
+ * 步骤
+ *  1. 先获取模式串的hash值
+ *  2. 然后遍历矩阵，然后把每次遍历的[ (i, j), (i, j + 1), (i + 1, j), (i + 1, j + 1)] 取hash
+ *  3. 在模式中hash值和子串hash值一样的情况下，对模式串 [ (i, j), (i, j + 1), (i + 1, j), (i + 1, j + 1)] 和 子串的 [ (i, j), (i, j + 1), (i + 1, j), (i + 1, j + 1)] 一一对比，是否模式串和子串相匹配
+ */
 bool str_RK_2d(char s[][nc], char t[][mc]) {    // s是主串，t是模式串
     //质数表对应 a - z
     int table[26] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}; 

@@ -77,7 +77,7 @@
       - ![avatar](images/../../images/string_matching_16.png)
       - ![avatar](images/../../images/string_matching_17.png)
         - suffix 数组下标k，表示后缀字符串的长度
-        - 下标对应的数组值存储的是。好后缀{u}和模式串前缀相互匹配的起始下标值
+        - 下标对应的数组值存储的是。好后缀{u}相匹配子串{u*}的起始下标值
         - 例子
           - cabcab 模式串，拆分前缀子串和后缀子串，求公共子串？
             - 前缀
@@ -93,8 +93,27 @@
                 - b = 2
                 - ab = 1
                 - cab = 0
-    - 不仅仅要在模式串中，查找跟好后缀匹配的另一个子串，还要在好后缀子串中，查找最长的能跟模式串前缀子串匹配的后缀子串
+        - 为什么要求公共子串?
+          - 因为好后缀是主串与模式串的的可长匹配子串，所以好后缀也是模式串的后缀子串
+          - 而公共子子串，则是好后缀的最长的可匹配子串
+        - 为什么要把公共子串拆分为N个小的子串？
+          - 为了划分出N个可让好后缀匹配的子串
+          - 主要是把整个好后缀拆分开，一一与公共子串N个子串匹配
+          - 模式串的前缀子串：模式串与主串匹配时，坏字符位置以前的模式串长度
+          - 例如
+            ```
+            igfqoofimcab
+                 cabicab
+            ```    
+            - 好后缀：cab
+            - 坏字符: m
+            - 模式串的前缀子串: cab
+            - 好后缀的后缀子串：b, ab, cab
+            - 与好后缀的后缀子串能跟模式串前缀子串匹配的后缀子串：b, ab, cab
+    - 不仅仅要在模式串中，查找跟好后缀匹配的另一个子串，还要在好后缀子串中，查找最长的能跟模式串前缀子串匹配的后缀子串(概念上文已述)
       - ![avatar](images/../../images/string_matching_18.png)
+      - 模式串前缀子串匹配的后缀子串的作用？
+        - 查询可匹配子串的起始位置，也就是最长可匹配地址，用于移动位置
     - suffix 和 prefix 值填充
       - 求公共后缀子串
       - ![avatar](images/../../images/string_matching_19.png)
@@ -235,6 +254,7 @@
 #### 参考资料
 - [BF算法（串模式匹配算法）C语言详解](http://data.biancheng.net/view/179.html)
 - [字符串匹配算法（BF & RK）](https://blog.csdn.net/qq_21201267/article/details/92695636)
+- [字符串匹配的Boyer-Moore算法](http://www.ruanyifeng.com/blog/2013/05/boyer-moore_string_search_algorithm.html)
 - [字符串匹配的KMP算法](http://www.ruanyifeng.com/blog/2013/05/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm.html)
 - [从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)
 - [The Knuth-Morris-Pratt Algorithm in my own words](http://jakeboxer.com/blog/2009/12/13/the-knuth-morris-pratt-algorithm-in-my-own-words/)

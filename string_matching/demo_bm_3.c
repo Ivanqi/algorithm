@@ -49,7 +49,8 @@ void generateGS(char *p, int p_len, int *suffix, int *prefix) {
  *  p_len 表示模式串的长度
  */
 int moveByGs(int j, int p_len, int *suffix, int *prefix) {
-    int k = p_len - 1 - j; // 好后缀长度
+    int k = p_len - 1 - j; // 好后缀长度: 与模式串的可匹配长度
+    // printf("k:%d\n", k);
     // 情况1，好后缀能与模式串子串匹配
     if (suffix[k] != -1) return j - suffix[k] + 1;
     // 情况2，好后缀的子串能与模式串前缀子串匹配
@@ -57,12 +58,9 @@ int moveByGs(int j, int p_len, int *suffix, int *prefix) {
     for (r = j + 2; r <= p_len - 1; r++) {
         if (prefix[p_len - r] == 1) return r;
     }
-
-    // 情况3，什么都有匹配。返货模式串长度
+    // 情况3，什么都有匹配。返回模式串长度
     return p_len;
 }
-
-
 
 int BM(char *s, int s_len, char *p, int p_len) {
     
@@ -72,18 +70,20 @@ int BM(char *s, int s_len, char *p, int p_len) {
     generateBC(p, p_len, bc);
     generateGS(p, p_len, suffix, prefix);
 
-    int i = 0;
+    int i = 0;                      // j表示主串与模式串匹配的第一个字符
     while (i <= s_len - p_len) {
         int j;
-        for (j = p_len - 1; j >= 0; --j) {
-            if (s[i + j] != p[j]) break;
+        for (j = p_len - 1; j >= 0; --j) {  // 模式串从后往前匹配
+            // printf("i:%d, j:%d, s[i + j]:%c, p[j]:%c\n", i, j, s[i + j], p[j]);
+            if (s[i + j] != p[j]) break;    // 坏字符对应模式串的下标是j
         }
 
-        if (j < 0) return i;
+        if (j < 0) return i;                // 匹配成功，返回主串与模式串第一个匹配的字符的位置
 
         int x =  (j - bc[(int)s[i + j]]);
         int y = 0;
-        if (j < p_len - 1) {
+        // printf("x: %d, j < p_len - 1:%d\n", x, j < p_len - 1);
+        if (j < p_len - 1) {                // 如果有好后缀的话
             y = moveByGs(j, p_len, suffix, prefix);
         }
         i = i + (x > y ? x : y);
@@ -92,11 +92,23 @@ int BM(char *s, int s_len, char *p, int p_len) {
     return -1;
 }
 
-int main() {
+void test_case_1() {
 
     char s[] = "ababcabcacbab";
     char p[] = "abcac";
 
     int number = BM(s, strlen(s), p, strlen(p));
     printf("pos:%d\n", number);
+}
+
+void test_case_2() {
+    char s[] = "ababcabcacbab";
+    char p[] = "cabcab";
+
+    int number = BM(s, strlen(s), p, strlen(p));
+    printf("pos:%d\n", number);
+}
+
+int main() {
+    test_case_2();
 }
