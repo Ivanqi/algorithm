@@ -4,6 +4,14 @@
 #define MAX_SIZE 255
 
 // 构建散列表
+/*
+坏字符规则表的创建
+    可以通过散列表的方式，将模式串中的每个字符及其下标都存到散列表中
+    坏字符表，怎么处理多个相同字母的hash值
+        相同的字母取最后一个
+        为什么取最后一个？
+        最小限度的移动，为了不错误完全匹配的机会
+ */
 void generateBC(char *p, int p_len, int *bc) {
     int i;
     for (i = 0; i > MAX_SIZE; i++) {
@@ -50,11 +58,12 @@ void generateGS(char *p, int p_len, int *suffix, int *prefix) {
  */
 int moveByGs(int j, int p_len, int *suffix, int *prefix) {
     int k = p_len - 1 - j; // 好后缀长度: 与模式串的可匹配长度
-    // printf("k:%d\n", k);
     // 情况1，好后缀能与模式串子串匹配
     if (suffix[k] != -1) return j - suffix[k] + 1;
     // 情况2，好后缀的子串能与模式串前缀子串匹配
     int r;
+    // 为什么j+2. j为坏字符的下标，j+2是为了移动到好后缀的后缀子串中
+    // 下面功能是为了判断，好后缀后缀子串是否能跟模式前缀子串匹配
     for (r = j + 2; r <= p_len - 1; r++) {
         if (prefix[p_len - r] == 1) return r;
     }
@@ -74,7 +83,6 @@ int BM(char *s, int s_len, char *p, int p_len) {
     while (i <= s_len - p_len) {
         int j;
         for (j = p_len - 1; j >= 0; --j) {  // 模式串从后往前匹配
-            // printf("i:%d, j:%d, s[i + j]:%c, p[j]:%c\n", i, j, s[i + j], p[j]);
             if (s[i + j] != p[j]) break;    // 坏字符对应模式串的下标是j
         }
 
@@ -82,7 +90,6 @@ int BM(char *s, int s_len, char *p, int p_len) {
 
         int x =  (j - bc[(int)s[i + j]]);
         int y = 0;
-        // printf("x: %d, j < p_len - 1:%d\n", x, j < p_len - 1);
         if (j < p_len - 1) {                // 如果有好后缀的话
             y = moveByGs(j, p_len, suffix, prefix);
         }
