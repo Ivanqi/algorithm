@@ -19,26 +19,29 @@
 
 - 失效函数(next 数组)
   - ![avatar](images/../../images/string_matching_27.png)
+  - 数组的下标是每个前缀结尾字符下标，数组的值是这个前缀的最长可以匹配前缀子串的结尾字符下标
   - 例子：ababacd
+    - 前缀列表访问顺序：从右到左
+    - 后缀列表访问顺序：从左到右
     - 过程
       ```
       1. a: 0
       2. ab: 0
       3. aba
-          a ab
-          ba a
+          前缀： a ab
+          后缀： ba a
       4. abab
-          a ab aba
-          bab ab b
+          前缀：a ab aba
+          后缀：bab ab b
       5. ababa
-          a ab aba abab
-          baba aba ab a
+          前缀：a ab aba abab
+          后缀：baba aba ab a
       6. ababac
-          a ab aba abab ababa
-          babac abac bac ac c
+          前缀：a ab aba abab ababa
+          后缀：babac abac bac ac c
       7. ababacd
-          a ab aba abab ababa ababac
-          babacd abacd bacd acd cd c
+          前缀：a ab aba abab ababa ababac
+          后缀：babacd abacd bacd acd cd c
       ```
   - 图表
     |模式串 | a | b | a | b | a | c | d |
