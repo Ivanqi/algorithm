@@ -32,3 +32,4 @@
 - [海量数据处理--位图（BitMap）](https://blog.csdn.net/xxpresent/article/details/56488881)
 - [数学之美：布隆过滤器](https://zhuanlan.zhihu.com/p/72378274)
 - [大量数据去重：Bitmap和布隆过滤器(Bloom Filter)](https://blog.csdn.net/zdxiq000/article/details/57626464)
+- [十七道海量数据处理面试题与Bit-map详解](https://blog.csdn.net/v_july_v/article/details/6685962)

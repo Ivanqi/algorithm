@@ -25,3 +25,5 @@
 #### 参考资料
 - [How to Write a Spelling Corrector](https://norvig.com/spell-correct.html)
 - [游戏中的敏感词过滤是如何实现的 | 什么是字典树（Trie）](https://mp.weixin.qq.com/s/O2NcwO3HUqz5pdwCJa3bqQ)
+- [从Trie树（字典树）谈到后缀树（10.28修订）](https://blog.csdn.net/v_JULY_v/article/details/6897097)
+- [数据结构——从英文字典树到中文字典树](https://blog.csdn.net/a987073381/article/details/52167019)
