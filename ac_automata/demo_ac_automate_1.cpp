@@ -21,7 +21,7 @@ class AcNode
         }
 };
 
-class AcAutoMata
+class AcAutoMate
 {
     public:
         void buildFailurePointer() 
@@ -88,7 +88,7 @@ class AcAutoMata
         }
     public:
         AcNode *root;
-        AcAutoMata() {
+        AcAutoMate() {
             root = new AcNode('/');
         }
 
@@ -107,7 +107,7 @@ class AcAutoMata
             p->length = word.length();
         }
 
-        string match(string text, string replaceStr) // text是主串
+        string match(string text, char replaceStr) // text是主串
         {
             int n = text.length();
             AcNode *p = root;
@@ -141,22 +141,18 @@ class AcAutoMata
             return replaceFun(check, text, replaceStr);
         }
 
-        string replaceFun(map<int, int> check, string text, string replaceStr)
+        string replaceFun(map<int, int> check, string text, char replaceStr)
         {
             map<int, int>::iterator it;
-            for (it = check.begin(); it != check.end(); it++) {
-                string tmp;
-                for (int i = 0; i < it->second; i++) {
-                    tmp += replaceStr;
-                }
-                text.replace(it->first, it->second, tmp);
+            for (it = check.begin(); it != check.end(); it++) {                
+                text.replace(it->first, it->second, it->second, replaceStr);
             }
             return text;
         }
 };
 
 void test_case_1() {
-    AcAutoMata *ac = new AcAutoMata;
+    AcAutoMate *ac = new AcAutoMate;
     ac->insert("abcd");
     ac->insert("bcd");
     ac->insert("ce");
@@ -164,7 +160,7 @@ void test_case_1() {
     ac->printfFailurePointer();
 
     string str = "nameabcdcallmebcdyousurece";
-    string ret = ac->match(str, "*");
+    string ret = ac->match(str, '*');
     cout << "原字符串: " << str << endl;
     cout << "替换后为: " << ret << endl;
 }
