@@ -3,11 +3,11 @@
 - AC自动机实际上就是在Trie树之上，加了类似KMP的next数组。只不过此处的next数组是构建在树上
 - 构建失败指针
   - ![avatar](images/../../images/ac_automata_1.png)
-  - 当到达了紫色节点。紫色节点的失败指针
     - 从root走到紫色节点形成的字符串abc
     - 然后用abc，跟所有模式串前缀匹配最长可匹配后缀子串，就是箭头指的bc模式串
     - 字符串abc的后缀子串有两个bc，c。我们拿它们与其他模式串匹配，如果某个后缀子串可以匹配某个模式串的前缀，那我们就把这个后缀子串叫做`可匹配后缀子串`
-    - 然后从匹配的后缀子串中，找出最长的一个，就是讲到的`最长可匹配后缀子串`
+    - 然后从`可匹配后缀子串`中，找出最长的一个，就是讲到的`最长可匹配后缀子串`
+    - 上图将紫色节点的失败指针指向那个`最长可匹配后缀子串`对应的模式串的前缀的最后一个节点
   - p == q && pc == qc
     - ![avatar](images/../../images/ac_automata_2.png)
     - p 的失败指针指向q。证明q是p的`最长可匹配后缀`
@@ -16,7 +16,17 @@
     - ![avatar](images/../../images/ac_automata_3.png)
     - 那么需要重新查找`最长可匹配后缀`。如果KMP的next数组那么，当前字符不符合`最长可匹配后缀`，那么就要找`次最长可匹配后缀`，然后重复这个过程
     - 所以找到了root - c 这个`次最长匹配后缀`.设置pc的失败指针为e
-  - kmp 的最长可匹配后缀，是单个字符串之间比较。而AC自动机，则需要和多个字符串比较
+  - 失败指针最终的模样
+    - ![avatar](images/../../images/ac_automata_4.png)
+- 问题
+  - 代码中如何体现 p == q && pc == qc, p == q && pc != qc
+    - 代码通过广度搜索，对trie树的每一层进行扫描，然后比较每一层的值在它的失败指针中是否能找到， p == q && pc == qc的体现也正好如此
+    - p == q && pc != qc则体现在，如果这个失效指针的列表里的值都不匹配，那么继续找下一个指针，这个过程一直循环，直到找到或者失败
+  - kmp 的next数组与AC自动机的失败指针异同？
+    - 同
+      - kmp next数组 也是通过 `p == q && pc == qc` 和 `p == q && pc != qc`的方式进行构建的
+    - 异
+      - kmp 的最长可匹配后缀，是单个字符串之间比较。而AC自动机，则需要和多个字符串比较
 - 时间复杂度
   - Trie树构建
     - 时间复杂度: O(m * len)
@@ -25,36 +35,43 @@
   - 构建失败指针
     ```
     void buildFailurePointer() 
-    {
-        queue<AcNode*> Q;
-        root->fail = NULL;
-        Q.push(root);
-        
-        while (!Q.empty()) {
-            AcNode *p = Q.front();
-            Q.pop();
+        {
+            queue<AcNode*> Q;
+            root->fail = NULL;
+            Q.push(root);
+            
+            while (!Q.empty()) {
+                // 广度优先遍历
+                AcNode *p = Q.front();
+                Q.pop();
+                if (p != NULL) {
+                    // 将其孩子逐个加入列队
+                    for (int i = 0 ; i < MAX_NUM; i++) {
+                        AcNode *pc = p->children[i];
+                        if (pc == NULL) continue;
+                        if (p == root) {
+                            pc->fail = root;                 // 第一层的节点fail总是指向root
+                        } else {
+                            AcNode *q = p->fail;            // 第二层以下的节点，其fail是在另一分支上
+                            while (q != NULL) {
+                                // 遍历它的孩子，看它们有没有与当前孩子相同字符的节点
+                                AcNode *qc = q->children[pc->data - 'a'];
+                                if (qc != NULL) {
+                                    pc->fail = qc;
+                                    break;
+                                }
+                                q = q->fail;
+                            }
 
-            for (int i = 0 ; i < MAX_NUM; i++) {
-                AcNode *pc = p->children[i];
-                if (pc == NULL) continue;
-                if (p == root) {
-                    p->fail = root;
-                } else {
-                    AcNode *q = p->fail;
-                    while (q != NULL) {
-                        AcNode *qc = q->children[p->data - 'a'];
-                        if (qc != NULL) {
-                            pc->fail = qc;
-                            break;
+                            if (q == NULL) {
+                                pc->fail = root;
+                            }
                         }
-                        q = q->fail;
+                        Q.push(pc);
                     }
-                    if (q == NULL) pc->fail = root;
                 }
-                Q.push(pc);
             }
         }
-    }
     ```
     - 假设Trie树中总节点个数为k
     - 每个节点构建失败指针.最耗时部分为while 中的 q = q->fail.每次运行一次这个语句，q指向节点的深度都会减少1
@@ -72,3 +89,4 @@
 #### 参考资料
 - [AC自动机学习笔记-1（怎么造一台AC自动机?）](https://www.cnblogs.com/sclbgw7/p/9260756.html)
 - [AC自动机](https://zhuanlan.zhihu.com/p/80325757)
+- [游戏中的敏感词过滤是如何实现的 | 什么是字典树（Trie）](https://mp.weixin.qq.com/s/O2NcwO3HUqz5pdwCJa3bqQ)
