@@ -60,8 +60,8 @@ Node* find(Tree* tree, int data) {
 
 void delete(Tree* tree, int data) {
     if (tree->root == NULL) return;
-    Node* p = tree->root;    // p指向要删除的节点，初始化指向根节点
-    Node* pp = NULL; // pp记录的是p的父节点
+    Node* p = tree->root;       // p指向要删除的节点，初始化指向根节点
+    Node* pp = NULL;            // pp记录的是p的父节点
 
     while (p != NULL && p->data != data) {
         pp = p;
@@ -80,8 +80,8 @@ void delete(Tree* tree, int data) {
             minPP = minP;
             minP = minP->left;
         }
-        p->data = minP->data;    // 将minP的数据替换到p中
-        p = minP;   // 下面就变成了删除minP了
+        p->data = minP->data;       // 将minP的数据替换到p中
+        p = minP;                   // 下面就变成了删除minP了
         pp = minPP;
     }
 
