@@ -6,10 +6,10 @@
 
 typedef int KeyType;
 typedef struct BTNode {
-    int keynum; // 结点中关键字的个数， keynum < ORDER
-    KeyType key[ORDER - 1]; // 关键字向量为key[0... keynum - 1]
+    int keynum;                     // 结点中关键字的个数， keynum < ORDER
+    KeyType key[ORDER - 1];         // 关键字向量为key[0... keynum - 1]
     struct BTNode* child[ORDER];    // 孩子指针向量为child[0....keynum]
-    char isleaf;    // 是否是叶子结点标志
+    char isleaf;                    // 是否是叶子结点标志
 }BTNode;
 
 typedef BTNode* BTree;  // 定义BTree
