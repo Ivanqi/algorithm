@@ -16,7 +16,7 @@ typedef struct btree_t {
 btree_t* btree_create();
 btree_t* btree_insert(btree_t *btree, type_t key);
 btree_t* btree_delete(btree_t *btree, type_t key);
-btree_t* btree_search(btree_t *btree, int *index);
+btree_t* btree_search(btree_t *btree, type_t key, int *index);
 
 static btree_t* btree_insert_nonfull(btree_t *btree, type_t key);
 static btree_t* btree_split_child(btree_t *parent, int pos, btree_t *child);

@@ -141,7 +141,7 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
          */
         memmove(&btree->key[index], &btree->key[index + 1], sizeof(type_t) * (btree->num - index - 1));
         --btree->num;
-        return btree
+        return btree;
     } else if (btree->leaf && ret) {
         // 没有找到节点
         return btree;
@@ -161,7 +161,7 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
              *  且递归删除，该子树的最后一个元素的值
              */
             replace = preceding->key[preceding->num - 1];
-            btree->child[index] = btree_delete(preceding replace);
+            btree->child[index] = btree_delete(preceding, replace);
             btree->key[index] = replace;
             return btree;
         }
@@ -213,14 +213,17 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
     }
 
     // 节点中未找到key的情况
-    if ((child = btree->child[index] && child->num == M - 1)) {     // 情况3: key不在中间节点中，而是在中间节点的子节点中
+    if ((child = btree->child[index]) && child->num == M - 1) {     // 情况3: key不在中间节点中，而是在中间节点的子节点中
 
         /**
          * 情况3-1
          *  选择富有的相邻兄弟节点
          *  如果所在孩子节点相邻的兄弟节点中有节点至少包含M个关键字
+         *  将node的一个关键字key[index]下移到child中，将相对富有的相邻兄弟节点中的一个关键字上移到node中
+         *  然后在child孩子节点递归删除key
          */
         if ((index < btree->num) && (sibling = btree->child[index + 1]) && (sibling->num >= M)) {
+            // 相邻右兄弟相对富有，则该孩子先向父节点借一个元素，右兄弟中第一个元素上移至父节点所借位置，并进行相应调整
             child->key[child->num++] = btree->key[index];
             btree->key[index] = sibling->key[0];
 
@@ -231,21 +234,35 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
             memmove(&sibling->child[0], &sibling->child[1], sizeof(btree_t*) * (sibling->num + 1));
 
         } else if ((index > 0) && (sibling = btree->child[index - 1]) && (sibling->num >= M)) {
+            // 相邻左兄弟相对富有，则该孩子向父节点借一个元素，左兄弟中的最后元素上移至父节点所借位置，并进行相应调整
             memmove(&child->key[1], &child->key[0], sizeof(type_t) * child->num);
             memmove(&child->child[1], &child->child[0], sizeof(btree_t*) * (child->num + 1));
             child->key[0] = btree->key[index - 1];
-            btree->key[index - 1] = sibling->child[sibling->num];
+            btree->key[index - 1] = sibling->key[sibling->num - 1];
+            child->child[0] = sibling->child[sibling->num];
 
             child->num++;
             sibling->num--;
 
-        } else if ((index < btree->num) && (sibling = btree->child[index + 1]) && (sibling->num == M - 1)) {
+        }
+
+        /**
+         * 情况3-2
+         *  相邻兄弟节点刚脱贫。删除前需要兄弟结合的合并操作
+         *  如果所在孩子节点的相邻兄弟节点都只包含 M - 1个关键字
+         *  将child与其一相邻节点合并，并将node中的一个关键字下降到合并节点中
+         *  再在node中删除那个关键字和相关指针，若node的key为空，删除，并调整根为合并节点
+         *  最后，在相关孩子节点child中递归删除key
+         */
+        if ((index < btree->num) && (sibling = btree->child[index + 1]) && (sibling->num == M - 1)) {
+            // 相邻右节点刚好脱贫，则该左节点向父节点借一个元素。然后把右节点合并到左节点
             child->key[child->num++] = btree->key[index];
             memmove(&child->key[child->num], &sibling->key[0], sizeof(type_t) * sibling->num);
             memmove(&child->child[child->num], &sibling->child[0], sizeof(btree_t*) * (sibling->num + 1));
             child->num += sibling->num;
 
             if (btree->num - 1 > 0) {
+                // 父节点借了一个节点给左子节点，要把空洞节点删除。且把右子节点原来的位置删除
                 memmove(&btree->key[index], &btree->key[index + 1], sizeof(type_t) * (btree->num - index - 1));
                 memmove(&btree->child[index + 1], &btree->child[index + 2], sizeof(btree_t*) * (btree->num - index - 1));
                 btree->num--;
@@ -257,12 +274,14 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
             free(sibling);
 
         } else if ((index > 0) && (sibling = btree->child[index - 1]) && (sibling->num = M - 1)) {
+            // 相邻左节点刚好脱贫，则该左节点向父节点借一个元素。然后把右节点合并到左节点中
             sibling->key[sibling->num] = btree->key[index - 1];
             memmove(&sibling->key[sibling->num], &child->key[0], sizeof(type_t) * child->num);
             memmove(&sibling->child[sibling->num], &child->child[0], sizeof(btree_t*) * (child->num + 1));
             sibling->num += child->num;
 
             if (btree->num - 1 > 0) {
+                // 父节点借了一个节点给左子节点，要把空洞节点删除。且把右子节点原来的位置删除
                 memmove(&btree->key[index - 1], &btree->key[index], sizeof(type_t) * (btree->num - index));
                 memmove(&btree->child[index], &btree->child[index + 1], sizeof(btree_t*) * (btree->num - index));
                 btree->num--;
@@ -281,18 +300,61 @@ btree_t* btree_delete(btree_t *btree, type_t key) {
     return btree;
 }
 
-#define NUM 20000
+btree_t* btree_search(btree_t *btree, type_t key, int *index) {
+
+    int i;
+    *index = -1;
+
+    // 寻找下标
+    for (i = 0; i < btree->num && key > btree->key[i]; ++i)
+        ;
+    
+    // 确认下标i对应的值是否与key相等
+    if (i < btree->num && key == btree->key[i]) {
+        *index = i;
+        return btree;
+    }
+
+    // 如果是叶子节点还是没有找到证明，树中没有该值
+    if (btree->leaf) {
+        return NULL;
+    } else {
+        return btree_search(btree->child[i], key, index);
+    }
+
+}
+
+#define NUM 20
 
 int main() {
 
     btree_t *btree;
-    int i;
+    btnode_t *node;
+    int index, i;
     
     if (!(btree = btree_create())) {
         exit(-1);
     }
 
+    // insert
     for (i = 1; i < NUM; i++) {
+        printf("%d\n", i);
+        btree = btree_insert(btree, i);
+    }
+
+    // search
+    for (i = 1; i < NUM; ++i) {
+        node = btree_search(btree, i, &index);
+
+        if (!node || index == -1) {
+            printf("insert error!\n");
+            return -1;
+        }
+    }
+    
+    // delete
+    for (i = 1; i < NUM; ++i) {
+        btree = btree_delete(btree, i);
         btree = btree_insert(btree, i);
     }
 
