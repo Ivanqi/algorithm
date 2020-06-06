@@ -17,7 +17,7 @@
   - 页内结点
     - 找到需要插入的中间结点i, 然后判断子结点child[i]
     - 判断子结点child[i]的值长度是否 >= m -1，是，则需要叶分裂
-- 叶子结点 >= m -1, 叶分裂
+- 叶子结点 >= m - 1, 叶分裂
   - 前提
     - 创建一个新的结点 n1
     - 当前结点为 n2
@@ -80,3 +80,5 @@
 #### 资料参考
 - [BTree和B+Tree详解](https://blog.csdn.net/endlu/article/details/51720299)
 - [B树](https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.02.md)
+- [Btree算法实现代码](http://www.cppblog.com/converse/archive/2009/10/13/98521.html)
+- [Btree算法的C语言实现](https://www.cnblogs.com/cthon/p/9281664.html)
