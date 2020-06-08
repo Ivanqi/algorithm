@@ -160,7 +160,7 @@ static Position InsertElement(int isKey, Position Parent, Position X, KeyType Ke
         Parent->KeyNum++;
     }
 
-    return x;
+    return X;
 }
 
 static Position RemoveElement(int isKey, Position Parent, Position X, int i, int j) {
@@ -171,6 +171,7 @@ static Position RemoveElement(int isKey, Position Parent, Position X, int i, int
         Limit = X->KeyNum;
         // 删除Key
         k = j + 1;
+        // Key 移位
         while (k < Limit) {
             X->Key[k - 1] = X->Key[k];
             k++;
@@ -189,6 +190,7 @@ static Position RemoveElement(int isKey, Position Parent, Position X, int i, int
         Limit = Parent->KeyNum;
         k = i + 1;
 
+        // 移位，填补被删除的位置
         while (k < Limit) {
             Parent->Children[k - 1] = Parent->Children[k];
             Parent->Key[k - 1] = Parent->Key[k];
@@ -222,19 +224,25 @@ static Position MoveElement(Position Src, Position Dst, Position Parent, int i, 
 
     j = 0;
 
-    // 节点Src在Dst前面
+    // 节点Src在Dst前面.Src最后一个节点合并到Dst第一个位置
     if (SrcInFront) {
         if (Src->Children[0] != NULL) {
             while (j < n) {
+                // 获取Src最后一个节点
                 Child = Src->Children[Src->KeyNum - 1];
+                // 从Src末尾删除Child节点
                 RemoveElement(0, Src, Child, Src->KeyNum - 1, Unavailable);
+                // 在Dst头部增加Child节点
                 InsertElement(0, Dst, Child, Unavailable, 0, Unavailable);
                 j++;
             }
         } else {
             while (j < n) {
+                // 获取Src最后一个Key
                 TmpKey = Src->Key[Src->KeyNum - 1];
+                // 从Src末尾删除 TmpKey
                 RemoveElement(1, Parent, Src, i, Src->KeyNum - 1);
+                // 在Dst key 头部增加TmpKey
                 InsertElement(1, Parent, Dst, TmpKey, i + 1, 0);
                 j++;
             }
@@ -245,7 +253,7 @@ static Position MoveElement(Position Src, Position Dst, Position Parent, int i, 
         if (Src->KeyNum > 0) {
             FindMostRight(Src)->Next = FindMostLeft(Dst);
         }
-    } else {
+    } else {    // Src第一个元素合并到Dst最后的位置
         if (Src->Children[0] != NULL) {
             while (j < n) {
                 Child = Src->Children[0];
@@ -256,10 +264,18 @@ static Position MoveElement(Position Src, Position Dst, Position Parent, int i, 
         } else {
             while (j < n) {
                 TmpKey = Src->Key[0];
-                RemoveElement(1, );
+                RemoveElement(1, Parent, Src, i, 0);
+                InsertElement(1, Parent, Dst, TmpKey, i - 1, Dst->KeyNum);
+                j++;
             }
         }
+
+        Parent->Key[i] = Src->Key[0];
+        if (Src->KeyNum > 0) {
+            FindMostRight(Dst)->Next = FindMostLeft(Src);
+        }
     }
+    return Parent;
 }
 
 static BPlusTree SplitNode(Position Parent, Position X, int i) {
@@ -299,7 +315,7 @@ static BPlusTree SplitNode(Position Parent, Position X, int i) {
         return Parent;
     }
 
-    return X:
+    return X;
 }
 
 static BPlusTree RecursiveInsert(BPlusTree T, KeyType Key, int i, BPlusTree Parent) {
@@ -321,8 +337,8 @@ static BPlusTree RecursiveInsert(BPlusTree T, KeyType Key, int i, BPlusTree Pare
 
     if (T->Children[0] == NULL) {   // 树叶节点
         T = InsertElement(1, Parent, T, Key, i, j);
-    } else {    // 内部节点
-        T = Children[j] = RecursiveInsert(T->Children[j], Key, j, T);
+    } else {                        // 内部节点
+        T->Children[j] = RecursiveInsert(T->Children[j], Key, j, T);
     }
 
     // 调整节点
@@ -334,7 +350,7 @@ static BPlusTree RecursiveInsert(BPlusTree T, KeyType Key, int i, BPlusTree Pare
             // 分裂节点
             T = SplitNode(Parent, T, i);
         } else {
-            Sibling = FindSibling(Parent, i)
+            Sibling = FindSibling(Parent, i);
             if (Sibling != NULL) {
                 // 将T的一个元素(Key或者Child)移动到Sibing中
                 MoveElement(T, Sibling, Parent, i, 1);
@@ -344,9 +360,94 @@ static BPlusTree RecursiveInsert(BPlusTree T, KeyType Key, int i, BPlusTree Pare
             }
         }
     }
+
+    if (Parent != NULL) {
+        Parent->Key[i] = T->Key[0];
+    }
+
+    return T;
 }
 
 // 插入
 extern BPlusTree Insert(BPlusTree T, KeyType Key) {
     return RecursiveInsert(T, Key, 0, NULL);
+}
+
+static void RecursiveTravel(BPlusTree T,int Level) {
+
+    int i;
+    if (T != NULL) {
+        printf("    ");
+        printf("[Level:%d]-->", Level);
+        printf("(");
+        i = 0;
+        while (i < T->KeyNum) { // T->Key[i] != Unavailable
+            printf("%d: ", T->Key[i++]);
+        }
+        printf(")");
+    }
+    Level++;
+
+    i = 0;
+    while (i <= T->KeyNum) {
+        RecursiveTravel(T->Children[i], Level);
+        i++;
+    }
+}
+
+// 遍历
+extern void Traval(BPlusTree T) {
+
+    RecursiveTravel(T, 0);
+    printf("\n");
+}
+
+// 销毁
+extern BPlusTree Destory(BPlusTree T) {
+
+    int i, j;
+    if (T != NULL) {
+        i = 0;
+        while (i < T->KeyNum + 1) {
+            Destory(T->Children[i]);
+            i++;
+        }
+
+        printf("Destroy:(");
+        j = 0;
+
+        while (j < T->KeyNum) { // T->Key[i] != Unavailable
+            printf("%d:", T->Key[j++]);
+        }
+
+        printf(") ");
+        free(T);
+
+        T = NULL;
+    }
+
+    return T;
+}
+
+int main() {
+
+    int i;
+    BPlusTree T;
+    T = Initialize();
+
+    clock_t c1 = clock();
+    i = 20;
+
+    while (i > 0) {
+        T = Insert(T, i--);
+    }
+
+    // Traval(T);
+
+    Destory(T);
+
+    clock_t c2 = clock();
+    printf("\n用时： %lu秒\n",(c2 - c1) / CLOCKS_PER_SEC);
+
+    return 0;
 }

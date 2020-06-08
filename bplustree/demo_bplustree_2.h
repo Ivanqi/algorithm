@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
 
 #define M (4)
 #define LIMIT_M_2 (M % 2 ? (M + 1) / 2 : M / 2)
@@ -25,15 +26,15 @@ extern BPlusTree Initialize();
 extern BPlusTree Insert(BPlusTree T, KeyType Key);
 
 // 删除
-extern BPlusTree Remove(BPlusTree T, KeyType Key);
+// extern BPlusTree Remove(BPlusTree T, KeyType Key);
 
 // 销毁
-extern BPlusTree Destory(BPlusTree T);
+extern BPlusTree Destroy(BPlusTree T);
 
 // 遍历节点
-extern void Traval(BPlusNode T);
+extern void Traval(BPlusTree T);
 
 // 遍历树叶节点的数据
-extern void TravelData(BPlusTree T);
+// extern void TravelData(BPlusTree T);
 
 #endif
