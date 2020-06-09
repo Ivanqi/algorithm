@@ -200,3 +200,6 @@
 - [教你初步了解红黑树](https://blog.csdn.net/v_JULY_v/article/details/6105630)
 - [经典算法研究系列：五、红黑树算法的实现与剖析](https://blog.csdn.net/v_JULY_v/article/details/6109153)
 - [一步一图一代码，一定要让你真正彻底明白红黑树](https://blog.csdn.net/v_JULY_v/article/details/6124989)
+- [从2-3-4树到红黑树（上）](https://www.cnblogs.com/nullzx/p/6111175.html)
+- [从2-3-4树到红黑树（中）](https://www.cnblogs.com/nullzx/p/6128416.html)
+- [从2-3-4树到红黑树(下) Java与C的实现](https://www.cnblogs.com/nullzx/p/6192984.html)

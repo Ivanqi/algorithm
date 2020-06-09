@@ -12,3 +12,6 @@
 #### 参考资料
 - [B+树怎么在磁盘存储？](https://www.zhihu.com/question/269033066)
 - [B+树总结](https://www.jianshu.com/p/71700a464e97)
+- [B树和B+树的插入、删除图文详解](https://www.cnblogs.com/nullzx/p/8729425.html)
+- [B+树在磁盘存储中的应用](https://www.cnblogs.com/nullzx/p/8978177.html)
+- [Mysql索引机制(B+Tree)](https://www.cnblogs.com/wuzhenzhao/p/10341114.html)
