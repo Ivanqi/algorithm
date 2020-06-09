@@ -62,7 +62,7 @@ static Position FindMostRight(Position P) {
     return Tmp;
 }
 
-// 寻找一个兄弟节点，其存储的关键字未满，否则返回NULL。 寻找刚脱贫的兄弟节点
+// 寻找一个兄弟节点，其存储的关键字未满，否则返回NULL
 static Position FindSibling(Position Parent, int i) {
 
     Position Sibling;
@@ -76,7 +76,7 @@ static Position FindSibling(Position Parent, int i) {
         if (Parent->Children[1]->KeyNum < Limit) {
             Sibling = Parent->Children[1];
         } 
-    } else if (Parent->Children[i - 1]->KeyNum < Limit)  {  // 左节点
+    } else if (Parent->Children[i - 1]->KeyNum < Limit) {  // 左节点
         Sibling = Parent->Children[i - 1];
     } else if (i + 1 < Parent->KeyNum && Parent->Children[i + 1]->KeyNum < Limit) { // 右节点
         Sibling = Parent->Children[i + 1];
@@ -140,6 +140,8 @@ static Position InsertElement(int isKey, Position Parent, Position X, KeyType Ke
 
         // 对树叶节点进行连接
         if (X->Children[0] == NULL) {
+            // 当 i > 0, 把 Parent->Children[i - 1] 和 X 进行连接
+            // 这就形成叶子节点的链表连接
             if (i > 0) {
                 Parent->Children[i - 1]->Next = X;
             }
@@ -271,6 +273,7 @@ static Position MoveElement(Position Src, Position Dst, Position Parent, int i, 
         }
 
         Parent->Key[i] = Src->Key[0];
+        // 将树叶节点重新连接起来
         if (Src->KeyNum > 0) {
             FindMostRight(Dst)->Next = FindMostLeft(Src);
         }
@@ -343,7 +346,7 @@ static BPlusTree RecursiveInsert(BPlusTree T, KeyType Key, int i, BPlusTree Pare
 
     // 调整节点
     Limit = M;
-
+    // 节点超过了Limit, 呈现富余状态，需要分裂
     if (T->KeyNum > Limit) {
         // 根
         if (Parent == NULL) {
@@ -402,6 +405,106 @@ extern void Traval(BPlusTree T) {
     printf("\n");
 }
 
+// 合并节点，X少于M/2关键字， S有大于或等于M/2个关键字
+static Position MergeNode(Position Parent, Position X, Position S, int i) {
+
+    int Limit;
+
+    // S的关键字数目大于M/2
+    if (S->KeyNum > LIMIT_M_2) {
+        // 从S中移动一个元素到X中
+        MoveElement(S, X, Parent, i, 1);
+    } else {
+        // 将全部元素移动到S中，并把X删除
+        Limit = X->KeyNum;
+        MoveElement(X, S, Parent, i, Limit);
+        RemoveElement(0, Parent, X, i, Unavailable);
+
+        free(X);
+        X = NULL;
+    }
+
+    return Parent;
+}
+
+static BPlusTree RecursiveRemove(BPlusTree  T, KeyType Key, int i, BPlusTree Parent) {
+
+    int j, NeedAdjust;
+    Position Sibling, Tmp;
+
+    Sibling = NULL;
+
+    // 查找分支
+    j = 0;
+    while (j < T->KeyNum && Key >= T->Key[j]) {
+        if (Key == T->Key[j]) {
+            break;
+        }
+        j++;
+    }
+
+    if (T->Children[0] == NULL) {
+        // 没找到
+        if (Key != T->Key[j] || j == T->KeyNum) {
+            return T;
+        }
+    } else {
+        if (j == T->KeyNum || Key < T->Key[j]) j--;
+    }
+
+    // 树叶
+    if (T->Children[0] == NULL) {
+        T = RemoveElement(1, Parent, T, i, j);
+    } else {
+        T->Children[j] = RecursiveRemove(T->Children[j], Key, j, T);
+    }
+
+    NeedAdjust = 0;
+    
+    // 树的根或者是一片树叶，或者其儿子数在2到M之间
+    if (Parent == NULL && T->Children[0] != NULL && T->KeyNum < 2) {
+        NeedAdjust = 1;
+    } else if (Parent != NULL && T->Children[0] != NULL && T->KeyNum < LIMIT_M_2) {
+        // 除根外，所有非树叶节点的儿子树在[M/2]到M之间。(符号[]表示向上取整)
+        NeedAdjust = 1;
+    } else if (Parent != NULL && T->Children[0] == NULL && T->KeyNum < LIMIT_M_2) {
+        NeedAdjust = 1;
+    }
+
+    // 调整节点
+    if (NeedAdjust) {
+        // 根
+        if (Parent == NULL) {
+            if (T->Children[0] != NULL && T->KeyNum < 2) {
+                Tmp = T;
+                T = T->Children[0];
+                free(Tmp);
+                return T;
+            }
+        } else {
+            // 查找兄弟节点，其关键字数目大于M/2
+            Sibling = FindSiblingKeyNum_M_2(Parent, i, &j);
+            if (Sibling != NULL) {
+                MoveElement(Sibling, T, Parent, j, 1);
+            } else {
+                if (i == 0) {
+                    Sibling = Parent->Children[1];
+                } else {
+                    Sibling = Parent->Children[i - 1];
+                }
+                Parent = MergeNode(Parent, T, Sibling, i);
+                T = Parent->Children[i];
+            }
+        }
+    }
+    return T;
+}
+
+// 删除
+extern BPlusTree Remove(BPlusTree T, KeyType Key) {
+    return RecursiveRemove(T, Key, 0, NULL);
+}
+
 // 销毁
 extern BPlusTree Destory(BPlusTree T) {
 
@@ -436,14 +539,18 @@ int main() {
     T = Initialize();
 
     clock_t c1 = clock();
-    i = 20;
+    i = 9;
 
     while (i > 0) {
         T = Insert(T, i--);
     }
 
-    // Traval(T);
 
+    i = 9;
+    while (i > 1) {
+        T = Remove(T, i--);
+    }
+    // Traval(T);
     Destory(T);
 
     clock_t c2 = clock();

@@ -26,7 +26,7 @@ extern BPlusTree Initialize();
 extern BPlusTree Insert(BPlusTree T, KeyType Key);
 
 // 删除
-// extern BPlusTree Remove(BPlusTree T, KeyType Key);
+extern BPlusTree Remove(BPlusTree T, KeyType Key);
 
 // 销毁
 extern BPlusTree Destroy(BPlusTree T);
