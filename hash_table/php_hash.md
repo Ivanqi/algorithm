@@ -178,12 +178,12 @@ struct _zend_array {
 		#define HT_DESTROYED			0x80	// 已删除，包括arBuckets本身
 		#define HT_CLEANING				0xc0	// 正在清除所有的arBuckets执行的内容，但不包括arBuckets本身
 		```
-- HashTable 中有两个非常相近的值: nNumUsed, nNumOfElements
-- nNumOfElements  表示哈希值已有元素数，那这个值不跟 nNumUsed一样吗？为什么要定义两个呢？
-  - 实际上它们有不同的含义，当将一个元素从哈希表删除时并不会将对应的Bucket移除，而是将Bucket存储的zval修改成IS_UNDEF
-  - 只有扩容时发现 nNumOfElements与nNumUsed相差一定数量
-  - 这个数量是： ht->nNumUsed - ht->nNumOfElements > (ht->nNumOfElements >> 5) 时才会将已删除的元素全部移除，重新构建哈希表
-  - 所以 nNumUsed >= nNumOfElements
+- 为什么HashTable 掩码(nTableMask)是负数?
+  - PHP7在分配bucket数据内存的时候，在bucket数组的前面额外多申请内存
+  - 这段内存是一个索引数组(也加索引表)，数组里面的每个元素代表一个Slot,存储着每个slot链表的第一个bucket在bucket数组中的下标
+  - 索引表的默认值：-1
+  - 为了实现逻辑链表，由于bucket元素的val是zval，PHP7通过bucket.val.u2.next表达链表中下一个元素在数组中的下标
+  - ![avatar](images/../../images/php_hash_3.png)
 - HashTable 中另一个非常重要的值 arData
   - 这个值指向存储元素素组的第一个Bucket, 插入元素时按顺序依次插入数组，比如第一个元素在arData[0], 第二个在arData[1]... arData[nNumUsed]
   - arrData并不是按key映射的散列表，那么映射函数是如何将key与arData中的value建立映射关系的？
@@ -197,23 +197,142 @@ struct _zend_array {
       - $arr["d"] = 4;
       - unset($arr["c"]);
       - ![avatar](images/../../images/php_hash_1.png)
+
+
 ##### HashTable 初始化
-```
-ZEND_API void ZEND_FASTCALL _zend_hash_init(HashTable *ht, uint32_t nSize, dtor_func_t pDestructor, zend_bool persistent ZEND_FILE_LINE_DC)
-{
-	GC_REFCOUNT(ht) = 1;
-	GC_TYPE_INFO(ht) = IS_ARRAY;
-	ht->u.flags = (persistent ? HASH_FLAG_PERSISTENT : 0) | HASH_FLAG_APPLY_PROTECTION | HASH_FLAG_STATIC_KEYS;
-	ht->nTableSize = zend_hash_check_size(nSize);   // 初始容量最小为8
-	ht->nTableMask = HT_MIN_MASK;
-	HT_SET_DATA_ADDR(ht, &uninitialized_bucket);    // 为arrData 分配内存
-	ht->nNumUsed = 0;
-	ht->nNumOfElements = 0;
-	ht->nInternalPointer = HT_INVALID_IDX;
-	ht->nNextFreeElement = 0;
-	ht->pDestructor = pDestructor;
-}
-```
+###### 初始化一：为HashTable分配内存，初始化HashTable各个字段
+- 例如: $arr = array();
+- 初始化流程
+    - 申请内存
+		```
+		(ht) = (HashTable *)emalloc(sizeof(HashTable));
+		```
+    - 调用_zend_hash_init
+		```
+		static const uint32_t uninitialized_bucket[-HT_MIN_MASK] = {HT_INVALID_IDX, HT_INVALID_IDX};
+
+		ZEND_API void ZEND_FASTCALL _zend_hash_init(HashTable *ht, uint32_t nSize, dtor_func_t pDestructor, zend_bool persistent ZEND_FILE_LINE_DC)
+		{
+			GC_REFCOUNT(ht) = 1;	// 设置引用计数
+			GC_TYPE_INFO(ht) = IS_ARRAY; 	// 7 类别设置成数组
+			ht->u.flags = (persistent ? HASH_FLAG_PERSISTENT : 0) | HASH_FLAG_APPLY_PROTECTION | HASH_FLAG_STATIC_KEYS;
+			ht->nTableSize = zend_hash_check_size(nSize);   // 能包含nSize的最小2 ^ n的数字最小值 8
+			ht->nTableMask = HT_MIN_MASK;	// -2，默认是packed array
+			HT_SET_DATA_ADDR(ht, &uninitialized_bucket);    // ptr偏移到arrData地址
+			ht->nNumUsed = 0;
+			ht->nNumOfElements = 0;
+			ht->nInternalPointer = HT_INVALID_IDX;
+			ht->nNextFreeElement = 0;
+			ht->pDestructor = pDestructor;
+		}
+		```
+- 参数说明
+  - nTableSzie = 8
+    - 因为HashTable 内部的arBuckets的大小是2的n次方，并且最小是8，最大值为0x8000000
+  - u.vflags = 18
+	```
+	#define HASH_FLAG_PERSISTENT       (1<<0)
+	#define HASH_FLAG_APPLY_PROTECTION (1<<1)
+	#define HASH_FLAG_PACKED           (1<<2)
+	#define HASH_FLAG_INITIALIZED      (1<<3)
+	#define HASH_FLAG_STATIC_KEYS      (1<<4)
+	#define HASH_FLAG_HAS_EMPTY_IND    (1<<5)
+	```
+    - flag = 18 = HASH_FLAG_STATIC_KEYS | HASH_FLAG_APPLY_PROTECTION
+    - 而flag & HASH_FLAG_INITIALIZED 等于0说明，该数组尚未完成真正的初始化，即尚未为arData分配内存
+  - 设置nNumberUsed, nNumOfElement为0
+    - 因为现在还没有使用任何数据元素
+  - 设置nInternalPointer为-1
+    - 表示尚未设置全局遍历游标
+  - 设置nNextFreeElement 为 0
+    - 表示数组的自然key从0开始
+  - 设置nTableSize
+    - 如果传递的nSize 不是 2 ^ n，会通过zend_hash_check_size函数计算大于等于nSize的最小的 2 ^ n
+    - 例如 nSize = 10, 那么最终ht->nTableSize取值为16
+  - nTableMask = -2
+    - 表示索引表大小为2
+    - packed array的索引表未使用到，即nTableMask永远等于-2
+
+###### 初始化二：为bucket数组分配内存，修改HashTable某些字段
+- 例如: $arr[] = 'foo';
+- 流程
+  - 调用 zend_hash_real_init_ex
+	```
+	static void zend_always_inline zend_hash_real_init_ex(HashTable *ht, int packed)
+	{
+		HT_ASSERT(GC_REFCOUNT(ht) == 1);
+		ZEND_ASSERT(!((ht)->u.flags & HASH_FLAG_INITIALIZED));
+		// packed: h < ht->nTableSize, h = 0, ht->nTableSize 默认为8
+		if (packed) {	// packed array 初始化
+			/* 为arData分配内存, 并把arData的指针偏移指向buckets数组的首地址*/
+			HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)->u.flags & HASH_FLAG_PERSISTENT));
+			// 修改flags为 已经初始化并且为packed array
+			(ht)->u.flags |= HASH_FLAG_INITIALIZED | HASH_FLAG_PACKED;
+			// nIndex置为无效标识-1，arData[-1], arrData[-2] = -1
+			HT_HASH_RESET_PACKED(ht);
+		} else {	// 普通哈希表的初始化
+			/*
+				掩码nTableMask为nTableSize的负数，即nTableMask = -nTableSize, 因为nTableSize 等于 2 ^ n，所以nTableMask二进制位右侧全部为0，也就保证了nIndex落在数组索引范围之内(|nIndex| <= nTableSize)
+			*/
+			(ht)->nTableMask = -(ht)->nTableSize;
+			HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)->u.flags & HASH_FLAG_PERSISTENT));
+			(ht)->u.flags |= HASH_FLAG_INITIALIZED;
+			if (EXPECTED(ht->nTableMask == -8)) {
+				Bucket *arData = ht->arData;
+
+				HT_HASH_EX(arData, -8) = -1;
+				HT_HASH_EX(arData, -7) = -1;
+				HT_HASH_EX(arData, -6) = -1;
+				HT_HASH_EX(arData, -5) = -1;
+				HT_HASH_EX(arData, -4) = -1;
+				HT_HASH_EX(arData, -3) = -1;
+				HT_HASH_EX(arData, -2) = -1;
+				HT_HASH_EX(arData, -1) = -1;
+			} else {
+				HT_HASH_RESET(ht);	// 调用memset函数把所有内存设置成无符号整型的-1
+			}
+		}
+	}
+	```
+- 参数说明
+  - HashTable的arData被真正地分配内存
+    - 并且按最小值8分配了8个bucket的存储空间
+  - flags = 30
+    - flags = 30 = HASH_FLAG_STATIC_KEYS | HASH_FLAG_APPLY_PROTECTION | HASH_FLAG_PACKED | HASH_FLAG_INITIALIZED
+    - 说明当前HashTable.arData已经被初始化完毕，并且当前HashTable是packed array
+  - nTableMask = -2
+    - 因为是packed array
+  - h = 0
+    - $arr[] 对于首次插入，h 等于0
+    - packed array 插入到bucket数组的第一个位置(下标为0)
+  - bucket 里面内嵌了 zval
+  - nNumUsed = 1
+    - 由于bucket数组是连续分配的内存，nNumUsed = 1代表了已经使用了1个bucket
+    - 那就是arData[0]这个bucket
+  - nNumOfElements = 1
+    - 表示当前HashTable中有一个有效元素arData[0]
+  - nInternalPointer = 0
+    - 遍历下标，表示遍历HashTable时从arData[0]开始
+  - nNextFreeElement = 1
+    - 自然下标，下次自然序插入时, h值为1
+
+###### packed array 和 hash array 的区别
+- packed array
+  - 例如：$a = array(1, 2, 3); // 纯数组
+  - 特性和约束
+    - key 全部数字key
+    - key 按插入顺序排列，仍然是递增的
+    - 每一个key-value对的存储位置都是非常确定的，都存储在bucket数组的第key个元素上
+    - packed array 不需要索引数组
+  - ![avatar](images/../../images/php_hash_4.png)
+- hash array
+  - 例如：$b = array('x' => 1, 'y' => 2, 'z' => 3);
+  - 说明
+    - hash array 依赖数组来维护每个slot链表中首元素在bucket中的下标
+    - 拿key 为 x举例，字符串x的h值是9223372036854953501，它与nTableMask(-8)做位或运算之后，结果是-3
+    - 然后到索引数组上去查询-3这个slot值，得到该slot链表首元素在bucket数组的下标为0
+  - ![avatar](images/../../images/php_hash_5.png)
+
 ##### Hash 算法
 ````
 static zend_always_inline zend_ulong zend_inline_hash_func(const char *str, size_t len)
