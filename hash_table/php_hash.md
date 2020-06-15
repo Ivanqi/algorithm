@@ -387,6 +387,38 @@ EMPTY_SWITCH_DEFAULT_CASE()
   - 11111111 11111111 11111111 11100000 -32
   - 11111111 11111111 11111111 11000000 -64
   - 11111111 11111111 11111111 10000000 -64
+
+##### HashTable 插入
+###### 情景分析
+- 例子1: $arr[] = 'foo'; // 默认为packed array
+  - 流程
+    - 调用 zend_hash_init 函数，进行hashtable的初始化
+      - 初始化为packed array 模式
+    -  调用 _zend_hash_next_index_insert 函数将uninitialized_zval插入到HashTable中
+       -  然后将字符串foo(zend string 类型)拷贝到对应的zval中
+   - 调用函数分析
+     - _zend_hash_next_index_insert
+       - _zend_hash_next_index_insert 会调用 _zend_hash_index_add_or_update_i
+- 例子2: $arr['a'] = 'bar'
+  - 流程
+    - 首先调用zend_hash_find根据 key = 'a'查找,查找不到对应的key
+    - 然后通过zend_hash_add_new把uninitialized_zval插入到HashTable中
+    - 如果此时是packed array，需要调用zend_hash_packed_to_hash进行转换
+- 例子3: $arr[2] = 'abc'
+  - 流程
+    - 首先使用 _zend_hash_index_find函数根据h = 2来查找，查找不到的话
+    - 调用zend_hash_index_add_new 将其插入HashTable中去
+- 例子4: $arr[] = 'xyz'
+  - 流程
+    - 调用_zend_hash_next_index_insert
+    - 对于h，使用的是ht->nNextFreeElement
+    - 如此时ht->nNextFreeElement == 3, 同样传入 h = 3调用zend_hash_index_find_bucket查找
+    - 查找不到的话，进行插入
+- 例子5: $arr['a'] = 'foo'
+  - 流程
+    - 调用zend_hash_find_bucket，通过 key = a查找，通过zend_string_hash_val可以计算 h值
+    - 然后通过 nIndex = h | ht->nTableMask , nIndex = -2, 而-2位置对应1，找到arData的第1个位置，判断key是否等于'a',然后将对应的值改为'foo'，并做优化
+
 ##### 参考资料
 - 《PHP7底层设计和源码实现》
 - 《PHP7内核剖析》
