@@ -494,7 +494,7 @@ EMPTY_SWITCH_DEFAULT_CASE()
 				return &p->val;
 
 		convert_to_hash:
-				// 扩容，并且进行rehash
+				// packed array 模式 转换成 hash array模式
 				zend_hash_packed_to_hash(ht);
 			} else if ((flag & HASH_ADD_NEW) == 0) {
 				p = zend_hash_index_find_bucket(ht, h);
