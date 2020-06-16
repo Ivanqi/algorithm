@@ -10,7 +10,7 @@
 #### 功能分析
 ##### 整体结构
 - ![avatar](images/../../images/php_hash_9.png)
-  - bucket 里面增加h字段，h代表的是数字key(packe array 模式下，直接是数组下标)
+  - bucket 里面增加h字段，h代表的是数字key(packed array 模式下，直接是数组下标)
   - 哈希函数拆分为 hash1函数和hash2函数。hash1 将key映射为h值，hash2将h值映射为slot的缩影值
   - key字段作为字符串key，不再表示数字key
 ##### 数据结构
@@ -597,6 +597,32 @@ EMPTY_SWITCH_DEFAULT_CASE()
 		```
 	- zend_hash_add_new
     	- 最后是调用_zend_hash_add_or_update_i
+  	- zend_hash_packed_to_hash
+		```
+		ZEND_API void ZEND_FASTCALL zend_hash_packed_to_hash(HashTable *ht)
+		{
+			// 把当前的hash table 设置为旧hash table
+			void *new_data, *old_data = HT_GET_DATA_ADDR(ht);
+			Bucket *old_buckets = ht->arData;
+
+			HT_ASSERT(GC_REFCOUNT(ht) == 1);
+			HANDLE_BLOCK_INTERRUPTIONS();
+			// ~HASH_FLAG_PACKED 把 packed array 变成 hash array
+			ht->u.flags &= ~HASH_FLAG_PACKED;
+			// 申请nTableSize + nTableMask数量的内存
+			new_data = pemalloc(HT_SIZE_EX(ht->nTableSize, -ht->nTableSize), (ht)->u.flags & HASH_FLAG_PERSISTENT);
+			ht->nTableMask = -ht->nTableSize;
+			// 修改ht内存指向
+			HT_SET_DATA_ADDR(ht, new_data);
+			// 复制旧数据到新hash table
+			memcpy(ht->arData, old_buckets, sizeof(Bucket) * ht->nNumUsed);
+			// 释放旧数据
+			pefree(old_data, (ht)->u.flags & HASH_FLAG_PERSISTENT);
+			// 重建索引
+			zend_hash_rehash(ht);
+			HANDLE_UNBLOCK_INTERRUPTIONS();
+		}
+		```
 - 例子3: $arr[2] = 'abc'
   - 流程
     - 首先使用 zend_hash_index_find函数根据h = 2来查找，查找不到的话
@@ -609,9 +635,9 @@ EMPTY_SWITCH_DEFAULT_CASE()
 			Bucket *p;
 
 			IS_CONSISTENT(ht);
-			// hash table 是否是packed array
+			//hash table 是否是packed array
 			if (ht->u.flags & HASH_FLAG_PACKED) {
-				// 查找的值，小于hash table 实际的bucket
+				// 查找的值，小于hash table 实际的bucket
 				if (h < ht->nNumUsed) {
 					p = ht->arData + h;
 					// p 不是被标记删除的数据
@@ -706,31 +732,6 @@ EMPTY_SWITCH_DEFAULT_CASE()
       - 当再一次遇到一个正常数据时，把正常数据拷贝到q指向的位置，q++
       - 直到遍历完数据，更新nNumUsed等计数
 - 代码分析
-  - zend_hash_packed_to_hash
-	```
-	ZEND_API void ZEND_FASTCALL zend_hash_packed_to_hash(HashTable *ht)
-	{
-		// 把当前的hash table 设置为旧hash table
-		void *new_data, *old_data = HT_GET_DATA_ADDR(ht);
-		Bucket *old_buckets = ht->arData;
-
-		HT_ASSERT(GC_REFCOUNT(ht) == 1);
-		HANDLE_BLOCK_INTERRUPTIONS();
-		ht->u.flags &= ~HASH_FLAG_PACKED;
-		// 申请2倍的内存
-		new_data = pemalloc(HT_SIZE_EX(ht->nTableSize, -ht->nTableSize), (ht)->u.flags & HASH_FLAG_PERSISTENT);
-		ht->nTableMask = -ht->nTableSize;
-		// 修改ht内存指向
-		HT_SET_DATA_ADDR(ht, new_data);
-		// 复制旧数据到新hash table
-		memcpy(ht->arData, old_buckets, sizeof(Bucket) * ht->nNumUsed);
-		// 释放旧数据
-		pefree(old_data, (ht)->u.flags & HASH_FLAG_PERSISTENT);
-		// 重建索引
-		zend_hash_rehash(ht);
-		HANDLE_UNBLOCK_INTERRUPTIONS();
-	}
-	```
   - zend_hash_rehash
 	```
 	ZEND_API int ZEND_FASTCALL zend_hash_rehash(HashTable *ht)
