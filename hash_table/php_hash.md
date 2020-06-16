@@ -11,7 +11,7 @@
 ##### 整体结构
 - ![avatar](images/../../images/php_hash_9.png)
   - bucket 里面增加h字段，h代表的是数字key(packed array 模式下，直接是数组下标)
-  - 哈希函数拆分为 hash1函数和hash2函数。hash1 将key映射为h值，hash2将h值映射为slot的缩影值
+  - 哈希函数拆分为 hash1函数和hash2函数。hash1 将key映射为h值，hash2将h值映射为slot的索引值
   - key字段作为字符串key，不再表示数字key
 ##### 数据结构
 ###### bucket结构分析
