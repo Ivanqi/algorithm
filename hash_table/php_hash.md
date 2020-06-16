@@ -62,7 +62,7 @@ typedef struct _Bucket {
     		zend_refcounted_h gc;	/* 8字节，内嵌的gc，引用计数及字符串类别存储*/
     		zend_ulong        h;   /* hash值，8字节，字符串的哈希值 */
     		size_t            len;	/* 8字节，字符串的长度*/
-    		char              val[1]; /*柔性数数组，占1位，字符串的值存粗的位置*/
+    		char              val[1]; /*柔性数数组，占1位，字符串的值存储的位置*/
     	};
 
     	typedef struct _zend_refcounted_h {
