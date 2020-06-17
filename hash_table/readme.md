@@ -82,5 +82,9 @@
 - 改进
   - 因为散列表是动态数据结构，不停有数据的插入，删除，所以每当我们希望按顺序遍历散列表中的数据的时候，都需要先排序，那效率势必会很低
   - 为了解决这个问题，我们将散列表和链表（或跳表）结合一起使用
+#### 其他
+- [PHP Hash Table](./php_hash.md)
+- [哈希算法](./hash_algorithm.md)
+
 #### 资料参考
 - [[Data Structure & Algorithm] Hash那点事儿](https://www.cnblogs.com/maybe2030/p/4719267.html)

@@ -78,7 +78,7 @@
 #### 参考资料
 - [白话解析：一致性哈希算法 consisten hashing](http://www.zsythink.net/archives/1182)
 - [漫画：什么是一致性哈希？](https://mp.weixin.qq.com/s/yimfkNYF_tIJJqUIzV7TFA)
-- [二进制、八进制、十进制、十六进制之间的转换](https://jingyan.baidu.com/article/495ba84109665338b30ede98.html)
+- [一致性哈希算法](https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95.md)
 - [sha1 加密算法的 C++ 语言实现](https://blog.sbw.so/u/cpp-implements-class-for-sha1-encryption-algorithm.html)
 - [SHA256算法原理详解](https://blog.csdn.net/u011583927/article/details/80905740)
 - [MD5算法解析](https://www.cnblogs.com/chars/p/4983291.html)
