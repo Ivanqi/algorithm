@@ -17,7 +17,7 @@ int main() {
 	csshash.addNode("10.0.1.57:80", 3);
     showTime(csshash);
 
-    // 模拟一个客户端
+    // 模拟一个客户端 
     string cliIp = "192.168.56.1:12345";
     string serIp = csshash.getServerName(cliIp);
 	cout << cliIp << "\thash值：" << csshash.getHash(cliIp) << " -> " << serIp << endl;
