@@ -58,3 +58,4 @@
 
 #### 参考资料
 - [Redis为什么用跳表而不用平衡树？](https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261425&idx=1&sn=d840079ea35875a8c8e02d9b3e44cf95&scene=21#wechat_redirect)
+- [Redis源码学习之跳表](https://cloud.tencent.com/developer/article/1353762)
