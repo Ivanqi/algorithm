@@ -166,6 +166,146 @@ void sdsfree(sds s) {
     free((char *)s - sdsHdrSize(s[-1]));
 }
 
+/**
+ * 将一个 char 数组的前 len 个字节复制至 sds
+ * 如果 sds 的 buf 不足以容纳要复制的内容，那么扩展 buf 的长度
+ * 让 buf 的长度大于等于 len 。
+ */
+sds sdscpylen(sds s, const char *t, size_t len) {
+
+    if (sdsalloc(s) < len) {
+        s = sdsMakeRoomFor(s, len);
+        if (s == NULL) return NULL;
+    }
+
+    memcpy(s, t, len);
+    s[len] = '\0';
+    sdssetlen(s, len);
+    return s;
+}
+
+// 将给定的C字符复制到SDS里面，覆盖SDS原有的字符串
+sds sdscpy(sds s, const char *t) {
+
+    return sdscpylen(s, t, strlen(t));
+}
+
+// 对 sds 的 buf 进行扩展，扩展的长度不少于 addlen 。
+sds sdsMakeRoomFor(sds s, size_t addlen) {
+
+    void *sh, *newsh;
+    size_t avail = sdsavail(s);
+    char type, oldtype = s[-1] & SDS_TYPE_MASK;
+    size_t len, newlen;
+    int hdrlen;
+
+    if (avail >= addlen) return s;
+
+    len = sdslen(s);
+    sh = (char *)s - sdsHdrSize(oldtype);
+    newlen = (len + addlen);
+
+    if (newlen < SDS_MAX_PREALLOC) {
+        newlen *= 2;
+    } else {
+        newlen += SDS_MAX_PREALLOC;
+    }
+
+    type = sdsReqType(newlen);
+    if (type == SDS_TYPE_5) type = SDS_TYPE_8;
+    hdrlen = sdsHdrSize(type);
+
+    if (oldtype == type) {
+        newsh = realloc(sh, hdrlen + newlen + 1);
+        if (newsh == NULL) return NULL;
+        s = (char *) newsh + hdrlen;
+    } else {
+        newsh = malloc(hdrlen + newlen + 1);
+        if (newsh == NULL) return NULL;
+        memcpy((char *)newsh + hdrlen, s, len + 1);
+        free(sh);
+
+        s = (char *) newsh + hdrlen;
+        s[-1] = type;
+        sdssetlen(s, len);
+    }
+    
+    sdssetalloc(s, newlen);
+    return s;
+}
+
+sds sdscatprintf(sds s, const char *fmt, ...) {
+
+    va_list ap;
+    char *t;
+    va_start(ap, fmt);
+    t = sdscatvprintf(s, fmt, ap);
+    va_end(ap);
+    return t;
+}
+
+sds sdscatvprintf(sds s, const char *fmt, va_list ap) {
+
+    va_list cpy;
+    char staticbuf[1024], *buf = staticbuf, *t;
+    size_t buflen = strlen(fmt) * 2;
+
+    if (buflen > sizeof(staticbuf)) {
+        buf = malloc(buflen);
+        if (buf == NULL) return NULL;
+    } else {
+        buflen = sizeof(staticbuf);
+    }
+
+    while (1) {
+
+        buf[buflen - 2] = '\0';
+        va_copy(cpy, ap);
+        vsnprintf(buf, buflen, fmt, cpy);
+        va_end(cpy);
+
+        if (buf[buflen - 2] != '\0') {
+            if (buf != staticbuf) free(buf);
+            buflen *= 2;
+
+            buf = malloc(buflen);
+            if (buf == NULL) return NULL;
+            continue;
+        }
+        break;
+    }
+
+    t = sdscat(s, buf);
+    if (buf != staticbuf) free(buf);
+    return t;
+}
+
+// 按长度 len 扩展 sds ，并将 t 拼接到 sds 的末尾
+sds sdscatlen(sds s, const void *t, size_t len) {
+    
+    size_t curlen = sdslen(s);
+
+    s = sdsMakeRoomFor(s, len);
+    if (s == NULL) {
+        return NULL;
+    }
+
+    // 复制
+    memcpy(s + curlen, t, len);
+
+    // 更新 len 和 free属性
+    sdssetlen(s, curlen + len);
+
+    // 终结符
+    s[curlen + len] = '\0';
+    return s;
+}
+
+// 将给定C字符拼接到SDS字符串的末尾
+sds sdscat(sds s, const char *t) {
+    return sdscatlen(s, t, strlen(t));
+}
+
 int main () {
 
     {
@@ -176,6 +316,21 @@ int main () {
 
         x = sdsnewlen("foo", 2);
         test_cond("创建指定长度的字符串", sdslen(x) == 2 && memcmp(x,"fo\0",2) == 0);
+
+        x = sdscat(x, "bar");
+        test_cond("字符串连接", sdslen(x) == 5 && memcmp(x, "fobar\0", 6) == 0);
+
+        x = sdscpy(x, "a");
+        test_cond("sdscpy() 复制一个短字符串", sdslen(x) == 1 && memcmp(x, "a\0", 2) == 0);
+
+        x = sdscpy(x, "xyzxxxxxxxxxxyyyyyyyyyykkkkkkkkkk");
+        test_cond("sdscpy() 复制一个长字符串", sdslen(x) == 33 && memcmp(x, "xyzxxxxxxxxxxyyyyyyyyyykkkkkkkkkk\0", 34) == 0);
+        sdsfree(x);
+
+        x = sdscatprintf(sdsempty(), "%d", 123);
+        test_cond("sdscatprintf() 基础例子", strlen(x) == 3 && memcmp(x, "123\0", 4) == 0);
+        sdsfree(x);
+
     }
 
     return 0;
