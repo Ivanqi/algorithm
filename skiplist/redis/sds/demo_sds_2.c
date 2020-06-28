@@ -303,7 +303,64 @@ sds sdscatlen(sds s, const void *t, size_t len) {
 
 // 将给定C字符拼接到SDS字符串的末尾
 sds sdscat(sds s, const char *t) {
+
     return sdscatlen(s, t, strlen(t));
+}
+
+sds sdscatfmt(sds s, char const *fmt, ...) {
+    
+    size_t initlen = sdslen(s);
+    const char *f = fmt;
+    long i;
+    va_list ap;
+
+    s = sdsMakeRoomFor(s, initlen + strlen(fmt) * 2);
+    va_start(ap, fmt);
+    f = fmt;
+    i = initlen;
+
+    while (*f) {
+        char next, *str;
+        size_t l;
+        long long num;
+        unsigned long long unum;
+
+        if (sdsavail(s) == 0) {
+            s = sdsMakeRoomFor(s, 1);
+        }
+
+        switch (*f) {
+            case '%':
+                next = *(f + 1);
+                f++;
+
+                switch (next) {
+                    case 's':
+                    case 'S':
+                        str = va_arg(ap, char*);
+                        l = (next == 's') ? strlen(str) : sdslen(str);
+                        if (sdsavail(s) < l) {
+                            s = sdsMakeRoomFor(s, l);
+                        }
+                        memcpy(s + i, str, l);
+                        sdsinclen(s, l);
+                        i += l;
+                        break;
+                    case 'i':
+                    case 'I':
+                        if (next == 'i') {
+                            num = va_arg(ap, int);
+                        } else {
+                            num = va_arg(ap, long long);
+                        }
+
+                        {
+                            char buf[SDS_LLSTR_SIZE];
+                            l = sds
+                        }
+                }
+        }
+    }
 }
 
 int main () {
@@ -331,6 +388,8 @@ int main () {
         test_cond("sdscatprintf() 基础例子", strlen(x) == 3 && memcmp(x, "123\0", 4) == 0);
         sdsfree(x);
 
+        x = sdsnew("--");
+        x = 
     }
 
     return 0;
