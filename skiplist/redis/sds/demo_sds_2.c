@@ -356,11 +356,280 @@ sds sdscatfmt(sds s, char const *fmt, ...) {
 
                         {
                             char buf[SDS_LLSTR_SIZE];
-                            l = sds
+                            l = sdsll2str(buf, num);
+                            if (sdsavail(s) < l) {
+                                s = sdsMakeRoomFor(s, l);
+                            }
+                            memcpy(s + i, buf, l);
+                            sdsinclen(s, l);
+                            i += l;
                         }
+                        break;
+                    case 'u':
+                    case 'U':
+                        if (next == 'u') {
+                            unum = va_arg(ap, unsigned int);
+                        } else {
+                            unum = va_arg(ap, unsigned long long);
+                        }
+
+                        {
+                            char buf[SDS_LLSTR_SIZE];
+                            l = sdsull2str(buf, unum);
+                            if (sdsavail(s) < l) {
+                                s = sdsMakeRoomFor(s, l);
+                            }
+                            memcpy(s + i, buf, l);
+                            sdsinclen(s, l);
+                            i += l;
+                        }
+                        break;
+                    default:
+                        s[i++] = next;
+                        sdsinclen(s, 1);
+                        break;
                 }
+                break;
+            default:
+                s[i++] = *f;
+                sdsinclen(s, 1);
+                break;
+        }
+        f++;
+    }
+    va_end(ap);
+    s[i] = '\0';
+    return s;
+}
+
+int sdsll2str(char *s, long long value) {
+
+    char *p, aux;
+    unsigned long long v;
+    size_t l;
+
+    v = (value < 0) ? -value : value;
+    p = s;
+
+    do {
+        *p++ = '0' + (v % 10);
+        v /= 10;
+    } while (v);
+
+    if (value < 0) *p++ = '-';
+
+    l = p - s;
+    *p = '\0';
+
+    p--;
+    while (s < p) {
+        aux = *s;
+        *s = *p;
+        *p = aux;
+        s++;
+        p--;
+    }
+    return l;
+}
+
+int sdsull2str(char *s, unsigned long long v) {
+
+    char *p, aux;
+    size_t l;
+
+    p = s;
+    do {
+        *p++ = '0' + (v % 10);
+        v /= 10;
+    } while (v);
+
+    l = p - s;
+    *p = '\0';
+
+    p--;
+    while (s < p) {
+        aux = *s;
+        *s = *p;
+        *p = aux;
+        s++;
+        p--;
+    }
+    return l;
+}
+
+// 接受一个SDS和一个C字符串作为参数，从SDS中移除所有在C字符串中出现的字符
+sds sdstrim(sds s, const char *cset) {
+
+    char *start, *end, *sp, *ep;
+    size_t len;
+
+    sp = start = s;
+    ep = end = s + sdslen(s) - 1;
+
+    while (sp <= end && strchr(cset, *sp)) {
+        sp++;
+    }
+
+    while (ep > sp && strchr(cset, *ep)) {
+        ep--;
+    }
+
+    len = (sp > ep) ? 0 : ((ep - sp) + 1 );
+    if (s != sp) {
+        memmove(s, sp, len);
+    }
+
+    s[len] = '\0';
+    sdssetlen(s, len);
+    return s;
+}
+
+// 创建一个给定SDS的副本(copy)
+sds sdsdup(const sds s) {
+
+    return sdsnewlen(s, strlen(s));
+}
+
+// 保留SDS给定区间内的数据，不在区间内的数据会被覆盖或清除
+void sdsrange(sds s, ssize_t start, ssize_t end) {
+
+    size_t newlen, len = sdslen(s);
+
+    if (len == 0) return;
+
+    if (start < 0) {
+        start = len + start;
+        if (start < 0) {
+            start = 0;
         }
     }
+
+    if (end < 0) {
+        end = len + end;
+        if (end < 0) {
+            end = 0;
+        }
+    }
+
+    newlen = (start > end) ? 0 : (end - start) + 1;
+    
+    if (newlen != 0) {
+        if (start >= (ssize_t)len) {
+            newlen = 0;
+        } else if (end >= (ssize_t)len) {
+            end = len - 1;
+            newlen = (start > end) ? 0 : (end - start) + 1;
+        }
+    } else {
+        start = 0;
+    }
+
+    if (start && newlen) {
+        memmove(s, s + start, newlen);
+    }
+    s[newlen] = 0;
+    sdssetlen(s, newlen);
+}
+
+// 对比两个SDS字符串是否相同
+int sdscmp(const sds s1, const sds s2) {
+
+    size_t l1, l2, minlen;
+    int cmp;
+
+    l1 = sdslen(s1);
+    l2 = sdslen(s2);
+
+    minlen = (l1 < l2) ? l1 : l2;
+    cmp = memcmp(s1, s2, minlen);
+
+    if (cmp == 0) {
+        return l1 - l2;
+    }
+    return cmp;
+}
+
+sds sdscatrepr(sds s, const char *p, size_t len) {
+
+    s = sdscatlen(s, "\"", 1);
+    while (len--) {
+        switch (*p) {
+            case '\\':
+            case '"':
+                s = sdscatprintf(s, "\\%c", *p);
+                break;
+            case '\n':
+                s = sdscatlen(s, "\\n", 2);
+                break;
+            case '\r':
+                s = sdscatlen(s, "\\r", 2);
+                break;
+            case '\t':
+                s = sdscatlen(s, "\\t", 2);
+                break;
+            case '\a':
+                s = sdscatlen(s, "\\a", 2);
+                break;
+            case '\b':
+                s = sdscatlen(s, "\\b", 2);
+                break;
+            default:
+                if (isprint(*p)) {
+                    s = sdscatprintf(s, "%c", *p);
+                } else {
+                    s = sdscatprintf(s, "\\x%02x", (unsigned char)*p);
+                }
+                break;
+        }
+        p++;
+    }
+    s =  sdscatlen(s, "\"", 1);
+    return s;
+}
+
+// 在 sds buf 的右端添加 incr 个位置。如果 incr 是负数时，可以作为 right-trim 使用
+void sdsIncrLen(sds s, ssize_t incr) {
+
+    unsigned char flags = s[-1];
+    size_t len;
+
+    switch (flags & SDS_TYPE_MASK) {
+        case SDS_TYPE_5: {
+            unsigned char *fp = ((unsigned char *) s) - 1;
+            unsigned char oldlen = SDS_TYPE_5_LEN(flags);
+            assert((incr > 0 && oldlen + incr < 32) || (incr < 0 && oldlen >= (unsigned int)(-incr)));
+            *fp = SDS_TYPE_5 | ((oldlen + incr) << SDS_TYPE_BITS);
+            len = oldlen + incr;
+            break;
+        }
+        case SDS_TYPE_8: {
+            SDS_HDR_VAR(8, s);
+            assert((incr >= 0 && sh->alloc - sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+            len = (sh->len += incr);
+            break;
+        }
+        case SDS_TYPE_16: {
+            SDS_HDR_VAR(16, s);
+            assert((incr >= 0 && sh->alloc - sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+            len = (sh->len += incr);
+            break;
+        }
+        case SDS_TYPE_32: {
+            SDS_HDR_VAR(32, s);
+            assert((incr >= 0 && sh->alloc - sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+            len = (sh->len += incr);
+            break;
+        }
+        case SDS_TYPE_64: {
+            SDS_HDR_VAR(64, s);
+            assert((incr >= 0 && sh->alloc - sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+            len = (sh->len += incr);
+            break;
+        }
+        default:
+            len = 0;
+    }
+    s[len] = '\0';
 }
 
 int main () {
@@ -389,8 +658,88 @@ int main () {
         sdsfree(x);
 
         x = sdsnew("--");
-        x = 
+        x = sdscatfmt(x, "%u,%U--", UINT_MAX, ULLONG_MAX);
+        test_cond("sdscatfmt() 处理无符号数字", sdslen(x) == 35 && memcmp(x, "--4294967295,18446744073709551615--", 35) == 0);
+        sdsfree(x);
+
+        x = sdsnewlen("aaa\0b", 5);
+        test_cond("二进制安全", sdslen(x) == 5 && memcmp(x, "aaa\0b\0", 6) == 0);
+        sdsfree(x);
+
+        x = sdsnew(" x ");
+        sdstrim(x, " x ");
+        test_cond("sdstrim() 匹配所有字符", sdslen(x) == 0);
+        sdsfree(x);
+
+        x = sdsnew(" x ");
+        sdstrim(x, " ");
+        test_cond("sdstrim() 用于单个字符", sdslen(x) == 1 && x[0] == 'x');
+        sdsfree(x);
+
+        x = sdstrim(sdsnew("xxciaoyy"), "xy");
+        test_cond("sdstrim() 正确修改字符", strlen(x) == 4 && memcmp(x, "ciao\0", 5) == 0);
+
+        y = sdsdup(x);
+        sdsrange(y, 1, 1);
+        test_cond("sdsrange(..., 1, 1)", sdslen(y) == 1 && memcmp(y, "i\0", 2) == 0);
+        sdsfree(y);
+        sdsfree(x);
+
+        x = sdsnew("foa");
+        y = sdsnew("foa");
+        test_cond("sdscmp(foo, foa)", sdscmp(x, y) > 0);
+        sdsfree(y);
+        sdsfree(x);
+
+        x = sdsnew("bar");
+        y = sdsnew("bar");
+        test_cond("sdscmp(bar, bar)相等", sdscmp(x, y) == 0);
+        sdsfree(x);
+        sdsfree(y);
+
+        x = sdsnew("aar");
+        y = sdsnew("bar");
+        test_cond("sdscmp(aar, bar)不相等", sdscmp(x, y) < 0);
+
+        x = sdsnewlen("\a\n\0foo\r", 7);
+        x = sdscatrepr(sdsempty(), x, sdslen(x));
+        test_cond("sdscatrepr(...data...)", memcmp(y, "\"\\a\\n\\x00foo\\r\"", 15) == 0);
+
+        {
+            unsigned int oldfree;
+            char *p;
+            int step = 10, j, i;
+            sdsfree(x);
+            sdsfree(y);
+            x = sdsnew("0");
+            test_cond("sdsnew() free/len buffers", sdslen(x) == 1 && sdsavail(x) == 0);
+
+            for (i = 0; i < 10; i++) {
+                int oldlen = sdslen(x);
+                x = sdsMakeRoomFor(x, step);
+                int type = x[-1] & SDS_TYPE_MASK;
+
+                test_cond("sdsMakeRoomFor() len", sdslen(x) == oldlen);
+                if (type != SDS_TYPE_5) {
+                    test_cond("sdsMakeRoomFor() free", sdsavail(x) >= step);
+                    oldfree = sdsavail(x);
+                }
+
+                p = x + oldlen;
+                for (j = 0; j < step; j++) {
+                    p[j] = 'A' + j;
+                }
+                sdsIncrLen(x, step);
+            }
+            test_cond("sdsMakeRoomFor() content", memcmp("0ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ",x,101) == 0);
+
+            test_cond("sdsMakeRoomFor() final length",sdslen(x)==101);
+
+            sdsfree(x);
+        }
     }
+
+    test_report();
 
     return 0;
 }
