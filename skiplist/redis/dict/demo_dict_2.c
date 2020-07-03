@@ -220,3 +220,270 @@ int dictRehash(dict *d, int n) {
     return 1;
 }
 
+/**
+ * 以毫秒为单位，返回当时时间
+ */
+long long timeInMilliseconds(void) {
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    return (((long long)tv.tv_sec) * 1000) + (tv.tv_usec / 1000);
+}
+
+/**
+ * 在给定毫秒数内，以100步为单位，对字典进行rehash
+ * T = O(N)， N为被 rehash的 key-value 对数量
+ */
+int dictRehashMilliseconds(dict *d, int ms) {
+
+    long long start = timeInMilliseconds();
+    int rehashs = 0;
+
+    while (dictRehash(d, 100)) {
+        rehashs += 100;
+        if (timeInMilliseconds() - start > ms) break;
+    }
+
+    return rehashs;
+}
+
+/**
+ * 如果允许条件的话，将一个元素从ht[0]迁移至ht[1]
+ * 
+ * 这个函数被其他查找和更新函数所调用，从而实现渐进式 rehash
+ */
+static void _dictRehashStep(dict *d) {
+
+    // 只在没有安全迭代器的时候，才能进行迁移
+    // 否则可能产生重复元素，或者丢失元素
+    if (d->iterators == 0) {
+        dictRehash(d, 1);
+    }
+}
+
+// 添加给定 key-value对 到字典
+int dictAdd(dict *d, void *key, void *val) {
+    // printf("dictAdd key:%d\n", *(void**)key);
+    // 添加key到哈希表，返回包含该key节点
+    dictEntry *entry = dictAddRaw(d, key);
+
+    // 添加失败
+    if (!entry) return DICT_ERR;
+
+    // 设置节点的值
+    dictSetVal(d, entry, val);
+
+    return DICT_OK;
+}
+
+
+/**
+ * 返回给定key的哈希表存放索引
+ * 
+ * 如果key已经存在于哈希表，返回-1
+ * 
+ * 当正在执行rehash的时候
+ * 返回的 index 总是应用于第二个（新的）哈希表
+ */
+static long _dictKeyIndex(dict *d, const void *key, uint64_t hash, dictEntry **existing) {
+
+    unsigned long idx, table;
+    dictEntry *he;
+    if (existing) {
+        *existing = NULL;
+    }
+
+    if (_dictExpandIfNeeded(d) == DICT_ERR) return -1;
+
+    for (table = 0; table <= 1; table++) {
+        idx = hash & d->ht[table].sizemask;
+        he = d->ht[table].table[idx];
+
+        while (he) {
+            if (key == he->key || dictCompareKeys(d, key, he->key)) {
+                if (existing) {
+                    *existing = he;
+                }
+                return -1;
+            }
+            he = he->next;
+        }
+
+        if (!dictIsRehashing(d)) break;
+    }
+
+    return idx;
+}
+
+// 销毁给定哈希表
+int _dictClear(dict *d, dictht *ht, void(callback)(void *)) {
+
+    unsigned long i;
+
+    // 遍历哈希表数组
+    for (i = 0; i < ht->size && ht->used > 0; i++) {
+        dictEntry *he, *nextHe;
+
+        if (callback && (i & 65535) == 0) callback(d->privdata);
+
+        if ((he = ht->table[i]) == NULL) continue;
+
+         /**
+         * 释放整个链表上的元素
+         * 因为链表的元素数量通常为1，或者维持在一个很小的比率
+         * 因此可以将这个操作看作O(1)
+         */
+        while (he) {
+            nextHe = he->next;
+
+            dictFreeKey(d, he);
+            dictFreeVal(d, he);
+
+            free(he);
+
+            ht->used--;
+
+            he = nextHe;
+        }
+
+        free(ht->table);
+
+        _dictReset(ht);
+
+        return DICT_OK;
+    }
+}
+
+void dictEmpty(dict *d, void(callback)(void*)) {
+
+    _dictClear(d, &d->ht[0], callback);
+    _dictClear(d, &d->ht[1], callback);
+    d->rehashidx = -1;
+    d->iterators = 0;
+}
+
+// 打开rehash标识
+void dictEnableResize(void) {
+
+    dict_can_resize = 1;
+}
+
+// 关闭rehash标识
+void dictDisableResize(void) {
+    dict_can_resize = 0;
+}
+
+uint64_t dictGetHash(dict *d, const void *key) {
+    
+    return dictHashKey(d, key);
+}
+
+dictEntry **dictFindEntryRefByPtrAndHash(dict *d, const void *oldptr, uint64_t hash) {
+
+    dictEntry *he, **heref;
+    unsigned long idx, table;
+
+    if (d->ht[0].used + d->ht[1].used == 0) return NULL;
+    
+    for (table = 0; table <= 1; table++) {
+        idx = hash & d->ht[table].sizemask;
+        heref = &d->ht[table].table[idx];
+        he = *heref;
+
+        while (he) {
+            if (oldptr == he->key) {
+                return heref;
+            }
+            heref = &he->next;
+            he = *heref;
+        }
+
+        if (!dictIsRehashing(d)) return NULL;
+    }
+
+    return NULL;
+}
+
+#define DICT_STATS_VECTLEN 50
+size_t _dictGetStatsHt(char *buf, size_t bufsize, dictht *ht, int tableid) {
+
+    unsigned long i, slots = 0, chainlen, maxchainlen = 0;
+    unsigned long totchainlen = 0;
+    unsigned long clvector[DICT_STATS_VECTLEN];
+    size_t l = 0;
+
+    if (ht->used == 0) {
+        return snprintf(buf, bufsize, "No stats available for empty dictionaries \n");
+    }
+
+    for (i = 0; i < DICT_STATS_VECTLEN; i++) clvector[i] = 0;
+    
+    for (i = 0; i < ht->size; i++) {
+        dictEntry *he;
+
+        if (ht->table[i] == NULL) {
+            clvector[0]++;
+            continue;
+        }
+
+        slots++;
+        chainlen = 0;
+        he = ht->table[i];
+
+        while (he) {
+            chainlen++;
+            he = he->next;
+        }
+
+        clvector[(chainlen < DICT_STATS_VECTLEN) ? chainlen : (DICT_STATS_VECTLEN - 1)]++;
+
+        if (chainlen > maxchainlen) {
+            maxchainlen = chainlen;
+        }
+        totchainlen += chainlen;
+    }
+
+    l += snprintf(buf + 1, bufsize - 1, 
+        "Hash table %d stats (%s): \n"
+        " table size: %ld\n"
+        " number of elements: %d\n"
+        " different slots: %ld\n"
+        " max chain length: %ld\n"
+        " avg chain length (counted): %.02f\n"
+        " avg chain length (computed): %.02f\n"
+        " Chain length distribution: \n",
+        tableid, (tableid == 0) ? "main hash table" : "rehashing target",
+        ht->size, ht->used, slots, maxchainlen,
+        (float) totchainlen / slots, (float) ht->used / slots);
+    
+    for (i = 0; i < DICT_STATS_VECTLEN - 1; i++) {
+        if (clvector[i] == 0) continue;
+        if (l >= bufsize) break;
+
+        l += snprintf(buf + l, bufsize - l,
+            "   %s%ld: %ld (%.02f%%)\n",
+            (i == DICT_STATS_VECTLEN - 1) ? ">= " : "",
+            i, clvector[i], ((float)clvector[i] / ht->size) * 100);
+    }
+
+    if (bufsize) buf[bufsize - 1] = '\0';
+    return strlen(buf);
+}
+
+void dictGetStats(char *buf, size_t bufsize, dict *d) {
+
+    size_t l;
+    char *orig_buf = buf;
+    size_t orig_bufsize = bufsize;
+
+    l = _dictGetStatsHt(buf, bufsize, &d->ht[0], 0);
+    buf += l;
+    bufsize -= l;
+
+    if (dictIsRehashing(d) && bufsize > 0) {
+        _dictGetStatsHt(buf, bufsize, &d->ht[1], 1);
+    }
+
+    if (orig_bufsize) orig_buf[orig_bufsize - 1] = '\0';
+}
