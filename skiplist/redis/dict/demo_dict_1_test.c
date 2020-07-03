@@ -117,13 +117,21 @@ void test_case_3() {
         printf("没找到对应的值\n");
     }
 
-    printf("\n================= delete val =================\n");
+    printf("\n================= fetch val =================\n");
     void *ret = dictFetchValue(d, "six");
     if (ret) {
-        printf("find val:%s\n", (char *)ret);
+        printf("fetch val:%s\n", (char *)ret);
     }
 
-    printf("\n================= fetch =================\n");
+    printf("\n================= replace val =================\n");
+    int res = dictReplace(d, "three", "ten");
+    if (res) {
+        printf("新增成功\n");
+    } else {
+        printf("替换成功\n");
+    }
+
+    printf("\n================= delete =================\n");
     dictDelete(d, "four");
     dIter = dictGetIterator(d);
      while ((node = dictNext(dIter)) != NULL) {
