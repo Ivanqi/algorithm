@@ -10,8 +10,8 @@ class Graph // 无向图
     private:
         int v;  // 顶点个数
         vector<vector<int>> adj;   // 邻接表
-        vector<bool> visited;
-        vector<int> prev;
+        vector<bool> visited;   // 是用来记录已经被访问的顶点，用来避免顶点被重复访问
+        vector<int> prev; // prev 用来记录搜索路径
 
         void print(int s, int t)
         {
