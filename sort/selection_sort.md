@@ -1,4 +1,21 @@
 #### 选择排序(Selection Sort)
+```
+int selectionSort(int A[], int N) {
+    int i, j, t, sw = 0, minj;
+
+    for (i = 0; i < N - 1; i++) {
+        minj = i;
+        for (j = i; j < N; j++) {
+            if (A[j] < A[minj]) minj = j;
+        }
+        t = A[i];
+        A[i] = A[minj];
+        A[minj] = t;
+        if (t != minj) sw++;
+    }
+    return sw;
+}
+```
 - ![avatar](images/../../images/selection_sort_1.png)
 - 选择排序法是一种非常直观的算法，它会在每个计算步骤中选出一个最小值，进而完成排序
 - 选择排序是原地排序算法吗?
