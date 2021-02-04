@@ -29,10 +29,10 @@ void double11advance(int *items, int n, int w) {
     // printState(states, n, len);
     // printf("\n");
     for (i = 1; i < n; i++) {
-        for (j = 0; j <= len; ++j) {
+        for (j = 0; j <= len; ++j) {            // 不购买第i个商品
             if (states[i - 1][j] >= 0) states[i][j] = states[i - 1][j];
         }
-        for (j = 0; j < (len - 1) - items[i]; ++j) {
+        for (j = 0; j < (len - 1) - items[i]; ++j) {    // 购买第i个商品
             if (states[i - 1][j] == true) states[i][j + items[i]] = true;
         }
     }
