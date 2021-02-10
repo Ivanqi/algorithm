@@ -26,6 +26,7 @@
 [heap](/heap/) | 堆 |
 [linkedlist](/linkedlist/) | 链表 |
 [permutation](/permutation/) | 排列 |
+[probability_distribution](/probability_distribution/) | 概率分布 |
 [queue](/queue/) | 队列 |
 [rbtree](/rbtree/) | 红黑树 |
 [recall](/recall/) | 回溯算法 |

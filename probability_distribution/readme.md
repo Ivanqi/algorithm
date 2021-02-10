@@ -5,3 +5,4 @@
 - [什么是正态分布？为何如此重要？终于有人讲明白了](https://cloud.tencent.com/developer/article/1463465)
 - [一文搞懂“正态分布”所有重要知识点 ](https://www.sohu.com/a/426757065_568359)
 - [方差、标准差、均方差、均方误差（MSE）区别总结](https://zhuanlan.zhihu.com/p/83410946)
+- [初学讲义之高中数学二十四：导数](https://zhuanlan.zhihu.com/p/94697058)
