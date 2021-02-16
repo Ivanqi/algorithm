@@ -6,3 +6,4 @@
 - [一文搞懂“正态分布”所有重要知识点 ](https://www.sohu.com/a/426757065_568359)
 - [方差、标准差、均方差、均方误差（MSE）区别总结](https://zhuanlan.zhihu.com/p/83410946)
 - [初学讲义之高中数学二十四：导数](https://zhuanlan.zhihu.com/p/94697058)
+- [概率论的链式法则](https://www.cnblogs.com/azhenwang/p/9174574.html)
