@@ -7,3 +7,5 @@
 - [方差、标准差、均方差、均方误差（MSE）区别总结](https://zhuanlan.zhihu.com/p/83410946)
 - [初学讲义之高中数学二十四：导数](https://zhuanlan.zhihu.com/p/94697058)
 - [概率论的链式法则](https://www.cnblogs.com/azhenwang/p/9174574.html)
+- [【概率论】联合概率, 边缘概率, 条件概率, 链式法则 和 独立性](https://blog.csdn.net/baishuo8/article/details/82313151)
+- [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
