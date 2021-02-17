@@ -10,4 +10,6 @@
 - [【概率论】联合概率, 边缘概率, 条件概率, 链式法则 和 独立性](https://blog.csdn.net/baishuo8/article/details/82313151)
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
 - [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
-- [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)
+- [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)]
+- [信息增益到底怎么理解呢？](https://www.zhihu.com/question/22104055)
+- [机器学习（二）-信息熵，条件熵，信息增益，信息增益比，基尼系数](https://www.cnblogs.com/xiaofeiIDO/p/11947380.html)
