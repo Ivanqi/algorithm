@@ -9,3 +9,5 @@
 - [概率论的链式法则](https://www.cnblogs.com/azhenwang/p/9174574.html)
 - [【概率论】联合概率, 边缘概率, 条件概率, 链式法则 和 独立性](https://blog.csdn.net/baishuo8/article/details/82313151)
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
+- [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
+- [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)
