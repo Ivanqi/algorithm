@@ -18,3 +18,8 @@
 - [通俗理解条件熵](https://zhuanlan.zhihu.com/p/26551798)
 - [信息增益到底怎么理解呢？](https://www.zhihu.com/question/22104055)
 - [机器学习（二）-信息熵，条件熵，信息增益，信息增益比，基尼系数](https://www.cnblogs.com/xiaofeiIDO/p/11947380.html)
+
+##### 卡方检验
+- [用可视化思维解读统计自由度](https://www.jianshu.com/p/0032087b9dbb)
+- [结合日常生活的例子，了解什么是卡方检验](https://www.jianshu.com/p/807b2c2bfd9b)
+- [卡方检验（Chi-Squared Test）](https://zhuanlan.zhihu.com/p/56423752)
