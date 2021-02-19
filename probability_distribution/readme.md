@@ -23,3 +23,4 @@
 - [用可视化思维解读统计自由度](https://www.jianshu.com/p/0032087b9dbb)
 - [结合日常生活的例子，了解什么是卡方检验](https://www.jianshu.com/p/807b2c2bfd9b)
 - [卡方检验（Chi-Squared Test）](https://zhuanlan.zhihu.com/p/56423752)
+- [文本分类学习 （四） 特征选择之卡方检验](https://www.cnblogs.com/dacc123/p/8746247.html)
