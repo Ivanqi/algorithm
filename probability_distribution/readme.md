@@ -24,3 +24,7 @@
 - [结合日常生活的例子，了解什么是卡方检验](https://www.jianshu.com/p/807b2c2bfd9b)
 - [卡方检验（Chi-Squared Test）](https://zhuanlan.zhihu.com/p/56423752)
 - [文本分类学习 （四） 特征选择之卡方检验](https://www.cnblogs.com/dacc123/p/8746247.html)
+
+##### 归一化、标准化
+- [为什么要对数据进行归一化处理？](https://zhuanlan.zhihu.com/p/27627299)
+- [特征工程中的「归一化」有什么作用？](https://www.zhihu.com/question/20455227/answer/370658612)
