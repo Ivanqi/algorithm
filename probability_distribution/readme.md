@@ -12,6 +12,7 @@
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
 - [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
 - [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)]
+- [期望和均值的区别](https://zhuanlan.zhihu.com/p/34150914)
 ##### 信息熵、条件熵、信息增益、信息增益比率
 - [通俗理解信息熵](https://zhuanlan.zhihu.com/p/26486223)
 - [通俗理解决策树算法中的信息增益](https://zhuanlan.zhihu.com/p/26596036)
@@ -28,3 +29,6 @@
 ##### 归一化、标准化
 - [为什么要对数据进行归一化处理？](https://zhuanlan.zhihu.com/p/27627299)
 - [特征工程中的「归一化」有什么作用？](https://www.zhihu.com/question/20455227/answer/370658612)
+
+##### 显著性检验
+- [关于显著性检验，你想要的都在这儿了！！（基础篇）](https://www.cnblogs.com/hdu-zsk/p/6293721.html)
