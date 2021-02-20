@@ -32,3 +32,10 @@
 
 ##### 显著性检验
 - [关于显著性检验，你想要的都在这儿了！！（基础篇）](https://www.cnblogs.com/hdu-zsk/p/6293721.html)
+
+##### 欠拟合、过拟合、适度拟合
+- [欠拟合、过拟合及如何防止过拟合](https://zhuanlan.zhihu.com/p/72038532)
+
+##### 交叉验证
+- [模型选择之交叉验证](https://zhuanlan.zhihu.com/p/32627500)
+- [交叉验证（简单交叉验证、k折交叉验证、留一法）](https://blog.csdn.net/u010451580/article/details/51373081)
