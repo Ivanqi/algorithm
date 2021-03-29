@@ -7,6 +7,18 @@ import numpy as np
 @description: 手动实现kmenas，以向量间的夹角余弦为相似度。根据上述tf-idf得到的7条文本向量tfidf_array，进行聚类算法
 @param {type} vec_array - 向量组, n_clusters-聚类数目, epochs- 训练次数
 @return: cluster_labels- 分类标签
+
+算法流程
+    1. 从N个数据对西那个随机选k个对象作为质心
+        这里每个群组的质心定义是，群组内所有成员对象的平均值
+        因为是第一轮，所以第i个群组的质心就是第i个对象，而且这时候只有这一个组员
+
+    2. 对剩余的对象，测量它和每个质心的相似度，并把它归到最近的质心所属的群组
+        这里可以说距离，也可以说相似度，只是两者呈现反比关系
+    
+    3. 重新计算已经得到的各个群组的质心
+        这里质心的计算关键，如果使用特征向量来表示数据对象，那么最基本的方法是取组内成员的特征向量
+        将它们的平均值作为质心的向量表示
 '''
 def customKmeans(vec_array, n_clusters=3, epochs=50):
     # 初始化质心的位置
@@ -18,7 +30,7 @@ def customKmeans(vec_array, n_clusters=3, epochs=50):
         if indx not in cluster_centers_indx:
             cluster_centers_indx.append(indx)
             cluster_centers.append(vec_array[indx])
-    
+
     # 初始化向量类别
     cluster_labels = [0] * len(vec_array)
     max_similarity = [-1] * len(vec_array)
@@ -27,10 +39,13 @@ def customKmeans(vec_array, n_clusters=3, epochs=50):
     while (epoch < epochs):
         # 计算每个向量与质心的相似性，并将其归纳到最近的质心群中
         for i in range(0, len(vec_array)):
+            # 得到vec_array[i] 和  cluster_centers[0] 的夹角余弦
             max_similarity[i] = computeCosine(vec_array[i], cluster_centers[0])
             
             for j in range(1, n_clusters):
+                # 得到vec_array[i] 和  cluster_centers[j] 的夹角余弦
                 temp = computeCosine(vec_array[i], cluster_centers[j])
+                # 两个夹角余弦进行比较
                 if (temp > max_similarity[i]):
                     max_similarity[i] = temp;
                     cluster_labels[i] = j
@@ -49,7 +64,11 @@ def customKmeans(vec_array, n_clusters=3, epochs=50):
     
     return cluster_labels
 
-
+'''
+两个坐标的点乘 / 两个坐标各自与原点的欧氏距离的乘积再开平方
+欧氏距离(x, y) = sqrt(((x1 - y1) ^ 2 + (x2 - y2) ^ 2))
+L2​ 范数 ∣∣x∣∣2​ = 两个坐标各自与原点的欧氏距离的乘积再开平方
+'''
 def computeCosine(vec1, vec2):
     # 计算向量间余弦值
     # dot, 两个数组的点积，即元素对应相乘
