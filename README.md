@@ -26,6 +26,7 @@
 [greedy](/greedy/) | 贪心算法 |
 [hash_table](/hash_table/) | 散列表 |
 [heap](/heap/) | 堆 |
+[linear_algebra](/linear_algebra/) | 线性代数 |
 [linkedlist](/linkedlist/) | 链表 |
 [permutation](/permutation/) | 排列 |
 [probability_distribution](/probability_distribution/) | 概率分布 |
