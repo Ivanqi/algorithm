@@ -1,31 +1,54 @@
 import numpy as np
-# 矩阵X
-X = np.array([[1, 3, -7]
-            ,[2, 5, 4]
-            ,[-3, -7, -2]
-            ,[1, 4, -12]
-             ]
-            )
-# X的转置X'
-TRANS_X = X.T
+import scipy as sp
+from scipy.optimize import leastsq
+import matplotlib.pyplot as plt
 
-# 目标值向量Y
-Y = np.array([[-7.5, 5.2, -7.5, -15]]).T
+# 目标函数
+def real_func(x):
+    return np.sin(2 * np.pi * x)
 
-# X'X
-B = TRANS_X.dot(X)
+# 多项式
+# ps: numpy.poly1d([1, 2, 3]) 生成 $1x^2 + 2x^1 + 3x^0$
+def fit_func(p, x):
+    f = np.poly1d(p)
+    return f(x)
 
-# (X'X)^-1
-B = np.matrix(B).I
+# 残差
+def residuals_func(p, x, y):
+    ret = fit_func(p, x) - y
+    return ret;
 
-# [(X'X)^-1]X'
-B = B.dot(TRANS_X)
+# 十个点
+x = np.linspace(0, 1, 10)
+x_points = np.linspace(0, 1, 1000)
 
-# [(XX')^-1]X'Y
-B = B.dot(Y)
+# 加上正态分布噪音的目标函数的值
+y_ = real_func(x)
+y = [np.random.normal(0, 0.1) + y1 for y1 in y_]
 
-print('系数矩阵：')
-print(B)
+def fitting(M=0):
+    '''
+    n 为多项式得次数
+    '''
+    # 随机初始化多项式参数
+    p_init = np.random.rand(M + 1)
+    # 最小二乘法
+    p_lsq = leastsq(residuals_func, p_init, args=(x, y))
+    print('Fitting Parameters:', p_lsq[0])
 
-print('验证：')
-print(X.dot(B))
+    # 可视化
+    plt.plot(x_points, real_func(x_points), label='real')
+    plt.plot(x_points, fit_func(p_lsq[0], x_points), label='fitted curve')
+    plt.plot(x, y, 'bo', label='noise')
+    plt.legend()
+    plt.show()
+    return p_lsq
+
+# M=0
+# p_lsq_0 = fitting(M=0)
+
+# M=1
+# p_lsq_1 = fitting(M=1)
+
+# M=3
+p_lsq_3 = fitting(M=3)
