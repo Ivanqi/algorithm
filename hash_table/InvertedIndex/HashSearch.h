@@ -1,0 +1,180 @@
+#pragma once
+#include "CreateIndexFile.h"
+
+unsigned long cryptTable[0x500];    // 开大点, 0x500
+int HashATable[TABLE_SIZE];
+int HashBTable[TABLE_SIZE];
+int HashValue[5] = 0;
+
+typedef struct table {
+    char bExists;
+};
+
+struct table HashTable[TABLE_SIZE] = {0};
+
+typedef struct key_node {
+    char *pkey;             // 关键词实体
+    int count;              // 关键词出现次数
+    int pos;                // 关键词在hash表中的位置
+    struct doc_node *next;  // 指向文档结点
+} KEYNODE, *key_list;
+
+key_list key_array[TABLE_SIZE];
+
+typedef struct doc_node {
+    char id[WORD_MAX_LEN];          // 文档ID
+    int classOne;                   // 订阅源(子频道)
+    char classTwo[WORD_MAX_LEN];    // 频道分类
+    int classThree;                 // 网站类ID(大频道)
+    char time[WORD_MAX_LEN];        // 时间
+    char md5[WORD_MAX_LEN];         // md5
+    int weight;                     // 文档权值
+    struct doc_node *next;
+} DOCNODE, *doc_list;
+
+typedef struct hash_value {
+    unsigned int nHash;
+    unsigned int nHashA;
+    unsigned int nHashB;
+    unsigned int nHashStart;
+    unsigned int nHashPos;
+} HASHVALUE;
+
+// 函数PrepareCryptTable()以下的函数生成一个长度为0x500(合10进制数: 1280)的cryptTable[0x500]
+void PrepareCryptTable() {
+
+    unsigned long seed = 0x00100001, index1 = 0, index2 = 0, i;
+
+    for (index1 = 0; index1 < 0x100; index1++) {
+        unsigned long temp1, temp2;
+        seed = (seed * 125 + 3) % 0x2AAAAB;
+        temp1 = (seed & 0xFFFF) << 0x10;
+        seed = (seed * 125 + 3) % 0x2AAAAB;
+        temp2 = (seed & 0xFFFF);
+        cryptTable[index2] = (temp1 | temp2);
+    }
+}
+
+// 函数HashString以下函数计算lpszFileName 字符串的hash值，其中dwHashType 为hash的类型
+unsigned long HashString(const char *lpszkeyName, unsigned long dwHashType) {
+
+    unsigned char *key = (unsigned char *)lpszkeyName;
+    unsigned long seed1 = 0x7FED7FED;
+    unsigned long seed2 = 0xEEEEEEEE;
+    int ch;
+
+    while (*key != 0) {
+        ch = *key++;
+        seed1 = cryptTable[(dwHashType << 8) + ch] ^ (seed1 + seed2);
+        seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
+    }
+
+    return seed1;
+}
+
+void InitHashValue(const char *string_in, HASHVALUE *hashvalue) {
+
+    const int HASH_OFFSET = 0, HASH_A = 1, HASH_B = 2;
+
+    hashvalue->nHash = HashString(string_in, HASH_OFFSET);
+    hashvalue->nHashA = HashString(string_in, HASH_OFFSET);
+    hashvalue->nHashB = HashString(string_in, HASH_A);
+    hashvalue->nHashStart = hashvalue->nHash % TABLE_SIZE;
+    hashvalue->nHashPos = hashvalue->nHashStart;
+}
+
+// 按关键字查询，如果成功返回hash表中索引位置
+key_list SearchByString(const char *string_in, HASHVALUE *hashvalue) {
+
+    unsigned int nHash = hashvalue->nHash;
+    unsigned int nHashA = hashvalue->nHashA;
+    unsigned int nHashB = hashvalue->nHashB;
+    unsigned int nHashStart = hashvalue->nHashStart;
+    unsigned int nHashPos = hashvalue->nHashPos;
+    
+    while (HashATable[nHashPos].bExists) {
+        if (HashATable[nHashPos] == (int) nHash && HashBTable[nHashPos] == (int) nHashB) {
+            break;
+        } else {
+            nHashPos = (nHashPos + 1) % TABLE_SIZE;
+        }
+
+        if (nHashPos == nHashStart) {
+            break;
+        }
+    }
+
+    if (key_array[nHashPos] && strlen(key_array[nHashPos]->pkey)) {
+        return key_array[nHashPos];
+    }
+
+    return NULL;
+}
+
+// 按索引查询，如果成功返回关键字
+key_list SearchByIndex(unsigned int nIndex) {
+
+    unsigned int nHashPos = nIndex;
+
+    if (nIndex < TABLE_SIZE) {
+        if (key_array[nHashPos] && strlen(key_array[nHashPos]->pkey)) {
+            return key_array[nHashPos];
+        }
+    }
+
+    return NULL;
+}
+
+// 插入关键字，如果成功返回hash值
+int InsertString(const char *str, HASHVALUE *hashvalue) {
+
+    unsigned int nHash = hashvalue->nHash;
+    unsigned int nHashA = hashvalue->nHashA;
+    unsigned int nHashB = hashvalue->nHashB;
+    unsigned int nHashStart = hashvalue->nHashStart;
+    unsigned int nHashPos = hashvalue->nHashPos;
+
+    while (HashTable[nHashPos].bExists) {
+        nHashPos = (nHashPos + 1) % TABLE_SIZE;
+
+        if (nHashPos == nHashStart) {
+            break;
+        }
+    }
+
+    int len = strlen(str);
+    if (!HashTable[nHashPos].bExists && (len < WORD_MAX_LEN)) {
+        HashATable[nHashPos] = nHashA;
+        HashBTable[nHashPos] = nHashB;
+
+        key_array[nHashPos] = (KEYNODE *)malloc(sizeof(KEYNODE) * 1);
+        if (key_array[nHashPos] == NULL) {
+            printf("10000 EMS ERROR !!!\n");
+            return 0;
+        }
+
+        key_array[nHashPos]->pkey = (char *)malloc(len + 1);
+        if (key_array[nHashPos]->pkey == NULL) {
+            printf("10000 EMS ERROR !!!\n");
+            return 0;
+        }
+
+        memset(key_array[nHashPos]->pkey, 0, len + 1);
+        strncpy(key_array[nHashPos]->pkey, str, len);
+
+        *((key_array[nHashPos]->pkey) + len) = 0;
+        key_array[nHashPos]->pos = nHashPos;
+        key_array[nHashPos]->count = 1;
+        key_array[nHashPos]->next = NULL;
+        
+        HashTable[nHashPos].bExists = 1;
+    }
+
+    if (HashTable[nHashPos].bExists) {
+        printf("30000 in the hash table %s !!!\n", str);
+    } else {
+        printf("90000 strkey error !!!\n");
+    }
+
+    return -1;
+}
