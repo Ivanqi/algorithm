@@ -3,26 +3,28 @@
 #endif
 
 #include "HashSearch.h"
+#include <unistd.h>
 
 // 得到目录下所有文件名. 这个函数 应该不处理子目录
-int GetFileName(char filename[][FILENAME_MAX_LEN]) {
+int GetFileName(char *dirPath, char filename[][FILENAME_MAX_LEN]) {
 
     int filenum = 0;
-    const char *dir = "../data/12";
 
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
 
-    if ((dp = opendir(dir)) == NULL) {
-        fprintf(stderr, "cannot open directory: %s\n", dir);
+    if ((dp = opendir(dirPath)) == NULL) {
+        fprintf(stderr, "cannot open directory: %s\n", dirPath);
         return -1;
     }
 
-    chdir(dir);
+    chdir(dirPath);
     while ((entry = readdir(dp)) != NULL) {
         if (!S_ISDIR(statbuf.st_mode)) {
-            printf("%s\n", entry->d_name);
+            if( strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0 || strcmp("gmon.out", entry->d_name) == 0) {
+                continue;     
+            }
             strcpy(filename[filenum++], entry->d_name);
         }
     }
@@ -32,19 +34,18 @@ int GetFileName(char filename[][FILENAME_MAX_LEN]) {
 }
 
 // 以读方式打开文件，如果成功返回文件指针
-FILE* OpenReadFile(int index, char filename[][FILENAME_MAX_LEN]) {
+FILE* OpenReadFile(char *dirPath, int index, char filename[][FILENAME_MAX_LEN]) {
 
     char *abspath = (char *)malloc(ABSPATH_MAX_LEN);
-    const char *dir = "../data/12";
 
-    chdir(dir); // 进入某个目录
+    chdir(dirPath); // 进入某个目录
 
     // char *strncat(char *dest, const char *src, size_t n) 把 src 所指向的字符串追加到 dest 所指向的字符串的结尾，直到 n 字符长度为止
     strncat(abspath, filename[index], FILENAME_MAX_LEN);
     FILE *fp = fopen(abspath, "r");
 
     if (fp == NULL) {
-        printf("open read file error!\n");
+        printf("OpenReadFile open read file error!\n");
         return NULL;
     } else {
         return fp;
