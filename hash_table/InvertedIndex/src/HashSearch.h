@@ -4,7 +4,7 @@
 unsigned long cryptTable[0x500];    // 开大点, 0x500
 int HashATable[TABLE_SIZE];
 int HashBTable[TABLE_SIZE];
-int HashValue[5] = 0;
+int HashValue[5] = {0};
 
 typedef struct table {
     char bExists;
@@ -46,12 +46,15 @@ void PrepareCryptTable() {
     unsigned long seed = 0x00100001, index1 = 0, index2 = 0, i;
 
     for (index1 = 0; index1 < 0x100; index1++) {
-        unsigned long temp1, temp2;
-        seed = (seed * 125 + 3) % 0x2AAAAB;
-        temp1 = (seed & 0xFFFF) << 0x10;
-        seed = (seed * 125 + 3) % 0x2AAAAB;
-        temp2 = (seed & 0xFFFF);
-        cryptTable[index2] = (temp1 | temp2);
+        for (index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
+            unsigned long temp1, temp2;
+            seed = (seed * 125 + 3) % 0x2AAAAB;
+            temp1 = (seed & 0xFFFF) << 0x10;
+            seed = (seed * 125 + 3) % 0x2AAAAB;
+            temp2 = (seed & 0xFFFF);
+            cryptTable[index2] = (temp1 | temp2);
+        }
+        
     }
 }
 
@@ -77,8 +80,8 @@ void InitHashValue(const char *string_in, HASHVALUE *hashvalue) {
     const int HASH_OFFSET = 0, HASH_A = 1, HASH_B = 2;
 
     hashvalue->nHash = HashString(string_in, HASH_OFFSET);
-    hashvalue->nHashA = HashString(string_in, HASH_OFFSET);
-    hashvalue->nHashB = HashString(string_in, HASH_A);
+    hashvalue->nHashA = HashString(string_in, HASH_A);
+    hashvalue->nHashB = HashString(string_in, HASH_B);
     hashvalue->nHashStart = hashvalue->nHash % TABLE_SIZE;
     hashvalue->nHashPos = hashvalue->nHashStart;
 }
@@ -86,14 +89,14 @@ void InitHashValue(const char *string_in, HASHVALUE *hashvalue) {
 // 按关键字查询，如果成功返回hash表中索引位置
 key_list SearchByString(const char *string_in, HASHVALUE *hashvalue) {
 
-    unsigned int nHash = hashvalue->nHash;
+    // unsigned int nHash = hashvalue->nHash;
     unsigned int nHashA = hashvalue->nHashA;
     unsigned int nHashB = hashvalue->nHashB;
     unsigned int nHashStart = hashvalue->nHashStart;
     unsigned int nHashPos = hashvalue->nHashPos;
     
-    while (HashATable[nHashPos].bExists) {
-        if (HashATable[nHashPos] == (int) nHash && HashBTable[nHashPos] == (int) nHashB) {
+    while (HashTable[nHashPos].bExists) {
+        if (HashATable[nHashPos] == (int) nHashA && HashBTable[nHashPos] == (int) nHashB) {
             break;
         } else {
             nHashPos = (nHashPos + 1) % TABLE_SIZE;
@@ -128,7 +131,7 @@ key_list SearchByIndex(unsigned int nIndex) {
 // 插入关键字，如果成功返回hash值
 int InsertString(const char *str, HASHVALUE *hashvalue) {
 
-    unsigned int nHash = hashvalue->nHash;
+    // unsigned int nHash = hashvalue->nHash;
     unsigned int nHashA = hashvalue->nHashA;
     unsigned int nHashB = hashvalue->nHashB;
     unsigned int nHashStart = hashvalue->nHashStart;
@@ -168,6 +171,8 @@ int InsertString(const char *str, HASHVALUE *hashvalue) {
         key_array[nHashPos]->next = NULL;
         
         HashTable[nHashPos].bExists = 1;
+
+        return nHashPos;
     }
 
     if (HashTable[nHashPos].bExists) {

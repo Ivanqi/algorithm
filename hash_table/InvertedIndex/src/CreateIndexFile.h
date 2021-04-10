@@ -5,14 +5,9 @@
 #include <sys/types.h>
 #include <locale.h>
 
-#ifdef OS_LINUX
-    #include <unistd.h>
-    #include <dirent.h>
-    #include <sys/stat.h>
-#else
-    #include <io.h>
-    #include <direct.h>
-#endif
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #define BUF_MAX_LEN 1024
 #define FILE_MAX_NUM 1000
