@@ -13,3 +13,4 @@
 - [The Knuth-Morris-Pratt Algorithm in my own words](http://jakeboxer.com/blog/2009/12/13/the-knuth-morris-pratt-algorithm-in-my-own-words/)
 - [如何更好的理解和掌握 KMP 算法?](https://www.zhihu.com/question/21923021)
 - [字符串匹配算法（KMP）](https://blog.csdn.net/qq_21201267/article/details/93306528)
+- [字符串匹配——Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)

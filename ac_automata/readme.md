@@ -89,4 +89,3 @@
 #### 参考资料
 - [AC自动机学习笔记-1（怎么造一台AC自动机?）](https://www.cnblogs.com/sclbgw7/p/9260756.html)
 - [AC自动机](https://zhuanlan.zhihu.com/p/80325757)
-- [游戏中的敏感词过滤是如何实现的 | 什么是字典树（Trie）](https://mp.weixin.qq.com/s/O2NcwO3HUqz5pdwCJa3bqQ)
