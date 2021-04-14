@@ -1,7 +1,7 @@
 #ifndef TRIE_H
 #define TRIE_H
 
-#include "TransCode.h"
+#include "Unicode.h"
 
 #include <vector>
 #include <queue>

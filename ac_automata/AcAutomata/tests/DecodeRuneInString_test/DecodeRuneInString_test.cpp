@@ -1,18 +1,26 @@
 #include "Unicode.h"
 #include <stdio.h>
 
-void test_case_1() {
+Unicode test_case_1() {
 
-    Unicode example = DecodeRunesInString("你");
-    printf("example size: %d\n", (int)example.size());
+    Unicode tmp = DecodeRunesInString("你");
+    return tmp;
+}
 
-    for (Unicode::const_iterator citer = example.begin(); citer != example.end(); ++citer) {
-        printf("citer:%d\n", *citer);
-    }
+Unicode test_case_2() {
+
+    Unicode tmp = DecodeRunesInString("你好，我来测试的");
+    return tmp;
 }
 
 int main() {
 
-    test_case_1();
+    Unicode ret = test_case_2();
+    printf("ret size: %d\n", (int)ret.size());
+
+    for (Unicode::const_iterator citer = ret.begin(); citer != ret.end(); ++citer) {
+        printf("citer:%d\n", *citer);
+    }
+
     return 0;
 }

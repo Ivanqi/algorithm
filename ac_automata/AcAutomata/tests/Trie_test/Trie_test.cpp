@@ -8,12 +8,17 @@ void test_case_1() {
 }
 
 void test_case_2() {
-    
+    vector<Unicode> keys;
+    vector<const DictUnit*> values;
+    keys.push_back(DecodeRunesInString("你是风儿"));
+    values.push_back((const DictUnit*)(NULL));
+
+    Trie trie(keys, values);
 }
 
 
 int main() {
 
-    test_case_1();
+    test_case_2();
     return 0;
 }
