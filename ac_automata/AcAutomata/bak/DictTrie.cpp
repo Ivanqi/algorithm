@@ -2,6 +2,13 @@
 #include "StringUtil.h"
 #include <stdio.h>
 #include <algorithm>
+#include <math.h>
+
+
+#define MIN_DOUBLE -3.14e+100
+#define MAX_DOUBLE 3.14e+100
+#define DICT_COLUMN_NUM 3
+#define UNKONWN_TAG ""
 
 DictTrie::DictTrie()
 {
@@ -9,7 +16,7 @@ DictTrie::DictTrie()
     minWeight_ = MAX_DOUBLE;
 }
 
-DictTrie::DictTrie(const string& dictPath, const string& userDictPath = "")
+DictTrie::DictTrie(const string& dictPath, const string& userDictPath)
 {
     new (this) DictTrie();
     init(dictPath, userDictPath);
@@ -22,7 +29,7 @@ DictTrie::~DictTrie()
     }
 }
 
-void DictTrie::init(const string& dictPath, const string& userDictPath = "")
+void DictTrie::init(const string& dictPath, const string& userDictPath)
 {
     if (trie_ != NULL) {
         printf("trie already initted\n");
@@ -47,7 +54,7 @@ const DictUnit* DictTrie::find(Unicode::const_iterator begin, Unicode::const_ite
     return trie_->find(begin, end);
 }
 
-bool DictTrie::find(Unicode::const_iterator begin, Unicode::const_iterator end, DagType& dag, size_t offset = 0) const
+bool DictTrie::find(Unicode::const_iterator begin, Unicode::const_iterator end, DagType& dag, size_t offset) const
 {
     return trie_->find(begin, end, dag, offset);
 }
@@ -59,7 +66,7 @@ void DictTrie::find(Unicode::const_iterator begin, Unicode::const_iterator end, 
 
 bool DictTrie::isUserDictSingleChineseWord(const Unicode::value_type& word) const
 {
-    return isIn(userDictSingleChineseWord_, word);
+    return (userDictSingleChineseWord_.find(word) != userDictSingleChineseWord_.end());
 }
 
 double DictTrie::getMinWeight() const
@@ -71,7 +78,7 @@ Trie* DictTrie::createTrie_(const vector<DictUnit>& dictUnits)
 {
     assert(dictUnits.size());
     vector<Unicode> words;
-    vector<const Unicode*> valuePointers;
+    vector<const DictUnit*> valuePointers;
 
     for (size_t i = 0; i < dictUnits.size(); i++) {
         words.push_back(dictUnits[i].word);
@@ -103,7 +110,7 @@ void DictTrie::loadUserDict_(const string& filePath, double defaultWeight, const
         }
 
         if (TransCode::decode(buf[0], nodeInfo.word)) {
-            printf("line[%u:%s] illegal.", lineno, line.c_str());
+            printf("line[%u:%s] illegal.", (unsigned int) lineno, line.c_str());
             continue;
         }
 
@@ -116,7 +123,7 @@ void DictTrie::loadUserDict_(const string& filePath, double defaultWeight, const
         nodeInfos_.push_back(nodeInfo);
     }
 
-    printf("load userdict[%s] ok, lines[%u]\n", filePath.c_str(), lineno);
+    printf("load userdict[%s] ok, lines[%u]\n", filePath.c_str(), (unsigned int) lineno);
 }
 
 void DictTrie::loadDict_(const string& filePath)
@@ -133,11 +140,11 @@ void DictTrie::loadDict_(const string& filePath)
     for (size_t lineno = 0; getline(ifs, line); lineno++) {
         split(line, buf, " ");
         if (buf.size() != DICT_COLUMN_NUM) {
-            printf("split result illegal, line: %s, result size: %u", line.c_str(), buf.size());
+            printf("split result illegal, line: %s, result size: %u", line.c_str(), (unsigned int)buf.size());
         }
 
         if (!TransCode::decode(buf[0], nodeInfos.word)) {
-            printf("line[%u:%s] illegal.", lineno, line.c_str());
+            printf("line[%u:%s] illegal.", (unsigned int)lineno, line.c_str());
             continue;
         }
 
@@ -180,7 +187,7 @@ void DictTrie::calculateWeight_(vector<DictUnit>& nodeInfos) const
     for (size_t i = 0; i < nodeInfos.size(); i++) {
         DictUnit& nodeInfo = nodeInfos[i];
         assert(nodeInfo.weight);
-        nodeInfo.weight = std::log(double(nodeInfo.weight) / double(sum));
+        nodeInfo.weight = ::log(double(nodeInfo.weight) / double(sum));
     }
 }
 

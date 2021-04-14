@@ -4,7 +4,7 @@ TEST := $(wildcard $(PROJECT)/*.cpp)
 SRC := $(wildcard $(SRCDIR)/src/*.cpp)
 override SRC := $(SRC) $(TEST) 
 
-TARGET := LocalVector_test
+TARGET := Trie_test
 CXX := g++
 INCLUDE := -I $(SRCDIR)/src/ -I $(PROJECT)
 CFLAGS := -std=c++17 -g -Wall

@@ -70,7 +70,7 @@ inline bool split(const std::string& src, std::vector<std::string>& res, const s
 }
 
 template <class Uint16Container>
-bool utf8ToUnicoe(const char* const str, size_t len, Uint16Container& vec)
+bool Utf8ToUnicode(const char* const str, size_t len, Uint16Container& vec)
 {
     if (!str) {
         return false;
@@ -88,7 +88,7 @@ bool utf8ToUnicoe(const char* const str, size_t len, Uint16Container& vec)
             ch1 = (str[i] >> 2) & 0x07;
             ch2 = (str[i + 1] & 0x3f) | ((str[i] & 0x03) << 6);
             tmp = (((uint16_t(ch1) & 0x00ff) << 8) | (uint16_t(ch2) & 0x00ff));
-            vec.push_back(tmp`);
+            vec.push_back(tmp);
             i += 2;
         } else if ((uint8_t)str[i] <= 0xef && i + 2 < len) {
             ch1 = ((uint8_t)str[i] << 4) | ((str[i + 1] >> 2) & 0x0f);
@@ -100,12 +100,14 @@ bool utf8ToUnicoe(const char* const str, size_t len, Uint16Container& vec)
             return false;
         }
     }
+
+    return true;
 }
 
 template <class Uint16Container>
 bool utf8ToUnicode(const string& str, Uint16Container& vec)
 {
-    return utf8ToUnicode(str.c_str(), str.size(), vec);
+    return Utf8ToUnicode(str.c_str(), str.size(), vec);
 }
 
 template <class Uint16ContainerConIter>

@@ -14,7 +14,7 @@ namespace TransCode
         return utf8ToUnicode(str, res);
     }
 
-    inline bool encode(Unicode::const_iterator begin, Unicode::const_iterator end, std::string& res) 
+    inline void encode(Unicode::const_iterator begin, Unicode::const_iterator end, std::string& res) 
     {
         unicodeToUtf8(begin, end, res);
     }

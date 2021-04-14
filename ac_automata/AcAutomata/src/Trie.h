@@ -1,7 +1,8 @@
 #ifndef TRIE_H
 #define TRIE_H
 
-#include "TransCode.h"
+#include "LocalVector.h"
+#include "Unicode.h"
 
 #include <vector>
 #include <queue>
@@ -14,6 +15,8 @@ using std::queue;
 using std::vector;
 using std::unordered_set;
 
+const size_t MAX_WORD_LENGTH = 512;
+
 struct DictUnit 
 {
     Unicode word;
@@ -21,64 +24,36 @@ struct DictUnit
     string tag;
 };
 
-inline ostream& operator << (ostream& os, const DictUnit& unit)
-{
-    string s;
-    s << unit.word;
-    return os << string_form("%s %s %.3lf", s.c_str(), unit.tag.c_str(), unit.weight);
-}
 
-typedef LocalVector<std::pair<size_t, const DictUnit*>> DagType;
-
-struct SegmentChar
+struct Dag
 {
-    uint16_t uniCh;
-    DagType dag;
+    RuneStr runestr;
+    LocalVector<pair<size_t, const DictUnit*>> nexts;
     const DictUnit *pInfo;
     double weight;
     size_t nextPos;
 
-    SegmentChar()
-        :uniCh(0), pInfo(NULL), weight(0.0), nextPos(0)
-    {
-
-    }
-
-    ~SegmentChar()
+    Dag()
+        : runestr(), pInfo(NULL), weight(0.0), nextPos(0)
     {
 
     }
 };
 
-typedef Unicode::value_type TrieKey;
+typedef Rune TrieKey;
 
 class TrieNode
 {
     public:
         typedef unordered_map<TrieKey, TrieNode*> NextMap;
-        TrieNode *fail;
         NextMap *next;
         const DictUnit *ptValue;
 
     public:
         TrieNode()
-            :fail(NULL), next(NULL), ptValue(NULL)
+            :next(NULL), ptValue(NULL)
         {
 
-        }
-
-        const TrieNode* findNext(TrieKey key) const
-        {
-            if (next == NULL) {
-                return NULL;
-            }
-
-            NextMap::const_iterator iter = next->find(key);
-            if (iter == next->end()) {
-                return NULL:
-            }
-
-            return iter->second;
         }
 };
 
@@ -86,27 +61,22 @@ class Trie
 {
     private:
         TrieNode *root_;
-    
+
     public:
-        Trie(const vector<Unicode>&keys, const vector<const DictUnit*>& valuePointers);
+        Trie(const vector<Unicode>& keys, const vector<const DictUnit*>& valuePointers);
 
         ~Trie();
 
-    public:
-        const DictUnit* find(Unicode::const_iterator begin, Unicode::const_iterator end) const;
+        const DictUnit* Find(RuneStrArray::const_iterator begin, RuneStrArray::const_iterator end) const;
 
-        void find(Unicode::const_iterator begin, Unicode::const_iterator end, vector<struct SegmentChar>& res);
+        void Find(RuneStrArray::const_iterator begin, RuneStrArray::const_iterator end, vector<struct Dag>&res, size_t max_word_len = MAX_WORD_LENGTH) const;
 
-        void find(Unicode::const_iterator begin, Unicode::const_iterator end, DagType& res, size_t offset = 0) const;
+        void InsertNode(const Unicode& key, const DictUnit* ptValue);
 
     private:
-        void build_();
+        void CreateTrie(const vector<Unicode>& keys, const vector<const DictUnit*>& valuePointers);
 
-        void createTrie_(const vector<Unicode>& keys, const vector<const DictUnit*> & valuePointers);
-
-        void insertNode_(const Unicode& key, const DictUnit* ptValue);
-
-        void deleteNode_(TrieNode* node);
+        void DeleteNode(TrieNode* node);
 };
 
 #endif
