@@ -1,6 +1,8 @@
 #ifndef UNICODE_H
 #define UNICODE_H
 
+#include "LocalVector.h"
+
 #include <string>
 using std::string;
 
@@ -61,7 +63,7 @@ inline RuneStrLite DecodeRuneInString(const char *str, size_t len)
         return rp;
     }
 
-    if (!(str[0] & 0x80)) { // 0xxxxxxx
+    if (!(str[0] & 0x80)) { // 0xxxxxxx ASCII码表范围, 代标1位
         // 7bit, total 7bit
         rp.rune = (uint8_t)(str[0]) & 0x7f;
         rp.len = 1;
