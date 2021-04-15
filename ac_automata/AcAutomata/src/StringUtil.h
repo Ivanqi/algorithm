@@ -69,6 +69,13 @@ inline bool split(const std::string& src, std::vector<std::string>& res, const s
     return true;
 }
 
+inline vector<std::string> split(const std::string& src, const std::string& pattern, size_t len = std::string::npos)
+{
+    vector<std::string> res;
+    split(src, res, pattern, len);
+    return res;
+}
+
 template <class Uint16Container>
 bool Utf8ToUnicode(const char* const str, size_t len, Uint16Container& vec)
 {

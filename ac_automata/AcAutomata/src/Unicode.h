@@ -182,6 +182,11 @@ inline bool DecodeRunesInString(const char *s, size_t len, Unicode& unicode)
     return true;
 }
 
+inline bool DecodeRunesInString(const string& s, RuneStrArray& runes) 
+{
+    return DecodeRunesInString(s.c_str(), s.size(), runes);
+}
+
 inline bool DecodeRunesInString(const string& s, Unicode& unicode)
 {
     return DecodeRunesInString(s.c_str(), s.size(), unicode);

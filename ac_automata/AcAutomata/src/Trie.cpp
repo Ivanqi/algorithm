@@ -17,16 +17,32 @@ const DictUnit* Trie::Find(RuneStrArray::const_iterator begin, RuneStrArray::con
         return NULL;
     }
 
-    const TrieNode *ptNode = NULL;
+    const TrieNode *ptNode = root_;
     TrieNode::NextMap::const_iterator citer;
+
+    if (NULL != ptNode->next) {
+        for (auto a = ptNode->next->begin(); a != ptNode->next->end(); ++a) {
+            if (begin->rune == a->first) {
+                std::cout << a->first << std::endl;
+            }
+        }
+    }
+
+    auto b = ptNode->next->find(begin->rune);
+    if (b != ptNode->next->end()) {
+        std::cout << "找到 begin->rune: " << std::endl;
+    }
+
+    std::cout << "begin->rune: " << begin->rune << std::endl;
 
     for (RuneStrArray::const_iterator it = begin; it != end; it++) {
         if (NULL == ptNode->next) {
             return NULL;
         }
-
+        std::cout << "it->rune: " << it->rune << std::endl;
         citer = ptNode->next->find(it->rune);
-        if (ptNode->next->end() == citer) {
+        bool ret = (ptNode->next->end() == citer);
+        if (ret) {
             return NULL;
         }
 
