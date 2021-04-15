@@ -20,26 +20,10 @@ const DictUnit* Trie::Find(RuneStrArray::const_iterator begin, RuneStrArray::con
     const TrieNode *ptNode = root_;
     TrieNode::NextMap::const_iterator citer;
 
-    if (NULL != ptNode->next) {
-        for (auto a = ptNode->next->begin(); a != ptNode->next->end(); ++a) {
-            if (begin->rune == a->first) {
-                std::cout << a->first << std::endl;
-            }
-        }
-    }
-
-    auto b = ptNode->next->find(begin->rune);
-    if (b != ptNode->next->end()) {
-        std::cout << "找到 begin->rune: " << std::endl;
-    }
-
-    std::cout << "begin->rune: " << begin->rune << std::endl;
-
     for (RuneStrArray::const_iterator it = begin; it != end; it++) {
         if (NULL == ptNode->next) {
             return NULL;
         }
-        std::cout << "it->rune: " << it->rune << std::endl;
         citer = ptNode->next->find(it->rune);
         bool ret = (ptNode->next->end() == citer);
         if (ret) {
@@ -61,14 +45,17 @@ void Trie::Find(RuneStrArray::const_iterator begin, RuneStrArray::const_iterator
     TrieNode::NextMap::const_iterator citer;
 
     for (size_t i = 0; i < size_t(end - begin); i++) {
+        // 获得 unicode 的值
         res[i].runestr = *(begin + i);
 
+        // 查找，遍历
         if (root_->next != NULL && root_->next->end() != (citer = root_->next->find(res[i].runestr.rune))) {
             ptNode = citer->second;
         } else {
             ptNode = NULL;
         }
 
+        // 把获得的信息放入res中
         if (ptNode != NULL) {
             res[i].nexts.push_back(pair<size_t, const DictUnit*>(i, ptNode->ptValue));
         } else {
@@ -114,6 +101,8 @@ void Trie::InsertNode(const Unicode& key, const DictUnit* ptValue)
 
             ptNode->next->insert(make_pair(*citer, nextNode));
             ptNode = nextNode;
+        } else {
+            ptNode = kmIter->second;
         }
     }
 

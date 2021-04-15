@@ -37,33 +37,23 @@ inline std::string string_format(const char *fmt, ...)
 
 inline bool split(const std::string& src, std::vector<std::string>& res, const string& pattern, size_t offset = 0, size_t len = std::string::npos)
 {
-    if (src.empty()) {
-        return false;
-    }
-
     res.clear();
-
-    size_t start = 0;
+    size_t Start = 0;
     size_t end = 0;
-    size_t cnt = 0;
+    string sub;
 
-    while (start < src.size() && res.size() < len) {
-        end = src.find_first_of(pattern, start);
-        if (std::string::npos == end) {
-            if (cnt >= offset) {
-                res.push_back(src.substr(start));
-            }
-            
+    while(Start < src.size()) {
+        end = src.find_first_of(pattern, Start);
+
+        if (string::npos == end || res.size() >= len) {
+            sub = src.substr(Start);
+            res.push_back(sub);
             return true;
         }
 
-        if (cnt >= offset) {
-            res.push_back(src.substr(start, end - start));
-        }
-
-        cnt++;
-        
-        start = end + 1;
+        sub = src.substr(Start, end - Start);
+        res.push_back(sub);
+        Start = end + 1;
     }
 
     return true;

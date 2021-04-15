@@ -136,7 +136,6 @@ void DictTrie::LoadUserDict(const string& filePaths)
             if (line.size() == 0) {
                 continue;
             }
-
             InserUserDictNode(line);
         }
     }
