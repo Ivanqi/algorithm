@@ -12,14 +12,22 @@ void test_case_1() {
 }
 
 void test_case_2() {
+    AcAutoMate ac;
+    
+    ac.insertNode(TransCode::decode("朋友"));
+    ac.insertNode(TransCode::decode("友情"));
+    ac.insertNode(TransCode::decode("爱情"));
+    ac.insertNode(TransCode::decode("请求"));
+    ac.insertNode(TransCode::decode("我是谁"));
+    ac.insertNode(TransCode::decode("是谁"));
+    ac.insertNode(TransCode::decode("谁"));
+    ac.buildFailurePointer();
+    ac.printfFailurePointer();
 
-    vector<Unicode> keys;
-    vector<const DictUnit*> values;
-
-    keys.push_back(TransCode::decode("你好啊"));
-    values.push_back((const DictUnit*)(NULL));
-
-    AcAutoMate ac(keys, values);
+    string matchStr = "谁在哪里儿，赶快回答. 朋友";
+    Unicode matchUni = TransCode::decode(matchStr);
+    string ret = ac.match(matchUni.begin(), matchUni.end(), matchStr, "*");
+    std::cout << "ret: " << ret << std::endl;
 }
 
 int main() {

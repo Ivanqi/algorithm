@@ -14,37 +14,6 @@ using std::queue;
 using std::vector;
 using std::unordered_set;
 
-const size_t MAX_WORD_LENGTH = 512;
-
-struct DictUnit 
-{
-    Unicode word;
-    double weight;
-    string tag;
-};
-
-typedef LocalVector<std::pair<size_t, const DictUnit*>> DagType;
-
-struct SegmentChar
-{
-    uint16_t uniCh;
-    DagType dag;
-    const DictUnit *pInfo;
-    double weight;
-    size_t nextPos;
-
-    SegmentChar()
-        :uniCh(0), pInfo(NULL), weight(0.0), nextPos(0)
-    {
-
-    }
-
-    ~SegmentChar()
-    {
-
-    }
-};
-
 typedef Unicode::value_type TrieKey;
 
 class TrieNode
@@ -53,11 +22,13 @@ class TrieNode
         typedef unordered_map<TrieKey, TrieNode*> NextMap;
         TrieNode *fail; // 失败指针
         NextMap *next;
-        const DictUnit *ptValue;
+        UnicodeValueType word;
+        bool isEnding;  // 结尾字符为true
+        int length;
 
     public:
         TrieNode()
-            :fail(NULL), next(NULL), ptValue(NULL)
+            :fail(NULL), next(NULL)
         {
 
         }
@@ -83,25 +54,27 @@ class AcAutoMate
         TrieNode *root_;
     
     public:
-        AcAutoMate(const vector<Unicode>& keys, const vector<const DictUnit*>& valuePointers);
+        AcAutoMate()
+        {
+            root_ = new TrieNode;
+        }
 
         ~AcAutoMate();
 
     public:
-        const DictUnit* find(Unicode::const_iterator begin, Unicode::const_iterator end) const;
+        const TrieNode* find(Unicode::const_iterator begin, Unicode::const_iterator end) const;
 
-        void find(Unicode::const_iterator begin, Unicode::const_iterator end, vector<struct SegmentChar>& res);
+        void buildFailurePointer();
 
-        bool find(Unicode::const_iterator begin, Unicode::const_iterator end, DagType& res, size_t offset = 0) const;
+        void printfFailurePointer();
 
-    private:
-        void build_();
+        void insertNode(const Unicode& key);
 
-        void createTrie_(const vector<Unicode>& keys, const vector<const DictUnit*> & valuePointers);
+        string match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, string replaceStr);
 
-        void insertNode_(const Unicode& key, const DictUnit* ptValue);
+        string replaceFun(unordered_map<int, int> check, string text, string replaceStr);
 
-        void deleteNode_(TrieNode* node);
+        void deleteNode(TrieNode* node);
 };
 
 #endif

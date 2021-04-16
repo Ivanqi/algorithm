@@ -1,20 +1,13 @@
 #include "AcAutoMate.h"
 
-AcAutoMate::AcAutoMate(const vector<Unicode>&keys, const vector<const DictUnit*>& valuePointers)
-{
-    root_ = new TrieNode;
-    createTrie_(keys, valuePointers);
-    build_();   // 创建自动机
-}
-
 AcAutoMate::~AcAutoMate()
 {
     if (root_) {
-        deleteNode_(root_);
+        deleteNode(root_);
     }
 }
 
-const DictUnit* AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_iterator end) const
+const TrieNode* AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_iterator end) const
 {
     TrieNode::NextMap::const_iterator citer;
     const TrieNode *ptNode = root_;
@@ -29,93 +22,12 @@ const DictUnit* AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_i
         ptNode = citer->second;
     }
 
-    return ptNode->ptValue;
+    return ptNode;
 }
 
-void AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_iterator end, vector<struct SegmentChar>& res)
-{
-    res.resize(end - begin);
-    const TrieNode *now = root_;
-    const TrieNode *node;
-
-    // 如果只有 i < end - begin。编译器将会警告
-    for (size_t i = 0; i < size_t(end - begin); i++) {
-        Unicode::value_type ch = *(begin + i);
-        res[i].uniCh = ch;
-        assert(res[i].dag.empty());
-
-        res[i].dag.push_back(pair<vector<Unicode>::size_type, const DictUnit*>(i, NULL));
-
-        bool flag = false;
-
-        //  rollback
-        while (now != root_) {
-            node = now->findNext(ch);
-            if (node != NULL) {
-                flag = true;
-                break;
-            } else {
-                now = now->fail;
-            }
-        }
-
-        if (!flag) {
-            node = now->findNext(ch);
-        }
-
-        if (node == NULL) {
-            now = root_;
-        } else {
-            now = node;
-            const TrieNode *temp = now;
-
-            while (temp != root_) {
-                if (temp->ptValue) {
-                    size_t pos = i - temp->ptValue->word.size() + 1;
-                    res[pos].dag.push_back(pair<vector<Unicode>::size_type, const DictUnit*>(i, temp->ptValue));
-
-                    if (pos == i) {
-                        res[pos].dag[0].second = temp->ptValue;
-                    }
-                }
-
-                temp = temp->fail;
-                assert(temp);
-            }
-        }
-    }
-}
-
-bool AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_iterator end, DagType& res, size_t offset) const
-{
-    const TrieNode *ptNode = root_;
-    TrieNode::NextMap::const_iterator citer;
-
-    for (Unicode::const_iterator itr = begin; itr != end; itr++) {
-        assert(ptNode);
-
-        if (NULL == ptNode->next || ptNode->next->end() == (citer = ptNode->next->find(*itr))) {
-            break;
-        }
-
-        ptNode = citer->second;
-
-        if (ptNode->ptValue) {
-            if (itr == begin && res.size() == 1) {
-                res[0].second = ptNode->ptValue;
-            } else {
-                res.push_back(pair<vector<Unicode>::size_type, const DictUnit*>(itr - begin + offset, ptNode->ptValue));
-            }
-        }
-    }
-
-    return !res.empty();
-}
-
-void AcAutoMate::build_()
+void AcAutoMate::buildFailurePointer()
 {
     queue<TrieNode*> que;
-    assert(root_->ptValue == NULL);
     assert(root_->next);
 
     root_->fail = NULL;
@@ -155,20 +67,39 @@ void AcAutoMate::build_()
     }
 }
 
-void AcAutoMate::createTrie_(const vector<Unicode>& keys, const vector<const DictUnit*>& valuePointers)
+void AcAutoMate::printfFailurePointer()
 {
-    if (valuePointers.empty() || keys.empty()) {
-        return;
+    queue<TrieNode*> que;
+    assert(root_->next);
+
+    for (TrieNode::NextMap::iterator iter = root_->next->begin(); iter != root_->next->end(); iter++) {
+        que.push(iter->second);
     }
 
-    assert(keys.size() == valuePointers.size());
+    while (!que.empty()) {
+        TrieNode *now = que.front();
+        que.pop();
 
-    for (size_t i = 0; i < keys.size(); i++) {
-        insertNode_(keys[i], valuePointers[i]);
+        std::cout << now->word;
+
+        if (now->fail == NULL) {
+            continue;
+        } else {
+            std::cout << "| fail word:" << now->fail->word << std::endl;
+        }
+
+        if (now->next == NULL) {
+            continue;
+        }
+
+        for (TrieNode::NextMap::iterator iter = now->next->begin(); iter != now->next->end(); iter++) {
+            que.push(iter->second);
+        }
+
     }
 }
 
-void AcAutoMate::insertNode_(const Unicode& key, const DictUnit* ptValue)
+void AcAutoMate::insertNode(const Unicode& key)
 {
     TrieNode *ptNode = root_;
 
@@ -183,8 +114,8 @@ void AcAutoMate::insertNode_(const Unicode& key, const DictUnit* ptValue)
 
         if (ptNode->next->end() == kmIter) {
             TrieNode *nextNode = new TrieNode;
+            nextNode->word = (*citer);
             nextNode->next = NULL;
-            nextNode->ptValue = NULL;
 
             (*ptNode->next)[*citer] = nextNode;
             ptNode = nextNode;
@@ -192,11 +123,63 @@ void AcAutoMate::insertNode_(const Unicode& key, const DictUnit* ptValue)
             ptNode = kmIter->second;
         }
     }
-
-    ptNode->ptValue = ptValue;
+    ptNode->isEnding = true;
+    ptNode->length = key.size();
+    // ptNode->ptValue = ptValue;
 }
 
-void AcAutoMate::deleteNode_(TrieNode* node)
+string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, string replaceStr)
+{
+    TrieNode *ptNode = root_;
+    string res;
+    int i = 0;
+    unordered_map<int, int> check;
+
+    for (Unicode::const_iterator citer = begin; citer != end; citer++) {
+        /**
+         * 使用 fail指针对 p的值进行矫正
+         * 比如查询到某个模式串, p 值不是指向root. 然后主串继续遍历，主串的值在p上匹配不到值，需要fail指针把p指向root
+         */
+        while (ptNode != NULL && ptNode != root_ && ptNode->next != NULL && ptNode->next->find(*citer) == ptNode->next->end()) {
+            ptNode = ptNode->fail;  // 失败指针发挥作用的地方
+        }
+
+        if (ptNode != NULL && ptNode->next != NULL) {
+            if (ptNode->next->find(*citer) != ptNode->next->end()) {
+                ptNode = ptNode->next->find(*citer)->second;
+            }
+        } else {
+            ptNode = NULL;
+        }
+
+        if (ptNode == NULL) ptNode = root_; // 没有匹配，从root开始重新匹配
+
+        TrieNode *tmp = ptNode;
+        while (tmp != NULL && tmp != root_) {
+            if (tmp->isEnding == true) {
+                int pos = i - tmp->length + 1;
+                std::cout << "匹配起始下标: " << pos << "; 长度: " << tmp->length << std::endl;
+                check[pos * 3] = tmp->length * 3;
+            }
+            tmp = tmp->fail;
+        }
+        i++;
+    }
+
+
+    return replaceFun(check, matchStr, replaceStr);
+}
+
+string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, string replaceStr)
+{
+    unordered_map<int, int>::iterator it;
+    for (it = check.begin(); it != check.end(); it++) {                
+        text.replace(it->first, it->second, replaceStr);
+    }
+    return text;
+}
+
+void AcAutoMate::deleteNode(TrieNode* node)
 {
     if (!node) {
         return;
@@ -205,7 +188,7 @@ void AcAutoMate::deleteNode_(TrieNode* node)
     if (node->next) {
         TrieNode::NextMap::iterator it;
         for (it = node->next->begin(); it != node->next->end(); it++) {
-            deleteNode_(it->second);
+            deleteNode(it->second);
         }
 
         delete node->next;
