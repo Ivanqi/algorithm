@@ -178,7 +178,7 @@ string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, char r
 {
     unordered_map<int, int>::iterator it;
     for (it = check.begin(); it != check.end(); it++) {                
-        text.replace(it->first, it->second, it->second, '*');
+        text.replace(it->first, it->second, it->second, replaceStr);
     }
     return text;
 }
