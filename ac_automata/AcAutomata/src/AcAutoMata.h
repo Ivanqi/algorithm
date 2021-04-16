@@ -48,18 +48,18 @@ class TrieNode
         }
 };
 
-class AcAutoMate
+class AcAutoMata
 {
     private:
         TrieNode *root_;
     
     public:
-        AcAutoMate()
+        AcAutoMata()
         {
             root_ = new TrieNode;
         }
 
-        ~AcAutoMate();
+        ~AcAutoMata();
 
     public:
         const TrieNode* find(Unicode::const_iterator begin, Unicode::const_iterator end) const;

@@ -1,13 +1,13 @@
-#include "AcAutoMate.h"
+#include "AcAutoMata.h"
 
-AcAutoMate::~AcAutoMate()
+AcAutoMata::~AcAutoMata()
 {
     if (root_) {
         deleteNode(root_);
     }
 }
 
-const TrieNode* AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_iterator end) const
+const TrieNode* AcAutoMata::find(Unicode::const_iterator begin, Unicode::const_iterator end) const
 {
     TrieNode::NextMap::const_iterator citer;
     const TrieNode *ptNode = root_;
@@ -25,7 +25,7 @@ const TrieNode* AcAutoMate::find(Unicode::const_iterator begin, Unicode::const_i
     return ptNode;
 }
 
-void AcAutoMate::buildFailurePointer()
+void AcAutoMata::buildFailurePointer()
 {
     queue<TrieNode*> que;
     assert(root_->next);
@@ -67,7 +67,7 @@ void AcAutoMate::buildFailurePointer()
     }
 }
 
-void AcAutoMate::printfFailurePointer()
+void AcAutoMata::printfFailurePointer()
 {
     queue<TrieNode*> que;
     assert(root_->next);
@@ -99,7 +99,7 @@ void AcAutoMate::printfFailurePointer()
     }
 }
 
-void AcAutoMate::insertNode(const Unicode& key)
+void AcAutoMata::insertNode(const Unicode& key)
 {
     TrieNode *ptNode = root_;
 
@@ -126,12 +126,12 @@ void AcAutoMate::insertNode(const Unicode& key)
             ptNode = kmIter->second;
         }
     }
-    
+
     ptNode->isEnding = true;
     ptNode->length = len;
 }
 
-string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, char replaceStr)
+string AcAutoMata::match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, char replaceStr)
 {
     TrieNode *ptNode = root_;
     string res;
@@ -174,7 +174,7 @@ string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator 
     return replaceFun(check, matchStr, replaceStr);
 }
 
-string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, char replaceStr)
+string AcAutoMata::replaceFun(unordered_map<int, int> check, string text, char replaceStr)
 {
     unordered_map<int, int>::iterator it;
     for (it = check.begin(); it != check.end(); it++) {                
@@ -183,7 +183,7 @@ string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, char r
     return text;
 }
 
-void AcAutoMate::deleteNode(TrieNode* node)
+void AcAutoMata::deleteNode(TrieNode* node)
 {
     if (!node) {
         return;
@@ -201,7 +201,7 @@ void AcAutoMate::deleteNode(TrieNode* node)
     delete node;
 }
 
-int AcAutoMate::calcUnicodeLen(Unicode::const_iterator uni)
+int AcAutoMata::calcUnicodeLen(Unicode::const_iterator uni)
 {
     uint16_t ui = *uni;
 

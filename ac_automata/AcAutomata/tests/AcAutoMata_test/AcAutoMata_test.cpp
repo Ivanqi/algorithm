@@ -1,4 +1,4 @@
-#include "AcAutoMate.h"
+#include "AcAutoMata.h"
 
 void test_case_1() {
 
@@ -12,7 +12,7 @@ void test_case_1() {
 }
 
 void test_case_2() {
-    AcAutoMate ac;
+    AcAutoMata ac;
     
     ac.insertNode(TransCode::decode("朋友"));
     ac.insertNode(TransCode::decode("友情"));
@@ -32,7 +32,7 @@ void test_case_2() {
 
 void test_case_3() {
     
-    AcAutoMate ac;
+    AcAutoMata ac;
     ac.insertNode(TransCode::decode("red"));
     ac.insertNode(TransCode::decode("国"));
     ac.insertNode(TransCode::decode("Short"));
