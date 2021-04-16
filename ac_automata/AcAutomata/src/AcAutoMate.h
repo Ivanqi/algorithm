@@ -70,11 +70,14 @@ class AcAutoMate
 
         void insertNode(const Unicode& key);
 
-        string match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, string replaceStr);
+        string match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, char replaceStr);
 
-        string replaceFun(unordered_map<int, int> check, string text, string replaceStr);
+        string replaceFun(unordered_map<int, int> check, string text, char replaceStr);
 
         void deleteNode(TrieNode* node);
+    
+    private:
+        int calcUnicodeLen(Unicode::const_iterator uni);
 };
 
 #endif

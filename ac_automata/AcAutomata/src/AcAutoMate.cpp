@@ -105,12 +105,15 @@ void AcAutoMate::insertNode(const Unicode& key)
 
     TrieNode::NextMap::const_iterator kmIter;
 
+    int len = 0;
+
     for (Unicode::const_iterator citer = key.begin(); citer != key.end(); citer++) {
         if (NULL == ptNode->next) {
             ptNode->next = new TrieNode::NextMap;
         }
 
         kmIter = ptNode->next->find(*citer);
+        len += calcUnicodeLen(citer);
 
         if (ptNode->next->end() == kmIter) {
             TrieNode *nextNode = new TrieNode;
@@ -123,12 +126,12 @@ void AcAutoMate::insertNode(const Unicode& key)
             ptNode = kmIter->second;
         }
     }
+    
     ptNode->isEnding = true;
-    ptNode->length = key.size();
-    // ptNode->ptValue = ptValue;
+    ptNode->length = len;
 }
 
-string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, string replaceStr)
+string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator end, string matchStr, char replaceStr)
 {
     TrieNode *ptNode = root_;
     string res;
@@ -155,26 +158,27 @@ string AcAutoMate::match(Unicode::const_iterator begin, Unicode::const_iterator 
         if (ptNode == NULL) ptNode = root_; // 没有匹配，从root开始重新匹配
 
         TrieNode *tmp = ptNode;
+        int len = calcUnicodeLen(citer);
         while (tmp != NULL && tmp != root_) {
             if (tmp->isEnding == true) {
-                int pos = i - tmp->length + 1;
-                std::cout << "匹配起始下标: " << pos << "; 长度: " << tmp->length << std::endl;
-                check[pos * 3] = tmp->length * 3;
+                int pos = i - tmp->length + len;
+                std::cout << "匹配起始下标: " << "i: " << i << " | pos: " << pos << "; 长度: " << tmp->length << std::endl;
+                check[pos] = tmp->length;
             }
             tmp = tmp->fail;
         }
-        i++;
-    }
 
+        i += len;
+    }
 
     return replaceFun(check, matchStr, replaceStr);
 }
 
-string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, string replaceStr)
+string AcAutoMate::replaceFun(unordered_map<int, int> check, string text, char replaceStr)
 {
     unordered_map<int, int>::iterator it;
     for (it = check.begin(); it != check.end(); it++) {                
-        text.replace(it->first, it->second, replaceStr);
+        text.replace(it->first, it->second, it->second, '*');
     }
     return text;
 }
@@ -195,4 +199,17 @@ void AcAutoMate::deleteNode(TrieNode* node)
     }
 
     delete node;
+}
+
+int AcAutoMate::calcUnicodeLen(Unicode::const_iterator uni)
+{
+    uint16_t ui = *uni;
+
+    if (ui <= 0x7f) {
+        return 1;
+    } else if (ui <= 0x7ff) {
+        return 2;
+    } else {
+        return 3;
+    }
 }
