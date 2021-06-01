@@ -1,5 +1,6 @@
 #### 参考资料
 ##### 概率
+- [期望和均值的区别](https://zhuanlan.zhihu.com/p/34150914)
 - [R统计学(01): 伯努利分布、二项分布](https://zhuanlan.zhihu.com/p/49267988)
 - [二项分布算法（伯努利实验）](https://blog.csdn.net/zqx1205/article/details/78446086)
 - [正态分布及其应用](http://www.xinhuanet.com/science/2018-11/08/c_137589297.htm)
@@ -12,7 +13,6 @@
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
 - [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
 - [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)
-- [期望和均值的区别](https://zhuanlan.zhihu.com/p/34150914)
 ##### 信息熵、条件熵、信息增益、信息增益比率
 - [通俗理解信息熵](https://zhuanlan.zhihu.com/p/26486223)
 - [通俗理解决策树算法中的信息增益](https://zhuanlan.zhihu.com/p/26596036)
