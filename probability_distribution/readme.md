@@ -1,6 +1,7 @@
 #### 参考资料
 ##### 概率
 - [期望和均值的区别](https://zhuanlan.zhihu.com/p/34150914)
+- [通俗理解指数加权平均](https://zhuanlan.zhihu.com/p/29895933)
 - [R统计学(01): 伯努利分布、二项分布](https://zhuanlan.zhihu.com/p/49267988)
 - [二项分布算法（伯努利实验）](https://blog.csdn.net/zqx1205/article/details/78446086)
 - [正态分布及其应用](http://www.xinhuanet.com/science/2018-11/08/c_137589297.htm)
