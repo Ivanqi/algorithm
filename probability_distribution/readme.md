@@ -15,6 +15,7 @@
 - [联合概率、边缘概率、条件概率](https://zhuanlan.zhihu.com/p/53005534)
 - [联合概率、边缘概率、条件概率之间的关系&贝叶斯公式](https://blog.csdn.net/tick_tock97/article/details/79885868)
 - [【概率论】联合概率, 边缘概率, 条件概率, 链式法则 和 独立性](https://blog.csdn.net/baishuo8/article/details/82313151)
+- [数据挖掘-朴素贝叶斯算法](https://www.jianshu.com/p/de5d1b3a055d)
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
 - [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
 - [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)
