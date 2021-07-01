@@ -19,6 +19,7 @@
 - [深度学习系列（一）：概率论统计学基础](https://zhuanlan.zhihu.com/p/134659090)
 - [马尔可夫链模型是什么？](https://www.zhihu.com/question/26665048)
 - [如何用简单易懂的例子解释隐马尔可夫模型？](https://www.zhihu.com/question/20962240)
+- [自然语言处理中N-Gram模型介绍](https://zhuanlan.zhihu.com/p/32829048)
 ##### 信息熵、条件熵、信息增益、信息增益比率
 - [通俗理解信息熵](https://zhuanlan.zhihu.com/p/26486223)
 - [通俗理解决策树算法中的信息增益](https://zhuanlan.zhihu.com/p/26596036)
