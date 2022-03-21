@@ -41,6 +41,7 @@ int moveByGS(int j, int p_len, int *suffix, int *prefix) {
     if (suffix[k] != -1) return j - suffix[k] + 1;
     // 情况2，查找好后缀的最长字符串是否和prefix的前缀子串匹配
     int r;
+    // j是坏字符，j+1是好后缀，j+2是好后缀的后缀子串的起始
     for (r = j + 2; r <= p_len - 1; r++) {
         if (prefix[p_len - r] == 1) return r;
     }
